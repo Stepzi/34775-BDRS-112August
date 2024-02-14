@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+log/
+regbot/
+robobot/.svn/
+robobot/doc/
+
