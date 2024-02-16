@@ -36,7 +36,7 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
-
+#include "bmmission0.h"
 
 int main (int argc, char **argv)
 { // prepare all modules and start data flow
@@ -48,9 +48,11 @@ int main (int argc, char **argv)
     // turn on LED on port 16
     gpio.setPin(16, 1);
     // run the planned missions
+    mission0.run();
     //plan20.run();
     //plan21.run();
     //plan40.run();
+    //planMission0.run();
     //plan100.run();
     plan101.run();
     //
