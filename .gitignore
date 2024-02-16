@@ -38,6 +38,11 @@ robobot/doc/
 robobot/ip_disp/
 robobot/multi_cpu/
 robobot/socket-base-py/
-robobot/raubase/build/
 robobot/raubase/img/
+
+robobot/raubase/build/img
+robobot/raubase/build/log*
+robobot/raubase/build/*.swp
+robobot/raubase/build/*.txt
+robobot/raubase/build/raubase
 
