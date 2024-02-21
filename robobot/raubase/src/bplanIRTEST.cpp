@@ -86,7 +86,8 @@ void BPlanIRTEST::run()
   const int MSL = 100;
   char s[MSL];
   //
-  toLog("PlanIRTEST started");
+  toLog("PlanIRTEST started");;
+  toLog("Time stamp, IR dist 0, IR dist 1");
   //
   while (not finished and not lost and not service.stop)
   {
@@ -95,12 +96,11 @@ void BPlanIRTEST::run()
       case 1: 
         float irDist0;
         float irDist1;
-         std::string temp_str = "\ntime stamp, IR dist 0, IR dist 1\n";
-        toLog(temp_str.c_str());
+
         while(t.getTimePassed() < 10){
             irDist0 = dist.dist[0];
             irDist1 = dist.dist[1];
-            temp_str = std::to_string(t.getTimePassed()) 
+            std::string temp_str = std::to_string(t.getTimePassed()) 
                 + " " + std::to_string(irDist0)
                 + " " + std::to_string(irDist1);
             toLog(temp_str.c_str());
