@@ -49,7 +49,7 @@ void BMission0::setup()
   if (not ini["mission0"].has("log"))
   { // no data yet, so generate some default values
     ini["mission0"]["log"] = "true";
-    ini["mission0"]["run"] = "false";
+    ini["mission0"]["run"] = "true";
     ini["mission0"]["print"] = "true";
   }
   // get values from ini-file
@@ -98,8 +98,8 @@ void BMission0::run()
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(false /* right */, -0.03 /* offset */);
-          mixer.setVelocity(0.25);
+          mixer.setEdgeMode(false /* right */, -0.01 /* offset */);
+          mixer.setVelocity(0.5);
           state = 2;
         }
         else if(medge.width < 0.01)
@@ -117,23 +117,17 @@ void BMission0::run()
         }
         break;
       case 2:
-        if (dist.dist[0] < 0.25)
+        if (dist.dist[0] < 0.5)
         { // something is close, assume it is the goal
           // start driving
           pose.resetPose();
           toLog("Object Found");
           mixer.setVelocity(0.01);
-          mixer.setTurnrate(0);
           state = 3;
-        }
-        else if (t.getTimePassed() > 30)
-        {
-          toLog("Gave up waiting for Regbot");
-          lost = true;
         }
         break;
       case 3:
-        if(pose.dist > 0.01)
+        if(pose.dist > 0.02)
         {
           mixer.setVelocity(0);
           mixer.setTurnrate(0);
