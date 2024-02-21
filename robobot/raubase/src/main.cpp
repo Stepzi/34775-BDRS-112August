@@ -36,7 +36,7 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
-#include "bmmission0.h"
+#include "bmission0.h"
 
 int main (int argc, char **argv)
 { // prepare all modules and start data flow

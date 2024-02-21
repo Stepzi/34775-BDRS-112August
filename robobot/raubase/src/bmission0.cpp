@@ -93,7 +93,7 @@ void BMission0::run()
     switch (state)
     {
       case 1: // Start Position, assume we are on a line but verify.
-        if(medge.edgeValid and medge.width > 0.02) //We should be on a line 
+        if(medge.width > 0.02) //We should be on a line 
         {
           pose.resetPose();
           toLog("Started on Line");
@@ -106,6 +106,7 @@ void BMission0::run()
         {
           pose.resetPose();
           toLog("No Line");
+          toLog(to_string(medge.width))
           mixer.setVelocity(0.01);//Drive slowly and turn i circle
           mixer.setTurnrate(1.0);
         }
@@ -143,6 +144,7 @@ void BMission0::run()
           toLog("Gave up waiting for Regbot");
           lost = true;
         }
+        break;
       default:
         toLog("Default Mission 0");
         lost = true;

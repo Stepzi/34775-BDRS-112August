@@ -60,5 +60,5 @@ private:
 
 /**
  * Make this visible to the rest of the software */
-extern BMission0 misson0;
+extern BMission0 mission0;
 
