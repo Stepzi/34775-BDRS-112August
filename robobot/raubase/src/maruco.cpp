@@ -134,6 +134,7 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
     for(int i=0; i<count; i++)
     {
       cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
+      cv::aruco::drawDetectedMarkers(img, markerCorners, arCode);
       snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arCode[i], size,
                arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
                arRotate[i][0], arRotate[i][1], arRotate[i][2]);
