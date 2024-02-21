@@ -137,7 +137,7 @@ void BPlan101::run()
       t.now();
     }
     // wait a bit to offload CPU
-    usleep(20000); #Sleep increased
+    usleep(20000); //Sleep increased
   }
   if (lost)
   { // there may be better options, but for now - stop
