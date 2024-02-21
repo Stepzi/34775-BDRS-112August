@@ -92,7 +92,6 @@ void BMission0::run()
   {
     switch (state)
     {
-      and medge.rightEdge > -0.04
       case 1: // Start Position, assume we are on a line but verify.
         if(medge.edgeValid and medge.width > 0.02) //We should be on a line 
         {
@@ -118,11 +117,11 @@ void BMission0::run()
         break;
       case 2:
         if (dist.dist[0] < 0.25)
-        { // something is close, assume it is the Regbot
+        { // something is close, assume it is the goal
           // start driving
           pose.resetPose();
           toLog("Object Found");
-          mixer.setVelocity(0.25);
+          mixer.setVelocity(0.01);
           mixer.setTurnrate(0);
           state = 3;
         }
