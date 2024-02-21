@@ -36,7 +36,7 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
-
+#include "bplanIRTEST.h"
 
 int main (int argc, char **argv)
 { // prepare all modules and start data flow
@@ -52,7 +52,8 @@ int main (int argc, char **argv)
     //plan21.run();
     //plan40.run();
     //plan100.run();
-    plan101.run();
+    //plan101.run();
+    planIRTEST.run();
     //
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
