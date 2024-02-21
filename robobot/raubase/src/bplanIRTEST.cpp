@@ -98,7 +98,9 @@ void BPlanIRTEST::run()
         while(t.getTimePassed() < 10){
             irDist0 = dist.dist[0];
             irDist1 = dist.dist[1];
-            toLog("t: "+ t.getTimePassed() + "\tIR dist - 1: " + irDist0 + "\t2: " + irDist1 + "\n");
+            toLog("t: " + std::to_string(t.getTimePassed()) + 
+                "\tIR dist - 1: " + std::to_string(irDist0) + 
+                "\t2: " + std::to_string(irDist1) + "\n");
         };
         finished = true;    
         break;
