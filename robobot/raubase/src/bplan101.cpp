@@ -120,8 +120,8 @@ void BPlan101::run()
         }
         count++;
         // repeat 4 times (to get some statistics)
-        if (count > 3)
-          finished = true;
+        // if (count > 3)
+        //   finished = true;
         break;
       }
       default:
@@ -137,7 +137,7 @@ void BPlan101::run()
       t.now();
     }
     // wait a bit to offload CPU
-    usleep(2000);
+    usleep(20000); #Sleep increased
   }
   if (lost)
   { // there may be better options, but for now - stop
