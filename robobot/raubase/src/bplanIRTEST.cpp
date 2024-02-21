@@ -41,7 +41,7 @@
 #include "bplanIRTEST.h"
 
 // create class object
-BPlanIRTEST PlanIRTEST;
+BPlanIRTEST planIRTEST;
 
 
 void BPlanIRTEST::setup()
