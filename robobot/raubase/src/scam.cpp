@@ -297,7 +297,7 @@ bool UCam::calibrate()
   toLog("Start calibrate");
   //
   // Defining the dimensions of checkerboard
-  int CHECKERBOARD[2]{6,9};
+  int CHECKERBOARD[2]{9,6};
 
   // Creating vector to store vectors of 3D points for each checkerboard image
   std::vector<std::vector<cv::Point3f> > objpoints;
@@ -386,7 +386,7 @@ bool UCam::calibrate()
       * and corresponding pixel coordinates of the
       * detected corners (imgpoints)
       */
-    std::cout << objpoints[0] << endl;
+    //std::cout << objpoints[0] << endl;
     cv::calibrateCamera(objpoints, imgpoints,cv::Size(gray.rows,gray.cols),cameraMatrix,distCoeffs,rvecs,tvecs);
     // show results
     for (int i = 0; i < cameraMatrix.rows; i++)
