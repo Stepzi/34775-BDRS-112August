@@ -386,6 +386,7 @@ bool UCam::calibrate()
       * and corresponding pixel coordinates of the
       * detected corners (imgpoints)
       */
+    std::cout << objpoints[0] << endl;
     cv::calibrateCamera(objpoints, imgpoints,cv::Size(gray.rows,gray.cols),cameraMatrix,distCoeffs,rvecs,tvecs);
     // show results
     for (int i = 0; i < cameraMatrix.rows; i++)
