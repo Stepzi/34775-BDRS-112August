@@ -307,10 +307,11 @@ bool UCam::calibrate()
 
   // Defining the world coordinates for 3D points
   std::vector<cv::Point3f> objp;
+  float sqSize = 0.087 // Square Size
   for(int i{0}; i<CHECKERBOARD[1]; i++)
   {
     for(int j{0}; j<CHECKERBOARD[0]; j++)
-      objp.push_back(cv::Point3f(j,i,0));
+      objp.push_back(cv::Point3f(j*sqSize,i*sqSize,0));
   }
 
 
