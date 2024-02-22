@@ -351,13 +351,13 @@ bool UCam::calibrate()
 
       // Displaying the detected corner points on the checker board
       cv::drawChessboardCorners(frame, cv::Size(CHECKERBOARD[0],CHECKERBOARD[1]), corner_pts,success);
-      
+
       const int MSL = 500;
       char sfn[MSL];
       const char * sfn_ptr = sfn;
       char s[MSL];
       // Save draw chessboard corners
-      snprintf(s, MSL, "%s/img_chessboardCorners_%s.jpg", ini["camera"]["imagepath"].c_str(), sfn_ptr);
+      snprintf(s, MSL, "%s/img_chessboardCorners_%s_%d.jpg", ini["camera"]["imagepath"].c_str(),i, sfn_ptr);
       // save
       cv::imwrite(s, frame);
 
