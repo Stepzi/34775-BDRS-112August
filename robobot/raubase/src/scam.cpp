@@ -357,7 +357,7 @@ bool UCam::calibrate()
       const char * sfn_ptr = sfn;
       char s[MSL];
       // Save draw chessboard corners
-      snprintf(s, MSL, "%s/img_chessboardCorners_%s_%d.jpg", ini["camera"]["imagepath"].c_str(),i, sfn_ptr);
+      snprintf(s, MSL, "%s/img_chessboardCorners_%s_%d.jpg", ini["camera"]["imagepath"].c_str(), sfn_ptr,i);
       // save
       cv::imwrite(s, frame);
 
