@@ -24,6 +24,8 @@
 
 #include <opencv2/core.hpp>
 #include "utime.h"
+#include "thread"
+
 
 using namespace std;
 
@@ -38,6 +40,9 @@ public:
   /**
    * terminate */
   void terminate();
+  /**
+   * thread to do updates, when new data is available */
+  void run();
   /**
    * Find ArUco code
    * \param size is the side-size of the code.
@@ -59,7 +64,16 @@ protected:
   void saveImageTimestamped(cv::Mat & img, UTime imgTime);
   void saveImageInPath(cv::Mat & img, string name);
 
+public:
+  // Pos of robot in world coordinates (X,Y,Z)
+  float pos_w[3] = {0.0,0.0,0.0}
+
 private:
+  static void runObj(MPose * obj)
+  { // called, when thread is started
+    // transfer to the class run() function.
+    obj->run();
+  }
   /**
    * print to console and logfile */
   void toLog(const char * message);

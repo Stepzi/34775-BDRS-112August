@@ -101,7 +101,7 @@ void BPlan101::run()
       { // brackets to allow local variables
         toLog("get ArUco");
         UTime t("now");
-        int n = aruco.findAruco(0.01);
+        int n = aruco.findAruco(0.1);
         printf("# plan101: find ArUco took %g sec\n", t.getTimePassed());
         for (int i = 0; i < n; i++)
         { // convert to robot coordinates

@@ -32,6 +32,7 @@
 #include <math.h>
 #include <opencv2/aruco.hpp>
 #include <filesystem>
+#include <thread>
 #include "maruco.h"
 #include "uservice.h"
 #include "scam.h"
@@ -68,11 +69,17 @@ void MArUco::setup()
     fprintf(logfile, "%% 5,6,7 \tDetected marker position in camera coordinates (x=right, y=down, z=forward)\n");
     fprintf(logfile, "%% 8,9,10 \tDetected marker orientation in Rodrigues notation (vector, rotated)\n");
   }
+  th1 = new std::thread(runObj, this);
 }
 
 
 void MArUco::terminate()
 { // wait for thread to finish
+  if (th1 != nullptr)
+  {
+    th1->join();
+    th1 = nullptr;
+  }
   if (logfile != nullptr)
   {
     fclose(logfile);
@@ -95,6 +102,19 @@ void MArUco::toLog(const char * message)
   }
 }
 
+void MPose::run()
+{
+  
+  while (not service.stop)
+  {
+    int n = aruco.findAruco(0.1);
+    usleep(1000);
+  }
+  if (logfile != nullptr)
+  {
+    fclose(logfile);
+  }
+}
 
 int MArUco::findAruco(float size, cv::Mat * sourcePtr)
 { // taken from https://docs.opencv.org
