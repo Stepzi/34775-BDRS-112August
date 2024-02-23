@@ -52,7 +52,10 @@ int main (int argc, char **argv)
     //plan21.run();
     //plan40.run();
     //plan100.run();
-    plan101.run();
+    //plan101.run();
+    while(1){
+      usleep(1000);
+    }
     //
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);

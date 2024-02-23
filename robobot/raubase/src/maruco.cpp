@@ -109,20 +109,22 @@ void MArUco::run()
   while (not service.stop)
   {
     int n = aruco.findAruco(0.1);
-    for (int i = 0; i < n; i++)
-    { // convert to robot coordinates
-      cv::Vec3d pos = cam.getPositionInRobotCoordinates(aruco.arTranslate[i]);
-      // rotation
-      cv::Vec3f re = cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true);
+    toLog(std::to_string(n).c_str())
 
-      const int MSL = 200;
-      char s[MSL];
-      snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arCode[i], pos[0], pos[1], pos[2]);
-      toLog(s);
-      snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", re[0], re[1], re[2]);
-      toLog(s);
+    // for (int i = 0; i < n; i++)
+    // { // convert to robot coordinates
+    //   cv::Vec3d pos = cam.getPositionInRobotCoordinates(aruco.arTranslate[i]);
+    //   // rotation
+    //   cv::Vec3f re = cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true);
+
+    //   const int MSL = 200;
+    //   char s[MSL];
+    //   snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arCode[i], pos[0], pos[1], pos[2]);
+    //   toLog(s);
+    //   snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", re[0], re[1], re[2]);
+    //   toLog(s);
       
-    }
+    // }
     usleep(1000000); //s
   }
   if (logfile != nullptr)
