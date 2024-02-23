@@ -114,9 +114,9 @@ void MArUco::run()
     for (int i = 0; i < n; i++)
     { // convert to robot coordinates
 
-      pos_m[i] = cam.getPositionInRobotCoordinates(aruco.arTranslate[i]);
+      pos_m.push_back(cam.getPositionInRobotCoordinates(aruco.arTranslate[i]));
       // rotation
-      pos_m[i] = cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true);
+      rot_m.push_back(.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));
       
     }
     usleep(1000); //s

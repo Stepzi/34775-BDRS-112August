@@ -99,7 +99,7 @@ void BPlan101::run()
     { // Test ArUco plan
       case 10:
       { // brackets to allow local variables
-        toLog("get ArUco");
+        // toLog("get ArUco");
         int n = aruco.arID.size();
 
         for (int i = 0; i < n; i++)
@@ -108,9 +108,9 @@ void BPlan101::run()
           {
             const int MSL = 200;
             char s[MSL];
-            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arID[i], aruco.pos_m[0], aruco.pos_m[1], aruco.pos_m[2]);
+            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arID[i], aruco.pos_m[i][0], aruco.pos_m[i][1], aruco.pos_m[i][2]);
             toLog(s);
-            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", aruco.rot_m[0], aruco.rot_m[1], aruco.rot_m[2]);
+            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", aruco.rot_m[i][0], aruco.rot_m[i][1], aruco.rot_m[i][2]);
             toLog(s);
           }
         }
