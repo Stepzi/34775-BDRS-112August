@@ -100,21 +100,17 @@ void BPlan101::run()
       case 10:
       { // brackets to allow local variables
         toLog("get ArUco");
-        UTime t("now");
-        int n = aruco.findAruco(0.1);
-        printf("# plan101: find ArUco took %g sec\n", t.getTimePassed());
+        int n = aruco.arID.size();
+
         for (int i = 0; i < n; i++)
-        { // convert to robot coordinates
-          cv::Vec3d pos = cam.getPositionInRobotCoordinates(aruco.arTranslate[i]);
-          // rotation
-          cv::Vec3f re = cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true);
+        { 
           if (logfile != nullptr or toConsole)
           {
             const int MSL = 200;
             char s[MSL];
-            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arCode[i], pos[0], pos[1], pos[2]);
+            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arID[i], aruco.pos_m[0], aruco.pos_m[1], aruco.pos_m[2]);
             toLog(s);
-            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", re[0], re[1], re[2]);
+            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", aruco.rot_m[0], aruco.rot_m[1], aruco.rot_m[2]);
             toLog(s);
           }
         }

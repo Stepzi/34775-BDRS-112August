@@ -111,25 +111,15 @@ void MArUco::run()
     int n = aruco.findAruco(0.1);
     toLog(std::to_string(n).c_str());
 
-    // for (int i = 0; i < n; i++)
-    // { // convert to robot coordinates
-    //   cv::Vec3d pos = cam.getPositionInRobotCoordinates(aruco.arTranslate[i]);
-    //   // rotation
-    //   cv::Vec3f re = cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true);
+    for (int i = 0; i < n; i++)
+    { // convert to robot coordinates
 
-    //   const int MSL = 200;
-    //   char s[MSL];
-    //   snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arCode[i], pos[0], pos[1], pos[2]);
-    //   toLog(s);
-    //   snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", re[0], re[1], re[2]);
-    //   toLog(s);
+      pos_m[i] = cam.getPositionInRobotCoordinates(aruco.arTranslate[i]);
+      // rotation
+      pos_m[i] = cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true);
       
-    // }
-    usleep(1000000); //s
-  }
-  if (logfile != nullptr)
-  {
-    fclose(logfile);
+    }
+    usleep(1000); //s
   }
 }
 
@@ -158,8 +148,8 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
   if (debugSave)
     frame.copyTo(img);
   std::vector<std::vector<cv::Point2f>> markerCorners;
-  cv::aruco::detectMarkers(frame, dictionary, markerCorners, arCode);
-  count = arCode.size();
+  cv::aruco::detectMarkers(frame, dictionary, markerCorners, arID);
+  count = arID.size();
   // estimate pose of all markers
   cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
   //
@@ -171,8 +161,8 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
     for(int i=0; i<count; i++)
     {
       cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
-      cv::aruco::drawDetectedMarkers(img, markerCorners, arCode);
-      snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arCode[i], size,
+      cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
+      snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
                arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
                arRotate[i][0], arRotate[i][1], arRotate[i][2]);
       toLog(s);

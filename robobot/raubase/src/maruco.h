@@ -56,7 +56,24 @@ public:
 
   std::vector<cv::Vec3d> arTranslate;
   std::vector<cv::Vec3d> arRotate;
-  std::vector<int> arCode;
+  // Detected marked IDs
+  std::vector<int> arID;
+  
+  // Position in world frame
+  cv::Vec3d pos_w;
+  // Marker positions in robot frame
+  std::vector<cv::Vec3d> pos_m;
+  // Rotation (Euler angles) in world frame
+  cv::Vec3d rot_w;
+  // Marker rotations in robot frame
+  std::vector<cv::Vec3d> rot_m;
+
+
+  // // Pos of robot in world coordinates (X,Y,Z)
+  // float pos_w[3] = {0.0,0.0,0.0};
+  // // Pos of robot in world coordinates (X,Y,Z)
+  // float pos_m[5][3] = {{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0}};
+
 
 protected:
   /// PC time of last update
@@ -64,9 +81,6 @@ protected:
   void saveImageTimestamped(cv::Mat & img, UTime imgTime);
   void saveImageInPath(cv::Mat & img, string name);
 
-public:
-  // Pos of robot in world coordinates (X,Y,Z)
-  float pos_w[3] = {0.0,0.0,0.0};
 
 private:
   static void runObj(MArUco * obj)
