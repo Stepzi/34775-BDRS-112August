@@ -109,14 +109,13 @@ void MArUco::run()
   while (not service.stop)
   {
     int n = aruco.findAruco(0.1);
-    toLog(std::to_string(n).c_str());
 
     for (int i = 0; i < n; i++)
     { // convert to robot coordinates
 
       pos_m.push_back(cam.getPositionInRobotCoordinates(aruco.arTranslate[i]));
       // rotation
-      rot_m.push_back(.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));
+      rot_m.push_back(cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));
       
     }
     usleep(1000); //s
