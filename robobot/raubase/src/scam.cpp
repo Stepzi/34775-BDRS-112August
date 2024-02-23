@@ -191,7 +191,7 @@ void UCam::run()
       cam.read(frame);
       if (not frame.empty())
       {
-        printf("# UCam::run: read frame %d/%d\n", gotFrameCnt, frameCnt);
+        //printf("# UCam::run: read frame %d/%d\n", gotFrameCnt, frameCnt);
         gotFrameCnt++;
         imgTime.now();
         getNewFrame = false;
