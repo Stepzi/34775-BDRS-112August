@@ -66,10 +66,10 @@ protected:
 
 public:
   // Pos of robot in world coordinates (X,Y,Z)
-  float pos_w[3] = {0.0,0.0,0.0}
+  float pos_w[3] = {0.0,0.0,0.0};
 
 private:
-  static void runObj(MPose * obj)
+  static void runObj(MArUco * obj)
   { // called, when thread is started
     // transfer to the class run() function.
     obj->run();
@@ -81,6 +81,7 @@ private:
   bool toConsole = false;
   /// Logfile - most details
   FILE * logfile = nullptr;
+  std::thread * th1;
   /// save debug images
   bool debugSave = false;
 };
