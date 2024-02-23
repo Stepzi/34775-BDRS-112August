@@ -109,7 +109,7 @@ void MArUco::run()
   while (not service.stop)
   {
     int n = aruco.findAruco(0.1);
-    toLog(std::to_string(n).c_str())
+    toLog(std::to_string(n).c_str());
 
     // for (int i = 0; i < n; i++)
     // { // convert to robot coordinates

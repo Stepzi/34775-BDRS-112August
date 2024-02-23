@@ -325,8 +325,8 @@ void UService::terminate()
   // terminate sensors before Teensy
   teensy1.terminate();
   pyvision.terminate();
-  cam.terminate();
   aruco.terminate();
+  cam.terminate();
   // service must be the last to close
   if (not ini.has("ini"))
   {
