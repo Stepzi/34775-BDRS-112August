@@ -74,11 +74,11 @@ BPlan40::~BPlan40()
 
 void BPlan40::run()
 {
+  std::string fn = service.logPath + "log_plan40.txt";
+  logfile = fopen(fn.c_str(), "w");
   if (not setupDone)
     setup();
   if (ini["plan40"]["run"] == "false"){
-    std::string fn = service.logPath + "log_plan40.txt";
-    logfile = fopen(fn.c_str(), "w");
     fprintf(logfile, "%% Mission plan40 run!=True. Terminate\n");
     return;
   }
@@ -89,17 +89,23 @@ void BPlan40::run()
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
+  fprintf(logfile, "%% Time setup done\n");
+
   //
   toLog("Plan40 started");
   //
+  fprintf(logfile, "%% Plan 40 STARTING!!!\n");
+
   while (not finished and not lost and not service.stop)
   {
     switch (state)
     {
       case 5: // wait for Regbot, then go forward
+        fprintf(logfile, "%% Waiting for robot...\n");
         if (dist.dist[0] < 0.25)
         { // something is close, assume it is the Regbot
           // start driving
+          fprintf(logfile, "%% robot found!\n");
           pose.resetPose();
           toLog("forward 0.1 m/sec");
           mixer.setVelocity(0.25);
