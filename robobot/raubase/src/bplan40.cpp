@@ -76,11 +76,12 @@ void BPlan40::run()
 {
   if (not setupDone)
     setup();
-  if (ini["plan40"]["run"] == "false")
+  if (ini["plan40"]["run"] == "false"){
     std::string fn = service.logPath + "log_plan40.txt";
     logfile = fopen(fn.c_str(), "w");
     fprintf(logfile, "%% Mission plan40 run!=True. Terminate\n");
     return;
+  }
   UTime t("now");
   bool finished = false;
   bool lost = false;
