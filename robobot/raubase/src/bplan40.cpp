@@ -49,7 +49,7 @@ void BPlan40::setup()
   if (not ini["plan40"].has("log"))
   { // no data yet, so generate some default values
     ini["plan40"]["log"] = "true";
-    ini["plan40"]["run"] = "false";
+    ini["plan40"]["run"] = "true";
     ini["plan40"]["print"] = "true";
   }
   // get values from ini-file
@@ -102,7 +102,7 @@ void BPlan40::run()
           mixer.setTurnrate(0);
           state = 12;
         }
-        else if (t.getTimePassed() > 10)
+        else if (t.getTimePassed() > 20)
         {
           toLog("Gave up waiting for Regbot");
           lost = true;
