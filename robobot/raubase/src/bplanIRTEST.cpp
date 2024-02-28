@@ -126,6 +126,7 @@ void BPlanIRTEST::run()
       case 3:
         if(pose.dist > 0.6)
         {
+          toLog("Ran 0.6 dist");
           state = 90;
         }
         
