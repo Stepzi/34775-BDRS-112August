@@ -128,6 +128,9 @@ void BPlanIRTEST::run()
           std::string str_temp = std::to_string(medge.width);
           toLog(str_temp.c_str());
         }
+        catch{
+          toLog("medge.width probably not a number");
+        }
 
         if(false) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
