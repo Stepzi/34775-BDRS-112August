@@ -116,7 +116,6 @@ void BPlanIRTEST::run()
           lost = true;
         }
         break;
-<<<<<<< HEAD
 
 
       case 2:
@@ -154,28 +153,10 @@ void BPlanIRTEST::run()
         catch(int a){
           toLog("medge.width probably not a number");
         }
-
-=======
-      case 2:
-        if(medge.width > 0.5)
-        {
-          toLog("Found first crossing");
-          state = 3;
-        }
->>>>>>> d8e18a16cab609ed8be8bba4f60c6d4aba101adb
-        break;
-      case 3:
-        if(pose.dist > 0.6)
-        {
-          toLog("Ran 0.6 dist");
-          state = 90;
-        }
-        
         break;
 
 
-
-      case 97:
+      case 98:
         if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
@@ -183,19 +164,6 @@ void BPlanIRTEST::run()
           toLog("Object Found");
           mixer.setVelocity(0.025);
           state = 98;
-        }
-        break;
-      case 98:
-        if(pose.dist > 0.02)
-        {
-          mixer.setVelocity(0);
-          mixer.setTurnrate(0);
-          finished = true;
-        }
-        else if (t.getTimePassed() > 30)
-        {
-          toLog("Gave up waiting for Regbot");
-          lost = true;
         }
         break;
 
