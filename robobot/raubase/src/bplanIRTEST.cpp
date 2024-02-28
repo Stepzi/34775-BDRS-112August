@@ -107,7 +107,6 @@ void BPlanIRTEST::run()
           mixer.setEdgeMode(true /* right */, -0.04 /* offset */);
           mixer.setVelocity(0.3);
           state = 2;
-          mixer.setVelocity(0.01); //remove after case 3 is made
         }
         else if(medge.width < 0.01)
         {
@@ -122,7 +121,32 @@ void BPlanIRTEST::run()
         }
         break;
 
+
       case 2:
+        
+        if(medge.width > 0.05)
+        { 
+          // start driving
+          toLog("First split found");
+          //mixer.setVelocity(0.025);
+          pose.resetPose();
+          state = 3;
+        }
+        break;
+
+      case 3:
+        
+        if(pose.dist > 0.6)
+        { 
+          // start driving
+          //pose.resetPose();
+          toLog("ready to enter the round about my dick");
+          mixer.setVelocity(0);
+          finished = true;
+        }
+        break;
+
+      case 98:
         
         try{
           int a = 1;
@@ -134,14 +158,6 @@ void BPlanIRTEST::run()
           toLog("medge.width probably not a number");
         }
 
-        if(false) //A Large number will trigger on the ramp and gates
-        { // something is close, assume it is the goal
-          // start driving
-          pose.resetPose();
-          toLog("Object Found");
-          mixer.setVelocity(0.025);
-          state = 3;
-        }
         break;
 
 
