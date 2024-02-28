@@ -50,7 +50,6 @@ void BPlanIRTEST::setup()
   toLog("setting run = ture");
   ini["PlanIRTEST"]["run"] = "true";
        
-
   if (not ini["PlanIRTEST"].has("log"))
   { // no data yet, so generate some default values
     ini["PlanIRTEST"]["log"] = "true";
