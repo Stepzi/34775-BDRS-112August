@@ -117,16 +117,33 @@ void BPlanIRTEST::run()
         }
         break;
       case 2:
+        if(medge.width > 0.5)
+        {
+          toLog("Found first crossing");
+          state = 3;
+        }
+        break;
+      case 3:
+        if(pose.dist > 0.6)
+        {
+          state = 90;
+        }
+        
+        break;
+
+
+
+      case 97:
         if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
           pose.resetPose();
           toLog("Object Found");
           mixer.setVelocity(0.025);
-          state = 3;
+          state = 98;
         }
         break;
-      case 3:
+      case 98:
         if(pose.dist > 0.02)
         {
           mixer.setVelocity(0);
