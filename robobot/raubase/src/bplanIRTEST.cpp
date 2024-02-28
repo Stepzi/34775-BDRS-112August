@@ -121,8 +121,19 @@ void BPlanIRTEST::run()
           lost = true;
         }
         break;
-
         
+        case 2:
+        if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
+        { // something is close, assume it is the goal
+          // start driving
+          pose.resetPose();
+          toLog("Object Found");
+          mixer.setVelocity(0.025);
+          state = 3;
+        }
+        break;
+
+
       case 99: 
         float irDist0;
         float irDist1;
