@@ -130,7 +130,7 @@ void BPlanIRTEST::run()
         }
         break;
 
-      case 3:
+      case 3:  // Stop goal reached case
         
         if(pose.dist > 0.6)
         { 
@@ -142,7 +142,7 @@ void BPlanIRTEST::run()
         }
         break;
 
-      case 98:
+      case 97: // print medge.width case 
         
         try{
           int a = 1;
@@ -156,7 +156,8 @@ void BPlanIRTEST::run()
         break;
 
 
-      case 98:
+      case 98: // stop in frontt of goal case 
+
         if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
@@ -167,7 +168,7 @@ void BPlanIRTEST::run()
         }
         break;
 
-      case 99: 
+      case 99: // IR dist case 
         float irDist0;
         float irDist1;
 
