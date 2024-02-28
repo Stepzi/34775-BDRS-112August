@@ -98,16 +98,15 @@ void BMission0::run()
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(false /* right */, -0.01 /* offset */);
-          mixer.setVelocity(0.3);
+          mixer.setEdgeMode(false /* right */, -0.04 /* offset */);
+          mixer.setVelocity(0.15);
           state = 2;
         }
         else if(medge.width < 0.01)
         {
           pose.resetPose();
-          toLog("No Line");
-          mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(1.0);
+          mixer.setVelocity(0.0);//Drive slowly and turn i circle
+          mixer.setTurnrate(0.2);
         }
         else if(t.getTimePassed() > 10)
         {
@@ -116,7 +115,7 @@ void BMission0::run()
         }
         break;
       case 2:
-        if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
+        if (dist.dist[0] < 0.20) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
           pose.resetPose();
@@ -126,7 +125,7 @@ void BMission0::run()
         }
         break;
       case 3:
-        if(pose.dist > 0.02)
+        if(pose.dist > 0.20)
         {
           mixer.setVelocity(0);
           mixer.setTurnrate(0);
