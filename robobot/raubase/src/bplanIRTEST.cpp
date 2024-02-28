@@ -47,14 +47,9 @@ BPlanIRTEST planIRTEST;
 void BPlanIRTEST::setup()
 { // ensure there is default values in ini-file
 
-    if (ini["PlanIRTEST"]["run"] == 'false'){
-      toLog("run = false, setting it to true");
-      toConsole = ini["PlanIRTEST"]["run"] = "true";
-    }
-    else{
-      toConsole = ini["PlanIRTEST"]["run"] = "true";
-      toLog("run already = true ");
-    }
+    toLog("setting run manual to true");
+    toConsole = ini["PlanIRTEST"]["run"] = "true";
+    
        
 
   if (not ini["PlanIRTEST"].has("log"))
