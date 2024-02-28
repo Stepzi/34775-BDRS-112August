@@ -93,71 +93,7 @@ void BPlanIRTEST::run()
   {
     switch (state)
     {
-      case 1: // Start Position, assume we are on a line but verify.
-        if(medge.width > 0.02) //We should be on a line 
-        {
-          pose.resetPose();
-          toLog("Started on Line");
-          toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(true /* right */, -0.004 /* offset */);
-          mixer.setVelocity(0.3);
-          state = 2;
-        }
-        else if(medge.width < 0.01)
-        {
-          pose.resetPose();
-          toLog("No Line");
-          mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(1.0);
-        }
-        else if(t.getTimePassed() > 10)
-        {
-          toLog("Never found Line");
-          lost = true;
-        }
-        break;
-      case 2:
-        if(medge.width > 0.5)
-        {
-          toLog("Found first crossing");
-          state = 3;
-        }
-        break;
-      case 3:
-        if(pose.dist > 0.6)
-        {
-          state = 90;
-        }
-        
-        break;
-
-
-
-      case 97:
-        if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
-        { // something is close, assume it is the goal
-          // start driving
-          pose.resetPose();
-          toLog("Object Found");
-          mixer.setVelocity(0.025);
-          state = 98;
-        }
-        break;
-      case 98:
-        if(pose.dist > 0.02)
-        {
-          mixer.setVelocity(0);
-          mixer.setTurnrate(0);
-          finished = true;
-        }
-        else if (t.getTimePassed() > 30)
-        {
-          toLog("Gave up waiting for Regbot");
-          lost = true;
-        }
-        break;
-
-      case 99: 
+      case 1: 
         float irDist0;
         float irDist1;
 
