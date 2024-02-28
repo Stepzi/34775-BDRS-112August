@@ -111,9 +111,8 @@ void BPlanIRTEST::run()
         else if(medge.width < 0.01)
         {
           pose.resetPose();
-          toLog("No Line");
           mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(1.0);
+          mixer.setTurnrate(0.5);
         }
         else if(t.getTimePassed() > 10)
         {
@@ -121,7 +120,7 @@ void BPlanIRTEST::run()
           lost = true;
         }
         break;
-        
+
         case 2:
         if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
