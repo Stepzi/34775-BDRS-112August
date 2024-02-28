@@ -97,7 +97,33 @@ void BPlanIRTEST::run()
   {
     switch (state)
     {
-      case 1: 
+
+      case 1: // Start Position, assume we are on a line but verify.
+        if(medge.width > 0.02) //We should be on a line 
+        {
+          pose.resetPose();
+          toLog("Started on Line");
+          toLog("Follow Line with velocity 0.2");
+          mixer.setEdgeMode(false /* right */, -0.01 /* offset */);
+          mixer.setVelocity(0.3);
+          state = 2;
+        }
+        else if(medge.width < 0.01)
+        {
+          pose.resetPose();
+          toLog("No Line");
+          mixer.setVelocity(0.01);//Drive slowly and turn i circle
+          mixer.setTurnrate(1.0);
+        }
+        else if(t.getTimePassed() > 10)
+        {
+          toLog("Never found Line");
+          lost = true;
+        }
+        break;
+
+        
+      case 99: 
         float irDist0;
         float irDist1;
 
@@ -111,6 +137,7 @@ void BPlanIRTEST::run()
         };
         finished = true;    
         break;
+      
 
       default:
         toLog("Default Mission 0");
