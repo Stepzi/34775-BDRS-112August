@@ -37,7 +37,7 @@
 #include "bplan100.h"
 #include "bplan101.h"
 #include "bmission0.h"
-
+#include "bracetrack.h"
 int main (int argc, char **argv)
 { // prepare all modules and start data flow
   // but also handle command-line options
@@ -48,13 +48,14 @@ int main (int argc, char **argv)
     // turn on LED on port 16
     gpio.setPin(16, 1);
     // run the planned missions
-    mission0.run();
+    racetrack.run();
+    //mission0.run();
     //plan20.run();
     //plan21.run();
     //plan40.run();
     //planMission0.run();
     //plan100.run();
-    plan101.run();
+    //plan101.run();
     //
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
