@@ -125,7 +125,7 @@ void BPlanIRTEST::run()
       case 2:
         
         try{
-          toLog(c_str(std::to_string((medge.width))));
+          toLog(std::c_str(std::to_string((medge.width))));
         }
 
         if(false) //A Large number will trigger on the ramp and gates
