@@ -104,9 +104,10 @@ void BPlanIRTEST::run()
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(false /* right */, -0.01 /* offset */);
+          mixer.setEdgeMode(true /* right */, -0.04 /* offset */);
           mixer.setVelocity(0.3);
           state = 2;
+          mixer.setVelocity(0.01); //remove after case 3 is made
         }
         else if(medge.width < 0.01)
         {
@@ -121,7 +122,24 @@ void BPlanIRTEST::run()
         }
         break;
 
-        case 2:
+      case 2:
+        
+        try{
+          toLog(c_str(std::to_string((medge.width))));
+        }
+
+        if(false) //A Large number will trigger on the ramp and gates
+        { // something is close, assume it is the goal
+          // start driving
+          pose.resetPose();
+          toLog("Object Found");
+          mixer.setVelocity(0.025);
+          state = 3;
+        }
+        break;
+
+
+      case 3:
         if (dist.dist[0] < 0.25) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
