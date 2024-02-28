@@ -127,8 +127,9 @@ void BPlanIRTEST::run()
         try{
           std::string str_temp = std::to_string(medge.width);
           toLog(str_temp.c_str());
+          throw 1
         }
-        catch(){
+        catch(1){
           toLog("medge.width probably not a number");
         }
 
