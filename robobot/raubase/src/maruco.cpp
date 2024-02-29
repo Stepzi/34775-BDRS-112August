@@ -108,6 +108,16 @@ void MArUco::run()
   
   while (not service.stop)
   {
+    
+    if (not arID.empty()){
+      pos_last_m = pos_m;
+      rot_last_m = rot_m;
+      arID = arID_last;
+    }
+    
+    pos_m.clear()
+    rot_m.clear()
+
     int n = aruco.findAruco(0.1);
 
     for (int i = 0; i < n; i++)
