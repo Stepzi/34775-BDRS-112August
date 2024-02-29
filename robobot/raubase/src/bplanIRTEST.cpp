@@ -99,8 +99,8 @@ void BPlanIRTEST::run()
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(true /* right */, -0.004 /* offset */);
-          mixer.setVelocity(0.3);
+          mixer.setEdgeMode(true /* right */, 0.03 /* offset */);
+          mixer.setVelocity(0.25);
           state = 2;
         }
         else if(medge.width < 0.01)
@@ -117,30 +117,102 @@ void BPlanIRTEST::run()
         }
         break;
 
-
       case 2:
         
-        if(medge.width > 0.05)
+        if(medge.width > 0.09) //0.07
         { 
           // start driving
           toLog("First split found");
-          //mixer.setVelocity(0.025);
-          pose.resetPose();
+          pose.dist=0;   
           state = 3;
         }
         break;
 
       case 3:  // Stop goal reached case
         
-        if(pose.dist > 0.6)
+        if(pose.dist > 0.9)
         { 
           // start driving
           //pose.resetPose();
           toLog("ready to enter the round about my dick");
           mixer.setVelocity(0);
-          finished = true;
+          state = 4;
+          pose.dist = 0;
+          pose.turned = 0;
+          mixer.setTurnrate(1);
+          mixer.setVelocity(0);
+        }
+
+        break;
+
+      case 4:
+        if(pose.turned > 1.2){
+          state = 5;
+          mixer.setTurnrate(0);
+        }
+
+      break;
+      
+      case 5: 
+        if(dist.dist[0] < 0.25){
+          toLog("robot seen!");
+          state = 6;
+          t.clear();
+          /*float t_stamp = t.getTimePassed();
+          toLog(std::to_string(t_stamp).c_str());
+          while(t.getTimePassed() < t_stamp+2){
+          toLog("waiting for robot to pass");*/
+          //}
+          pose.dist = 0;
+        }
+      break;
+
+      case 6: 
+        //toLog(std::to_string(t.getTimePassed()).c_str());
+        if(t.getTimePassed() > 2)
+        {
+          
+          //if(pose.dist > 0.3){
+            //lost = true;
+          //}
+          pose.dist = 0;
+          mixer.setEdgeMode(true /* right */, 0.03 /* offset */);
+          mixer.setVelocity(0.1);
+          state = 7;
+        }
+      break;
+
+      case 7:
+        if(pose.dist > 0.6)
+        {
+          mixer.setEdgeMode(false /* right */, -0.03 /* offset */);
+          mixer.setVelocity(0.25);
+          state = 8;
+        }
+
+      break;
+
+      case 8:
+      if(medge.width > 0.09) //0.07
+        { 
+          pose.turned=0; 
+          // start driving
+          toLog("Roundabout split found");
+           
+          mixer.setTurnrate(1);
+          mixer.setVelocity(0);
+          state = 9;
         }
         break;
+      
+      case 9:
+        if(pose.turned > 3)
+        {
+          mixer.setTurnrate(0);
+          pose.dist = 0;
+          mixer.setVelocity(-1);
+        } 
+      break;
 
       case 97: // print medge.width case 
         
