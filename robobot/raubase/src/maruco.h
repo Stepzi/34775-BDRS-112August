@@ -58,21 +58,16 @@ public:
   std::vector<cv::Vec3d> arRotate;
   // Detected marked IDs
   std::vector<int> arID;
-  std::vector<int> arID_last;
   UTime imgTime;
   
   // Position in world frame
   cv::Vec3d pos_w;
-  cv::Vec3d pos_last_w;
   // Marker positions in robot frame
   std::vector<cv::Vec3d> pos_m;
-  std::vector<cv::Vec3d> pos_last_m;
   // Rotation (Euler angles) in world frame
   cv::Vec3d rot_w;
-  cv::Vec3d rot_last_w;
   // Marker rotations in robot frame
   std::vector<cv::Vec3d> rot_m;
-  std::vector<cv::Vec3d> rot_last_m;
 
 
   // // Pos of robot in world coordinates (X,Y,Z)
