@@ -97,9 +97,9 @@ void BRaceTrack::run()
         {
           pose.resetPose();
           toLog("Started on Line");
-          toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(false /* right */, -0.04 /* offset */);
+          mixer.setEdgeMode(false /* right */, 0 /* offset */);
           mixer.setVelocity(0.7);
+          pose.dist = 0;
           state = 2;
         }
         else if(medge.width < 0.01)
@@ -116,6 +116,15 @@ void BRaceTrack::run()
         break;
       //Add identification of curves in the road. For localizing while doing the race track.
       case 2:
+        toLog(std::to_string(abs(pose.dist)).c_str());
+        if(abs(pose.dist) > 0.1)
+        {
+          toLog(std::to_string(pose.dist).c_str());
+          mixer.setEdgeMode(false,-0.04);
+          state = 3;
+        }
+        break;  
+      case 3:
         if (pose.dist > 20 )//Gotta test the distance messured. && medge.valid == false) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
