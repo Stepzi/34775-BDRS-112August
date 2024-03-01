@@ -86,6 +86,11 @@ public:
   // flag to allocate a number (and robobot type) to the Teensy (Regbot)
   // must be in range [0..149]
   int saveRegbotNumber = -1;
+  // save regbot hardware type to regbot if number is [5..15]
+  // should typically be 9 (blue pcb version 6.3)
+  int regbotHardware = -1;
+  // all used motors has encoder (A,B) reversed.
+  bool encoderReversed = true;
 
   
 private:
