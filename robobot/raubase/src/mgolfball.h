@@ -32,7 +32,7 @@ using namespace std;
 /**
  * Class with example of vision processing
  * */
-class MArUco
+class Mgolfball
 {
 public:
   /** setup and request data */
@@ -83,7 +83,7 @@ protected:
 
 
 private:
-  static void runObj(MArUco * obj)
+  static void runObj(Mgolfball * obj)
   { // called, when thread is started
     // transfer to the class run() function.
     obj->run();
@@ -102,5 +102,5 @@ private:
 
 /**
  * Make this visible to the rest of the software */
-extern MArUco aruco;
+extern Mgolfball golfball;
 
