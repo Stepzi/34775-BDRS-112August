@@ -34,6 +34,7 @@
 #include <opencv2/aruco.hpp>
 #include <filesystem>
 
+
 #include "maruco.h"
 #include "uservice.h"
 #include "scam.h"
@@ -127,7 +128,7 @@ void MArUco::run()
       }
     }
     
-    usleep(1000); //s
+    usleep(500*1000); //ms
   }
 }
 
@@ -161,7 +162,7 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
   // estimate pose of all markers
   cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
   //
-  if (debugSave)
+  if (debugSave and count>0)
   { // paint found markers in image copy 'img'.
     const int MSL = 200;
     char s[MSL];
