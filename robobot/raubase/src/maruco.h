@@ -58,7 +58,9 @@ public:
   std::vector<cv::Vec3d> arRotate;
   // Detected marked IDs
   std::vector<int> arID;
-  UTime imgTime;
+  std::vector<int> IDs;
+  UTime fixTime;
+  
   
   // Position in world frame
   cv::Vec3d pos_w;
@@ -78,6 +80,7 @@ public:
 
 protected:
   /// PC time of last update
+  UTime imgTime;
   void saveImageTimestamped(cv::Mat & img, UTime imgTime);
   void saveImageInPath(cv::Mat & img, string name);
 

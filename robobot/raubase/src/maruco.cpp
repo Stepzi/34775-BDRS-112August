@@ -109,10 +109,12 @@ void MArUco::run()
   while (not service.stop)
   {
     
-    int n = aruco.findAruco(0.1);
+    int n = findAruco(0.1);
 
     if(n)
     {
+      fixTime = imgTime;
+      IDs = arID;
       pos_m.clear();
       rot_m.clear();
       for (int i = 0; i < n; i++)

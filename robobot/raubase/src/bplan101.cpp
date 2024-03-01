@@ -100,17 +100,17 @@ void BPlan101::run()
       case 10:
       { // brackets to allow local variables
 
-        int n = aruco.arID.size();
+        int n = aruco.IDs.size();
         
         // save as local copy
         std::vector<cv::Vec3d> pos_m = aruco.pos_m;
         std::vector<cv::Vec3d> rot_m = aruco.rot_m;
-        std::vector<int> arID = aruco.arID;
-        UTime imgTime = aruco.imgTime;
+        std::vector<int> IDs = aruco.IDs;
+        UTime fixTime = aruco.fixTime;
 
         const int MSL = 200;
         char s[MSL];
-        snprintf(s, MSL, "# Last Aruco codes found: %lu.%04lu",imgTime.getSec(),imgTime.getMicrosec()/100);
+        snprintf(s, MSL, "# Last Aruco codes found: %lu.%04lu",fixTime.getSec(),fixTime.getMicrosec()/100);
         toLog(s);
 
         for (int i = 0; i < n; i++)
@@ -119,7 +119,7 @@ void BPlan101::run()
           {
             const int MSL = 200;
             char s[MSL];
-            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, arID[i], pos_m[i][0], pos_m[i][1], pos_m[i][2]);
+            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, IDs[i], pos_m[i][0], pos_m[i][1], pos_m[i][2]);
             toLog(s);
             snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", rot_m[i][0], rot_m[i][1], rot_m[i][2]);
             toLog(s);
