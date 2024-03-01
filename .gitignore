@@ -40,6 +40,7 @@ robobot/multi_cpu/
 robobot/socket-base-py/
 robobot/raubase/img/
 robobot/raubase/build/
+robobot/golfball
 
 # robobot/raubase/build/img
 # robobot/raubase/build/log*
