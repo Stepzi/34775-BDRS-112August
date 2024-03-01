@@ -24,7 +24,6 @@
 
 #include <opencv2/core.hpp>
 #include "utime.h"
-#include "thread"
 
 
 using namespace std;
@@ -40,9 +39,7 @@ public:
   /**
    * terminate */
   void terminate();
-  /**
-   * thread to do updates, when new data is available */
-  void run();
+
   /**
    * Find ArUco code
    * \param size is the side-size of the code.
@@ -83,11 +80,6 @@ protected:
 
 
 private:
-  static void runObj(Mgolfball * obj)
-  { // called, when thread is started
-    // transfer to the class run() function.
-    obj->run();
-  }
   /**
    * print to console and logfile */
   void toLog(const char * message);

@@ -69,7 +69,6 @@ void Mgolfball::setup()
     fprintf(logfile, "%% 5,6,7 \tDetected marker position in camera coordinates (x=right, y=down, z=forward)\n");
     fprintf(logfile, "%% 8,9,10 \tDetected marker orientation in Rodrigues notation (vector, rotated)\n");
   }
-  th1 = new std::thread(runObj, this);
 }
 
 
