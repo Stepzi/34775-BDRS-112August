@@ -108,7 +108,8 @@ void BPlan101::run()
         std::vector<int> arID = aruco.arID;
         UTime imgTime = aruco.imgTime;
 
-
+        const int MSL = 200;
+        char s[MSL];
         snprintf(s, MSL, "# Last Aruco codes found: %lu.%04lu",imgTime.getSec(),imgTime.getMicrosec()/100);
         toLog(s);
 

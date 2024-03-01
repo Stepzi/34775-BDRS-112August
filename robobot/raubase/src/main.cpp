@@ -54,7 +54,7 @@ int main (int argc, char **argv)
     //plan40.run();
     //plan100.run();
     plan101.run();
-    golfballtest.run()
+    // golfballtest.run();
 
     //
     mixer.setVelocity(0.0);

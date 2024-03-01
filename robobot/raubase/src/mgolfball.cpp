@@ -74,11 +74,6 @@ void Mgolfball::setup()
 
 void Mgolfball::terminate()
 { // wait for thread to finish
-  if (th1 != nullptr)
-  {
-    th1->join();
-    th1 = nullptr;
-  }
   if (logfile != nullptr)
   {
     fclose(logfile);
@@ -126,27 +121,27 @@ int Mgolfball::findGolfball(float size, cv::Mat * sourcePtr)
     frame.copyTo(img);
   
   std::vector<std::vector<cv::Point2f>> markerCorners;
-  cv::aruco::detectMarkers(frame, dictionary, markerCorners, arID);
-  count = arID.size();
-  // estimate pose of all markers
-  cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
-  //
-  if (debugSave)
-  { // paint found markers in image copy 'img'.
-    const int MSL = 200;
-    char s[MSL];
-    // draw axis for each marker
-    for(int i=0; i<count; i++)
-    {
-      cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
-      cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
-      snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
-               arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
-               arRotate[i][0], arRotate[i][1], arRotate[i][2]);
-      toLog(s);
-    }
-    saveImageTimestamped(img, imgTime);
-  }
+  // cv::aruco::detectMarkers(frame, dictionary, markerCorners, arID);
+  // count = arID.size();
+  // // estimate pose of all markers
+  // cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
+  // //
+  // if (debugSave)
+  // { // paint found markers in image copy 'img'.
+  //   const int MSL = 200;
+  //   char s[MSL];
+  //   // draw axis for each marker
+  //   for(int i=0; i<count; i++)
+  //   {
+  //     cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
+  //     cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
+  //     snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
+  //              arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
+  //              arRotate[i][0], arRotate[i][1], arRotate[i][2]);
+  //     toLog(s);
+  //   }
+  //   saveImageTimestamped(img, imgTime);
+  // }
   return count;
 }
 
@@ -174,9 +169,9 @@ void Mgolfball::saveImageTimestamped(cv::Mat & img, UTime imgTime)
 
 void Mgolfball::saveCodeImage(int arucoID)
 {
-  cv::Mat markerImage;
-  int pixSize = 240;
-  cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
-  cv::aruco::drawMarker(dictionary, arucoID, pixSize, markerImage, 1);
-  saveImageInPath(markerImage, string("marker_") + to_string(arucoID) + ".png");
+  // cv::Mat markerImage;
+  // int pixSize = 240;
+  // cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
+  // cv::aruco::drawMarker(dictionary, arucoID, pixSize, markerImage, 1);
+  // saveImageInPath(markerImage, string("marker_") + to_string(arucoID) + ".png");
 }

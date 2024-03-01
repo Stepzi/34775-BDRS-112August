@@ -46,7 +46,7 @@ public:
    * \param sourcePth is a pointer to a potential source image, if
    * this pointer is a nullptr (default), then a frame is taken from camera.
    * \returns the number of codes found. */
-  int findAruco(float size, cv::Mat * sourcePtr = nullptr);
+  int findGolfball(float size, cv::Mat * sourcePtr = nullptr);
   /**
    * Make an image with this ArUco ID */
   void saveCodeImage(int arucoID);
@@ -87,7 +87,6 @@ private:
   bool toConsole = false;
   /// Logfile - most details
   FILE * logfile = nullptr;
-  std::thread * th1;
   /// save debug images
   bool debugSave = false;
 };
