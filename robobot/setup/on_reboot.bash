@@ -2,8 +2,8 @@
 # script to start applications after a reboot
 #
 # run the app to show IP of raspberry on the Teensy display.
-mkdir -p /home/local/Idefix/log
-cd /home/local/Idefix/log
+mkdir -p /home/local/svn/log
+cd /home/local/svn/log
 # save the last reboot date
 echo "Rebooted" >> rebootinfo.txt
 date >> rebootinfo.txt
