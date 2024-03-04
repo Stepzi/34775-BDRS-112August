@@ -31,6 +31,16 @@
 *.out
 *.app
 
+#Images
+*.png
+*.jpg
+
+#Marked language
+*.xml
+*.json
+*.config
+*.iml
+
 log/
 regbot/
 robobot/.svn/
@@ -40,7 +50,8 @@ robobot/multi_cpu/
 robobot/socket-base-py/
 robobot/raubase/img/
 robobot/raubase/build/
-robobot/golfball
+robobot/golfball/.vs/
+robobot/golfball/test.cpp
 
 # robobot/raubase/build/img
 # robobot/raubase/build/log*
