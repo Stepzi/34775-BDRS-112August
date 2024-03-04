@@ -34,6 +34,7 @@
 #include <opencv2/aruco.hpp>
 #include <filesystem>
 
+
 #include "maruco.h"
 #include "uservice.h"
 #include "scam.h"
@@ -109,23 +110,11 @@ void MArUco::run()
   while (not service.stop)
   {
     
-    int n = aruco.findAruco(0.1);
+    int n = findAruco(0.1);
 
-    if(n)
-    {
-      pos_m.clear();
-      rot_m.clear();
-      for (int i = 0; i < n; i++)
-      { // convert to robot coordinates
-
-        pos_m.push_back(cam.getPositionInRobotCoordinates(aruco.arTranslate[i]));
-        // rotation
-        rot_m.push_back(cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));
-        
-      }
-    }
     
-    usleep(1000); //s
+    
+    usleep(500*1000); //ms
   }
 }
 
@@ -158,8 +147,23 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
   count = arID.size();
   // estimate pose of all markers
   cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
+  if(count)
+  {
+    fixTime = imgTime;
+    IDs = arID;
+    pos_m.clear();
+    rot_m.clear();
+    for (int i = 0; i < count; i++)
+    { // convert to robot coordinates
+
+      pos_m.push_back(cam.getPositionInRobotCoordinates(aruco.arTranslate[i]));
+      // rotation
+      rot_m.push_back(cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));
+      
+    }
+  }
   //
-  if (debugSave)
+  if (debugSave and count>0)
   { // paint found markers in image copy 'img'.
     const int MSL = 200;
     char s[MSL];
@@ -168,6 +172,16 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
     {
       cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
       cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
+      snprintf(s, MSL, "ID: %d, (X,Y,Z): %g %g %g, (r,p,y):  %g %g %g", arID[i],
+               pos_m[i][0], pos_m[i][1], pos_m[i][2],
+               rot_m[i][0], rot_m[i][1], rot_m[i][2]);
+      cv::putText(img, //target image
+            s, //text
+            cv::Point(10, 20+20*i), //top-left position
+            cv::FONT_HERSHEY_DUPLEX,
+            0.7,
+            CV_RGB(118, 185, 0), //font color
+            2);
       snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
                arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
                arRotate[i][0], arRotate[i][1], arRotate[i][2]);

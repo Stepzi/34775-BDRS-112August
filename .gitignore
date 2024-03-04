@@ -53,9 +53,6 @@ robobot/raubase/build/
 robobot/golfball/.vs/
 robobot/golfball/test.cpp
 
-# robobot/raubase/build/img
-# robobot/raubase/build/log*
-# robobot/raubase/build/*.swp
-# robobot/raubase/build/*.txt
-# robobot/raubase/build/raubase
+.vscode/
+
 

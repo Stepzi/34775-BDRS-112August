@@ -29,38 +29,37 @@
 
 #include <string>
 #include <string.h>
-#include <thread>
 #include <math.h>
-#include <opencv2/aruco.hpp>
+#include <opencv2/aruco.hpp> // Check here
 #include <filesystem>
 
-#include "maruco.h"
+#include "mgolfball.h"
 #include "uservice.h"
 #include "scam.h"
 
 // create value
-MArUco aruco;
+Mgolfball golfball;
 namespace fs = std::filesystem;
 
 
-void MArUco::setup()
+void Mgolfball::setup()
 { // ensure there is default values in ini-file
-  if (not ini.has("aruco"))
+  if (not ini.has("golfball"))
   { // no data yet, so generate some default values
-    ini["aruco"]["imagepath"] = "aruco";
-    ini["aruco"]["save"] = "true";
-    ini["aruco"]["log"] = "true";
-    ini["aruco"]["print"] = "true";
+    ini["golfball"]["imagepath"] = "golfball";
+    ini["golfball"]["save"] = "false";
+    ini["golfball"]["log"] = "true";
+    ini["golfball"]["print"] = "true";
   }
   // get values from ini-file
-  fs::create_directory(ini["aruco"]["imagepath"]);
+  fs::create_directory(ini["golfball"]["imagepath"]);
   //
-  debugSave = ini["aruco"]["save"] == "true";
-  toConsole = ini["aruco"]["print"] == "true";
+  debugSave = ini["golfball"]["save"] == "true";
+  toConsole = ini["golfball"]["print"] == "true";
   //
-  if (ini["aruco"]["log"] == "true")
+  if (ini["golfball"]["log"] == "true")
   { // open logfile
-    std::string fn = service.logPath + "log_aruco.txt";
+    std::string fn = service.logPath + "log_golfball.txt";
     logfile = fopen(fn.c_str(), "w");
     fprintf(logfile, "%% Vision activity (%s)\n", fn.c_str());
     fprintf(logfile, "%% 1 \tTime (sec)\n");
@@ -70,17 +69,11 @@ void MArUco::setup()
     fprintf(logfile, "%% 5,6,7 \tDetected marker position in camera coordinates (x=right, y=down, z=forward)\n");
     fprintf(logfile, "%% 8,9,10 \tDetected marker orientation in Rodrigues notation (vector, rotated)\n");
   }
-  th1 = new std::thread(runObj, this);
 }
 
 
-void MArUco::terminate()
+void Mgolfball::terminate()
 { // wait for thread to finish
-  if (th1 != nullptr)
-  {
-    th1->join();
-    th1 = nullptr;
-  }
   if (logfile != nullptr)
   {
     fclose(logfile);
@@ -88,7 +81,7 @@ void MArUco::terminate()
   }
 }
 
-void MArUco::toLog(const char * message)
+void Mgolfball::toLog(const char * message)
 {
   if (not service.stop)
   {
@@ -103,30 +96,10 @@ void MArUco::toLog(const char * message)
   }
 }
 
-void MArUco::run()
-{
-  
-  while (not service.stop)
-  {
-    int n = aruco.findAruco(0.1);
-
-    for (int i = 0; i < n; i++)
-    { // convert to robot coordinates
-
-      pos_m.push_back(cam.getPositionInRobotCoordinates(aruco.arTranslate[i]));
-      // rotation
-      rot_m.push_back(cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));
-      
-    }
-    usleep(1000); //s
-  }
-}
-
-int MArUco::findAruco(float size, cv::Mat * sourcePtr)
+int Mgolfball::findGolfball(float size, cv::Mat * sourcePtr)
 { // taken from https://docs.opencv.org
   int count = 0;
   cv::Mat frame;
-  cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
   if (sourcePtr == nullptr)
   {
     frame = cam.getFrameRaw();
@@ -146,32 +119,33 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
   cv::Mat img;
   if (debugSave)
     frame.copyTo(img);
+  
   std::vector<std::vector<cv::Point2f>> markerCorners;
-  cv::aruco::detectMarkers(frame, dictionary, markerCorners, arID);
-  count = arID.size();
-  // estimate pose of all markers
-  cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
-  //
-  if (debugSave)
-  { // paint found markers in image copy 'img'.
-    const int MSL = 200;
-    char s[MSL];
-    // draw axis for each marker
-    for(int i=0; i<count; i++)
-    {
-      cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
-      cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
-      snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
-               arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
-               arRotate[i][0], arRotate[i][1], arRotate[i][2]);
-      toLog(s);
-    }
-    saveImageTimestamped(img, imgTime);
-  }
+  // cv::aruco::detectMarkers(frame, dictionary, markerCorners, arID);
+  // count = arID.size();
+  // // estimate pose of all markers
+  // cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
+  // //
+  // if (debugSave)
+  // { // paint found markers in image copy 'img'.
+  //   const int MSL = 200;
+  //   char s[MSL];
+  //   // draw axis for each marker
+  //   for(int i=0; i<count; i++)
+  //   {
+  //     cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
+  //     cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
+  //     snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
+  //              arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
+  //              arRotate[i][0], arRotate[i][1], arRotate[i][2]);
+  //     toLog(s);
+  //   }
+  //   saveImageTimestamped(img, imgTime);
+  // }
   return count;
 }
 
-void MArUco::saveImageInPath(cv::Mat& img, string name)
+void Mgolfball::saveImageInPath(cv::Mat& img, string name)
 { // Note, file type must be in filename
   const int MSL = 500;
   char s[MSL];
@@ -183,7 +157,7 @@ void MArUco::saveImageInPath(cv::Mat& img, string name)
 }
 
 
-void MArUco::saveImageTimestamped(cv::Mat & img, UTime imgTime)
+void Mgolfball::saveImageTimestamped(cv::Mat & img, UTime imgTime)
 {
   const int MSL = 500;
   char s[MSL] = "aruco_";
@@ -193,11 +167,11 @@ void MArUco::saveImageTimestamped(cv::Mat & img, UTime imgTime)
   saveImageInPath(img, string(s) + ".jpg");
 }
 
-void MArUco::saveCodeImage(int arucoID)
+void Mgolfball::saveCodeImage(int arucoID)
 {
-  cv::Mat markerImage;
-  int pixSize = 240;
-  cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
-  cv::aruco::drawMarker(dictionary, arucoID, pixSize, markerImage, 1);
-  saveImageInPath(markerImage, string("marker_") + to_string(arucoID) + ".png");
+  // cv::Mat markerImage;
+  // int pixSize = 240;
+  // cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
+  // cv::aruco::drawMarker(dictionary, arucoID, pixSize, markerImage, 1);
+  // saveImageInPath(markerImage, string("marker_") + to_string(arucoID) + ".png");
 }

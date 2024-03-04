@@ -26,7 +26,6 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
-#include <opencv2/calib3d.hpp>
 #include "mpose.h"
 #include "steensy.h"
 #include "uservice.h"
@@ -37,32 +36,29 @@
 #include "medge.h"
 #include "cedge.h"
 #include "cmixer.h"
-#include "maruco.h"
-#include "scam.h"
 
-
-#include "bplan101.h"
+#include "bgolfballtest.h"
 
 // create class object
-BPlan101 plan101;
+bgolfballtest golfballtest;
 
 
-void BPlan101::setup()
+void bgolfballtest::setup()
 { // ensure there is default values in ini-file
-  if (not ini["plan101"].has("log"))
+  if (not ini["golfballtest"].has("log"))
   { // no data yet, so generate some default values
-    ini["plan101"]["log"] = "true";
-    ini["plan101"]["run"] = "false";
-    ini["plan101"]["print"] = "true";
+    ini["golfballtest"]["log"] = "true";
+    ini["golfballtest"]["run"] = "false";
+    ini["golfballtest"]["print"] = "true";
   }
   // get values from ini-file
-  toConsole = ini["plan101"]["print"] == "true";
+  toConsole = ini["golfballtest"]["print"] == "true";
   //
-  if (ini["plan101"]["log"] == "true")
+  if (ini["golfballtest"]["log"] == "true")
   { // open logfile
-    std::string fn = service.logPath + "log_plan101.txt";
+    std::string fn = service.logPath + "log_golfballtest.txt";
     logfile = fopen(fn.c_str(), "w");
-    fprintf(logfile, "%% Mission plan101 logfile\n");
+    fprintf(logfile, "%% Mission golfballtest logfile\n");
     fprintf(logfile, "%% 1 \tTime (sec)\n");
     fprintf(logfile, "%% 2 \tMission state\n");
     fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
@@ -70,18 +66,17 @@ void BPlan101::setup()
   setupDone = true;
 }
 
-BPlan101::~BPlan101()
+bgolfballtest::~bgolfballtest()
 {
   terminate();
 }
 
 
-
-void BPlan101::run()
+void bgolfballtest::run()
 {
   if (not setupDone)
     setup();
-  if (ini["plan101"]["run"] == "false")
+  if (ini["golfballtest"]["run"] == "false")
     return;
   //
   UTime t("now");
@@ -90,56 +85,26 @@ void BPlan101::run()
   state = 10;
   oldstate = state;
   //
-  toLog("Plan101 started");
-  int count = 0;
+  toLog("golfballtest started");
   //
   while (not finished and not lost and not service.stop)
   {
     switch (state)
-    { // Test ArUco plan
+    { // make a shift in heading-mission
       case 10:
-      { // brackets to allow local variables
-
-        int n = aruco.IDs.size();
-        
-        // save as local copy
-        std::vector<cv::Vec3d> pos_m = aruco.pos_m;
-        std::vector<cv::Vec3d> rot_m = aruco.rot_m;
-        std::vector<int> IDs = aruco.IDs;
-        UTime fixTime = aruco.fixTime;
-
-        const int MSL = 200;
-        char s[MSL];
-        snprintf(s, MSL, "# Last Aruco codes found: %lu.%04lu",fixTime.getSec(),fixTime.getMicrosec()/100);
-        toLog(s);
-
-        for (int i = 0; i < n; i++)
-        { 
-          if (logfile != nullptr or toConsole)
-          {
-            const int MSL = 200;
-            char s[MSL];
-            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, IDs[i], pos_m[i][0], pos_m[i][1], pos_m[i][2]);
-            toLog(s);
-            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", rot_m[i][0], rot_m[i][1], rot_m[i][2]);
-            toLog(s);
-          }
-        }
-        if (n == 0 and (logfile != nullptr or toConsole))        {
-
-          const int MSL = 200;
-          char s[MSL];
-          snprintf(s, MSL, "# No Aruco code found yet");
-          toLog(s);
-
-          
-        }
-        count++;
-        // repeat 4 times (to get some statistics)
-        // if (count > 3)
-        //   finished = true;
+        pose.resetPose();
+        toLog("forward at 0.3m/s");
+        mixer.setVelocity(0.3);
+        state = 11;
         break;
-      }
+      case 11: // wait for distance
+        if (pose.dist >= 1.0)
+        { // done, and then
+          finished = true;
+        }
+        else if (t.getTimePassed() > 10)
+          lost = true;
+        break;
       default:
         toLog("Unknown state");
         lost = true;
@@ -153,27 +118,27 @@ void BPlan101::run()
       t.now();
     }
     // wait a bit to offload CPU
-    usleep(1000000); //Sleep increased
+    usleep(2000);
   }
   if (lost)
   { // there may be better options, but for now - stop
-    toLog("Plan101 got lost");
+    toLog("golfballtest got lost");
     mixer.setVelocity(0);
     mixer.setTurnrate(0);
   }
   else
-    toLog("Plan101 finished");
+    toLog("golfballtest finished");
 }
 
 
-void BPlan101::terminate()
+void bgolfballtest::terminate()
 { //
   if (logfile != nullptr)
     fclose(logfile);
   logfile = nullptr;
 }
 
-void BPlan101::toLog(const char* message)
+void bgolfballtest::toLog(const char* message)
 {
   UTime t("now");
   if (logfile != nullptr)

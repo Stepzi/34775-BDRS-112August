@@ -22,76 +22,43 @@
 
 #pragma once
 
-#include <opencv2/core.hpp>
-#include "utime.h"
-
 
 using namespace std;
 
 /**
- * Class with example of vision processing
+ * Class intended to accomplish a short mission,
+ * e.g. one challenge or part of a challenge
  * */
-class Mgolfball
+class bgolfballtest
 {
 public:
+  /**
+   * destructor */
+    ~bgolfballtest();
   /** setup and request data */
   void setup();
+  /**
+   * run this mission */
+  void run();
   /**
    * terminate */
   void terminate();
 
-  /**
-   * Find ArUco code
-   * \param size is the side-size of the code.
-   * \param sourcePth is a pointer to a potential source image, if
-   * this pointer is a nullptr (default), then a frame is taken from camera.
-   * \returns the number of codes found. */
-  int findGolfball(float size, cv::Mat * sourcePtr = nullptr);
-  /**
-   * Make an image with this ArUco ID */
-  void saveCodeImage(int arucoID);
-
-  std::vector<cv::Vec3d> arTranslate;
-  std::vector<cv::Vec3d> arRotate;
-  // Detected marked IDs
-  std::vector<int> arID;
-  
-  // Position in world frame
-  cv::Vec3d pos_w;
-  // Marker positions in robot frame
-  std::vector<cv::Vec3d> pos_m;
-  // Rotation (Euler angles) in world frame
-  cv::Vec3d rot_w;
-  // Marker rotations in robot frame
-  std::vector<cv::Vec3d> rot_m;
-
-
-  // // Pos of robot in world coordinates (X,Y,Z)
-  // float pos_w[3] = {0.0,0.0,0.0};
-  // // Pos of robot in world coordinates (X,Y,Z)
-  // float pos_m[5][3] = {{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0}};
-
-
-protected:
-  /// PC time of last update
-  UTime imgTime;
-  void saveImageTimestamped(cv::Mat & img, UTime imgTime);
-  void saveImageInPath(cv::Mat & img, string name);
-
-
 private:
   /**
-   * print to console and logfile */
+   * Write a timestamped message to log */
   void toLog(const char * message);
-  /// Debug print
-  bool toConsole = false;
-  /// Logfile - most details
+  /// added to log
+  int state, oldstate;
+  /// private stuff
+  // debug print to console
+  bool toConsole = true;
+  // logfile
   FILE * logfile = nullptr;
-  /// save debug images
-  bool debugSave = false;
+  bool setupDone = false;
 };
 
 /**
  * Make this visible to the rest of the software */
-extern Mgolfball golfball;
+extern bgolfballtest golfballtest;
 
