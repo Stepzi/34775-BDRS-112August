@@ -48,7 +48,6 @@ int main (int argc, char **argv)
     // turn on LED on port 16
     gpio.setPin(16, 1);
     // run the planned missions
-<<<<<<< HEAD
     racetrack.run();
     //mission0.run();
     //plan20.run();
@@ -57,13 +56,6 @@ int main (int argc, char **argv)
     //planMission0.run();
     //plan100.run();
     //plan101.run();
-=======
-    plan20.run();
-    plan21.run();
-    plan40.run();
-    plan100.run();
-    plan101.run();
->>>>>>> main
     //
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);

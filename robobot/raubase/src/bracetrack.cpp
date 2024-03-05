@@ -37,7 +37,7 @@
 #include "cedge.h"
 #include "cmixer.h"
 #include "sdist.h"
-
+#include "upid.h"
 #include "bracetrack.h"
 
 // create class object
@@ -85,6 +85,9 @@ void BRaceTrack::run()
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
+  float speed = 0;
+  float maxSpeed = 1; //1.5
+  float maxDist = 4; //around 4
   //
   toLog("racetrack started");
   //
@@ -97,10 +100,10 @@ void BRaceTrack::run()
         {
           pose.resetPose();
           toLog("Started on Line");
-          mixer.setEdgeMode(false /* right */, 0 /* offset */);
-          mixer.setVelocity(0.7);
+          mixer.setEdgeMode(false /* right */,  0.0 /* offset */);
+          mixer.setVelocity(0.5);
           pose.dist = 0;
-          state = 2;
+          state = 3;
         }
         else if(medge.width < 0.01)
         {
@@ -116,17 +119,66 @@ void BRaceTrack::run()
         break;
       //Add identification of curves in the road. For localizing while doing the race track.
       case 2:
-        toLog(std::to_string(abs(pose.dist)).c_str());
-        if(abs(pose.dist) > 4.0)
+
+        if(pose.dist > 0.2  && speed < maxSpeed)
         {
-          pid.setup(8.0, 40.0, 0.6, 0.15, 0);
-          toLog(std::to_string(pose.dist).c_str());
-          mixer.setEdgeMode(false,-0.04);
+          speed = speed + 0.01;
+          mixer.setVelocity(0.5 + speed);
+        }
+        else if(speed >= maxSpeed)
+        {
+          toLog("Reached Turn");
           state = 3;
         }
-        break;  
+      break;
       case 3:
-        if (pose.dist > 20 )//Gotta test the distance messured. && medge.valid == false) //A Large number will trigger on the ramp and gates
+
+        //toLog(std::to_string(abs(pose.dist)).c_str());
+        if(abs(pose.dist) > maxDist)
+        {
+          mixer.setVelocity(0.6);
+          toLog("Change PID: KP 40, Lead: 0.6 , 0.15");
+          cedge.changePID(10.0, 20.0, 0.3, 0.5, 0.0);
+          //pid.setup();
+          toLog(std::to_string(pose.dist).c_str());
+          mixer.setEdgeMode(false,0.01);
+          pose.dist = 0;
+          state = 4;
+        }
+        break;  
+      case 4:
+        if (pose.dist > 0.5){
+          toLog("Drive straight");
+          cedge.changePID(10.0, 10.0, 0.6, 0.3, 0.0);
+          mixer.setEdgeMode(false,0.00);
+          mixer.setVelocity(0.8);
+          pose.dist = 0;
+          state = 5; 
+        }
+      break;
+      case 5:
+          if (pose.dist > 0.5){
+          toLog("Second Turn");
+          cedge.changePID(10.0, 30.0, 0.6, 0.3, 0.0);
+
+          mixer.setVelocity(0.5);
+          mixer.setEdgeMode(false,0.02);
+          pose.dist = 0;
+          state = 6;
+          }
+      break;
+      case 6:
+          if (pose.dist > 0.5){
+          toLog("Drive straight");
+          cedge.changePID(10.0, 10.0, 0.6, 0.3, 0.0);
+          mixer.setEdgeMode(false,0.00);
+          mixer.setVelocity(0.8);
+          pose.dist = 0;
+          state = 7; 
+        }
+      break;
+      case 7:
+        if (!medge.edgeValid)//Gotta test the distance messured. && medge.valid == false) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
           pose.resetPose();

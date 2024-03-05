@@ -103,6 +103,11 @@ void CEdge::setup()
   th1 = new std::thread(runObj, this);
 }
 
+void CEdge::changePID(float sTime, float proportional, float lead_tau, float lead_alpha, float tau_integrator)
+{
+  pid.setup(sTime, proportional, lead_tau, lead_alpha, tau_integrator);
+}
+
 void CEdge::toLog()
 {
   if (service.stop)
