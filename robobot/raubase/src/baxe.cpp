@@ -39,11 +39,11 @@
 
 #include "baxe.h"
 
-double normalSpeed  =  0.3;   //speed under normal conditions
-double lineWidth    =  0.2;   //width to determine if we are on the line
-double lineGone     =  0.1;   //width to determine if the line was lost
-double lineOffset   = -0.04;  //offset for line edge detection
-
+double normalSpeed        =  0.3;   //speed under normal conditions
+double lineWidth          =  0.2;   //width to determine if we are on the line
+double lineGone           =  0.1;   //width to determine if the line was lost
+double lineOffset         = -0.04;  //offset for line edge detection
+double intersectionWidth  =  0.09;  //used to detect intersections
 
 double stopDistance = 0.25;  //distance to assume that there is something in front of the robot
 double axeLenght    = 5;     //distance from start to finish of mission Axe
@@ -101,7 +101,7 @@ void BAxe::run()
     switch (state)
     {
       case 1: // Start Position, assume we are on a line but verify.
-        if(medge.width > 0.02) //We should be on a line 
+        if(medge.width > lineWidth) //We should be on a line 
         {
           pose.resetPose();
           toLog("Started on Line");
@@ -123,7 +123,19 @@ void BAxe::run()
           lost = true;
         }
         break;
+
       case 2:
+        if (medge.width > intersectionWidth)
+        {
+          //reset pose?
+          mixer.setVelocity(0);
+          mixer.setEdgeMode(true, lineOffset);
+          mixer.setVelocity(0.1);
+          state = 3;
+        }
+        
+      break;
+      case 3:
         if (dist.dist[0] < stopDistance)
         { //there's an object in front of the robot
           pose.resetPose();
@@ -135,10 +147,10 @@ void BAxe::run()
             mixer.setVelocity(0);
           }
           mixer.setVelocity(0.5);
-          state = 3;
+          state = 4;
         }
         break;
-      case 3:
+      case 4:
         if(pose.dist > axeLenght) //lenght of the axe
         {
           mixer.setVelocity(0);
