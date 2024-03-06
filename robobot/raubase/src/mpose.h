@@ -57,9 +57,9 @@ public:
 protected:
   // robot geometry
   float gear = 10.0;
-  float wheelDiameter = 0.09;
+  float wheelDiameter[2] = {0.14}; // left and right
   float encTickPerRev = 64;
-  float distPerTick = (wheelDiameter * M_PI) / gear / encTickPerRev;
+  float distPerTick[2] = {0.1}; // dummy value >0
   // distance between driving wheels
   float wheelBase = 0.22;
 

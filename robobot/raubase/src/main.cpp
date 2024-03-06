@@ -36,8 +36,7 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
-#include "bplanIRTEST.h"
-#include "bplanCrossMission.h"
+
 
 int main (int argc, char **argv)
 { // prepare all modules and start data flow
@@ -49,22 +48,11 @@ int main (int argc, char **argv)
     // turn on LED on port 16
     gpio.setPin(16, 1);
     // run the planned missions
-    
-    //Run from start to first crossing
-    //planCrossMission.run_StartToFirstCross();
-    
-    //Roundabout
-    //planIRTEST.run(true); //Enter from left == true, exit to the left == true
-    planCrossMission.run_RoundaboutToAxe();
-    //Axe
-    /*planCrossMission.run_RoundaboutToAxe*/
-    /*planAxe*/
-
-    //Tunnel
-    /*planCrossMission.run_AxeToTunnel*/
-    /*planTunnel*/
-
-
+    plan20.run();
+    plan21.run();
+    plan40.run();
+    plan100.run();
+    plan101.run();
     //
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);

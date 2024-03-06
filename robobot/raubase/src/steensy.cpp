@@ -90,12 +90,14 @@ void STeensy::setup()
     ini["teensy"]["log"] = "true";
     ini["teensy"]["print"] = "false";
     ini["teensy"]["confirm_timeout"] = "0.04";
+    ini["teensy"]["encrev"] = "true";
   }
   // get ini-file values
   usbDevName = ini["teensy"]["device"];
   toConsole = ini["teensy"]["print"] == "true";
   robotName = ini.get("id").get("type");
   confirmTimeout = strtof(ini["teensy"]["confirm_timeout"].c_str(), nullptr);
+  encoderReversed = ini["teensy"]["encrev"] != "false";
   if (confirmTimeout < 0.01)
     confirmTimeout = 0.02;
   //
@@ -114,13 +116,27 @@ void STeensy::setup()
   // as this will change the function of Teensy to not do all the Regbot stuff.
   // request the robot name (returns in a 'dname' message)
   teensy1.send("idi\n");
-  if (saveRegbotNumber >= 0)
+  if (saveRegbotNumber >= 0 or regbotHardware > 0)
   { // tell robot its name-index
     const int MSL = 100;
     char s[MSL];
-    snprintf(s, MSL, "setidx %d\n", saveRegbotNumber);
+    if (saveRegbotNumber >= 0)
+    {
+      snprintf(s, MSL, "setidx %d\n", saveRegbotNumber);
+      teensy1.send(s);
+      printf("# Teensy set: %s", s);
+    }
+    if (regbotHardware > 0)
+    {
+      snprintf(s, MSL, "sethw %d\n", regbotHardware);
+      printf("# Teensy set: %s", s);
+      teensy1.send(s);
+    }
+    // set also encoder to be reversed (A and B encoder is switched on all motors).
+    snprintf(s, MSL, "motr %d\n", encoderReversed);
+    printf("# Teensy set: %s", s);
     teensy1.send(s);
-    // set robot type
+    // set robot type 'robobot'
     std::string nn = "setid " + robotName + "\n";
     send(nn.c_str());
     // save to Regbot flash
