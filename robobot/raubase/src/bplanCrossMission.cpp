@@ -81,7 +81,7 @@ void BPlanCrossMission::run_StartToFirstCross()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  
+  state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -89,12 +89,12 @@ void BPlanCrossMission::run_StartToFirstCross()
   //Hardcoded Line data
   float f_LineWidth_MinThreshold = 0.02;
   float f_LineWidth_NoLine = 0.01;
-  float f_LineWidth_Crossing = 0.01;
+  float f_LineWidth_Crossing = 0.09;
 
   float f_Line_LeftOffset = 0.03;
-  float f_Line_RightOffset = -0.03;
+  //float f_Line_RightOffset = -0.03;
   bool b_Line_HoldLeft = true;
-  bool b_Line_HoldRight = false;
+  //bool b_Line_HoldRight = false;
 
   //Hardcoded time data
   float f_Time_Timeout = 10.0;
@@ -102,8 +102,8 @@ void BPlanCrossMission::run_StartToFirstCross()
   //Postion and velocity data
   float f_Velocity_DriveForward = 0.25; 
   float f_Velocity_DriveBackwards = -0.15; 
-  float f_Distance_FirstCrossMissed = 1.5;
-
+  float f_Distance_FirstCrossMissed = 10;
+ 
   //
   toLog("PlanCrossMission started");
   //

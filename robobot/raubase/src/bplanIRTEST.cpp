@@ -82,14 +82,23 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   bool finished = false;
   bool lost = false;
   
+  if(entryDirectionStart == true)
+  {
+    state = 1;
+  }
+  else
+  {
+    state = 11;
+  }
+
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
   
   //Hardcoded Line data
-  float f_LineWidth_MinThreshold = 0.02;
-  float f_LineWidth_NoLine = 0.01;
-  float f_LineWidth_Crossing = 0.01;
+  //float f_LineWidth_MinThreshold = 0.02;
+  //float f_LineWidth_NoLine = 0.01;
+  float f_LineWidth_Crossing = 0.09;
 
   float f_Line_LeftOffset = 0.03;
   float f_Line_RightOffset = -0.03;
@@ -97,22 +106,14 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   bool b_Line_HoldRight = false;
 
   //Hardcoded time data
-  float f_Time_Timeout = 10.0;
+  //float f_Time_Timeout = 10.0;
 
   //Postion and velocity data
   float f_Velocity_DriveForward = 0.25; 
-  float f_Velocity_DriveBackwards = -0.15; 
-  float f_Distance_FirstCrossMissed = 1.5;
+  //float f_Velocity_DriveBackwards = -0.15; 
+  //float f_Distance_FirstCrossMissed = 1.5;
   float f_Distance_LeftCrossToRoundabout = 0.9;
 
-  if(directionStart == true)
-  {
-    state = 1
-  }
-  else
-  {
-    state = 11;
-  }
 
   //
   toLog("PlanIRTEST started");;
@@ -140,17 +141,16 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         { 
           toLog("Ready to enter the roundabout from the start-side");
           mixer.setVelocity(0);
-          pose.dist = 0;
-          pose.turned = 0;
-          mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(1.0);
+          pose.resetPose();
+          //mixer.setVelocity(0.01);//Drive slowly and turn i circle
+          mixer.setTurnrate(0.5);
           state = 3;
         }
         break;
       
       //Case 3 - Stop turning after some angle
       case 3:
-        if(pose.turned > 1.2){
+        if(pose.turned > 1.35){
           mixer.setTurnrate(0);
           state = 21;
         }
@@ -168,7 +168,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           pose.dist = 0;
           pose.turned = 0;
           mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(1.0);
+          mixer.setTurnrate(0.5);
           state = 12;
         }
         break;
@@ -200,7 +200,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if(t.getTimePassed() > 2)
         {
           pose.dist = 0;
-          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset );
           mixer.setVelocity(0.1);
           state = 23;
         }
@@ -210,7 +210,8 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 23:
         if(pose.dist > 0.6)
         {
-          mixer.setVelocity(0.25);
+          mixer.setVelocity(0.4);
+          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
           state = 24;
         }
 
@@ -220,11 +221,11 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 24:
       if(medge.width > f_LineWidth_Crossing) //0.07
         { 
-          pose.turned=0; 
+          pose.resetPose();
           // start driving
           toLog("Roundabout split found");
-          mixer.setVelocity(0.01); //TEST THIS!!!!!
-          mixer.setTurnrate(-1.0);
+          mixer.setVelocity(0); //TEST THIS!!!!!
+          mixer.setTurnrate(0.5);
           state = 25;
         }
         break;
@@ -232,21 +233,21 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 25 - After turning some angle, go to state 10
       case 25:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
-        if(pose.turned > -1.2)
+        if(abs(pose.turned) > 0.5)
         {
           mixer.setTurnrate(0);
-          pose.dist = 0;
-          mixer.setVelocity(-1);
+          pose.resetPose();
+          mixer.setVelocity(-0.2);
           state = 26;
         } 
       break;
 
       //Case 26 - after some distance, stop and turn for the circle
       case 26:
-        if(pose.dist > 0.6)
+        if(abs(pose.dist) > 0.3)
         {
           mixer.setVelocity(0.01); //TEST THIS!!!!!
-          mixer.setTurnrate(1.0);
+          mixer.setTurnrate(0.5);
           state = 27;
         } 
       break;
