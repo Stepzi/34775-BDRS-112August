@@ -29,17 +29,17 @@ using namespace std;
  * Class intended to accomplish a short mission,
  * e.g. one challenge or part of a challenge
  * */
-class BPlanIRTEST
+class BPlanCrossMission
 {
 public:
   /**
    * destructor */
-    ~BPlanIRTEST();
+    ~BPlanCrossMission();
   /** setup and request data */
   void setup();
   /**
    * run this mission */
-  void run(bool entryDirectionStart, bool exitDirectionStart );
+  void run_StartToFirstCross();
   /**
    * terminate */
   void terminate();
@@ -60,5 +60,5 @@ private:
 
 /**
  * Make this visible to the rest of the software */
-extern BPlanIRTEST planIRTEST;
+extern BPlanCrossMission planCrossMission;
 

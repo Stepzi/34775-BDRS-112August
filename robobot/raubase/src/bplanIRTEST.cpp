@@ -72,7 +72,7 @@ BPlanIRTEST::~BPlanIRTEST()
   terminate();
 }
 
-void BPlanIRTEST::run()
+void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
 {
   if (not setupDone)
     setup();
@@ -81,10 +81,39 @@ void BPlanIRTEST::run()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 1;
+  
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
+  
+  //Hardcoded Line data
+  float f_LineWidth_MinThreshold = 0.02;
+  float f_LineWidth_NoLine = 0.01;
+  float f_LineWidth_Crossing = 0.01;
+
+  float f_Line_LeftOffset = 0.03;
+  float f_Line_RightOffset = -0.03;
+  bool b_Line_HoldLeft = true;
+  bool b_Line_HoldRight = false;
+
+  //Hardcoded time data
+  float f_Time_Timeout = 10.0;
+
+  //Postion and velocity data
+  float f_Velocity_DriveForward = 0.25; 
+  float f_Velocity_DriveBackwards = -0.15; 
+  float f_Distance_FirstCrossMissed = 1.5;
+  float f_Distance_LeftCrossToRoundabout = 0.9;
+
+  if(directionStart == true)
+  {
+    state = 1
+  }
+  else
+  {
+    state = 11;
+  }
+
   //
   toLog("PlanIRTEST started");;
   toLog("Time stamp, IR dist 0, IR dist 1");
@@ -93,138 +122,137 @@ void BPlanIRTEST::run()
   {
     switch (state)
     {
-      //Case 1 - Starting with error handling if no line found
-      case 1: // Start Position, assume we are on a line but verify.
-        if(medge.width > 0.02) //We should be on a line 
-        {
-          pose.resetPose();
-          toLog("Started on Line");
-          toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(true /* left */, 0.03 /* offset */);
-          mixer.setVelocity(0.25);
-          state = 2;
-        }
-        else if(medge.width < 0.01)
-        {
-          pose.resetPose();
-          toLog("No Line");
-          mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(1.0);
-        }
-        else if(t.getTimePassed() > 10)
-        {
-          toLog("Never found Line");
-          lost = true;
-        }
-        break;
-
-      //Case 2 - first crossing on the track
-      case 2:
-        if(medge.width > 0.09) //0.07
-        { 
+      /********************************************************************/
+      /******************** Coming from the start-side ********************/
+      /********************************************************************/
+      //Case 1 - first crossing on the track and forward
+      case 1:
           // start driving
-          toLog("First split found");
+          mixer.setVelocity(f_Velocity_DriveForward); //Already driving
+          toLog("Starting from split - Start-side of roundabout");
           pose.dist=0;   
-          state = 3;
-        }
+          state = 2;
         break;
       
-      //Case 3 - Drive 0.9 still following line. Then start turning.
-      case 3:  // Stop goal reached case
-        if(pose.dist > 0.9)
+      //Case 2 - Drive 0.9 still following line. Then start turning.
+      case 2:  // Stop goal reached case
+        if(pose.dist > f_Distance_LeftCrossToRoundabout)
         { 
-          // start driving
-          //pose.resetPose();
-          toLog("ready to enter the roundabout");
+          toLog("Ready to enter the roundabout from the start-side");
           mixer.setVelocity(0);
-          state = 4;
           pose.dist = 0;
           pose.turned = 0;
           mixer.setVelocity(0.01);//Drive slowly and turn i circle
           mixer.setTurnrate(1.0);
+          state = 3;
         }
         break;
       
-      //Case 4 - Stop turning after some angle
-      case 4:
+      //Case 3 - Stop turning after some angle
+      case 3:
         if(pose.turned > 1.2){
-          state = 5;
           mixer.setTurnrate(0);
+          state = 21;
         }
-
       break;
+
+      /******************************************************************/
+      /******************** Coming from the axe-side ********************/
+      /********************************************************************/
+      //Case 11 - Drive from the Axe-side
+      case 11:  // Stop goal reached case
+        if(pose.dist > f_Distance_LeftCrossToRoundabout)
+        { 
+          toLog("Ready to enter the roundabout from the start-side");
+          mixer.setVelocity(0);
+          pose.dist = 0;
+          pose.turned = 0;
+          mixer.setVelocity(0.01);//Drive slowly and turn i circle
+          mixer.setTurnrate(1.0);
+          state = 12;
+        }
+        break;
       
-      //Case 5 - If robot is seen, clear time and wait until case 6
-      case 5: 
+      //Case 12 - Stop turning after some angle
+      case 12:
+        if(pose.turned > -0.3){
+          mixer.setTurnrate(0);
+          state = 21;
+        }
+      break;
+
+      /******************************************************************/
+      /**** Both sides collected behaviour from waiting on the robot ****/
+      /********************************************************************/
+      //Case 21 - If robot is seen, clear time and wait until case 6
+      case 21: 
         if(dist.dist[0] < 0.25){
-          toLog("robot seen!");
-          state = 6;
+          toLog("Robot seen!");
           t.clear();
           pose.dist = 0;
+          state = 22;
         }
       break;
 
-      //Case 6 - After 2 seconds, reset distance, set follow line mode and drive forward slowly.
-      case 6: 
+      //Case 22 - After 2 seconds, reset distance, set follow line mode and drive forward slowly.
+      case 22: 
         //toLog(std::to_string(t.getTimePassed()).c_str());
         if(t.getTimePassed() > 2)
         {
           pose.dist = 0;
-          mixer.setEdgeMode(true /* right */, 0.03 /* offset */);
+          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
           mixer.setVelocity(0.1);
-          state = 7;
+          state = 23;
         }
       break;
 
-      //Case 7 - After 0.6 driven, set up speed, follow right with new offset and go to case 8
-      case 7:
+      //Case 23 - After 0.6 driven, set up speed, follow right with new offset and go to case 8
+      case 23:
         if(pose.dist > 0.6)
         {
-          mixer.setEdgeMode(false /* right */, -0.03 /* offset */);
           mixer.setVelocity(0.25);
-          state = 8;
+          state = 24;
         }
 
       break;
 
-      //Case 8 - At crossing, attempt to go into roundabout
-      case 8:
-      if(medge.width > 0.09) //0.07
+      //Case 24 - At crossing, attempt to go into roundabout
+      case 24:
+      if(medge.width > f_LineWidth_Crossing) //0.07
         { 
           pose.turned=0; 
           // start driving
           toLog("Roundabout split found");
-           
           mixer.setVelocity(0.01); //TEST THIS!!!!!
           mixer.setTurnrate(-1.0);
-          state = 9;
+          state = 25;
         }
         break;
       
-      //Case 9 - After turning some angle, go to state 10
-      case 9:
+      //Case 25 - After turning some angle, go to state 10
+      case 25:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
         if(pose.turned > -1.2)
         {
           mixer.setTurnrate(0);
           pose.dist = 0;
           mixer.setVelocity(-1);
-          state = 10;
+          state = 26;
         } 
       break;
 
-      //Case 10 - after some distance, stop and turn for the circle
-      case 10:
+      //Case 26 - after some distance, stop and turn for the circle
+      case 26:
         if(pose.dist > 0.6)
         {
           mixer.setVelocity(0.01); //TEST THIS!!!!!
           mixer.setTurnrate(1.0);
-          state = 11;
+          state = 27;
         } 
       break;
 
-      //Case 11 - After turning some angle, ready for turning around on the roundabout. 
-      case 11:
+      //Case 27 - After turning some angle, ready for turning around on the roundabout. 
+      case 27:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
         if(pose.turned > 1.2)
         {
@@ -232,22 +260,26 @@ void BPlanIRTEST::run()
           mixer.setVelocity(0);
           t.clear();
           pose.dist = 0;
-          state = 12;
+          state = 28;
         } 
       break;
 
-      //Case 11 - After turning some angle, ready for turning around on the roundabout. 
-      case 12:
+      //Case 28 - After turning some angle, ready for turning around on the roundabout. 
+      case 28:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
         if(t.getTimePassed() > 1)
         {
           mixer.setTurnrate(-0.05);
           mixer.setVelocity(0.15);
-          state = 13;
+          state = 29;
           
         } 
       break;
 
+
+      /********************************************************************/
+      /*************************** Exit strategy **************************/
+      /********************************************************************/
 
       case 97: // print medge.width case 
         
