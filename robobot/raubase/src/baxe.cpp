@@ -39,9 +39,12 @@
 
 #include "baxe0.h"
 
-double normalSpeed  = 0.3;   //speed under normal conditions
-double lineWidth    = 0.2;   //width to determine if we are on the line
-double lineGone     = 0.1;   //width to determine if the line was lost
+double normalSpeed  =  0.3;   //speed under normal conditions
+double lineWidth    =  0.2;   //width to determine if we are on the line
+double lineGone     =  0.1;   //width to determine if the line was lost
+double lineOffset   = -0.04;  //offset for line edge detection
+
+
 double stopDistance = 0.25;  //distance to assume that there is something in front of the robot
 double axeLenght    = 5;     //distance from start to finish of mission Axe
 
@@ -103,7 +106,7 @@ void BAxe::run()
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(false /* right */, -0.01 /* offset */);
+          mixer.setEdgeMode(false /* right */, lineOffset /* offset */);
           mixer.setVelocity(normalSpeed);
           state = 2;
         }
@@ -111,8 +114,8 @@ void BAxe::run()
         {
           pose.resetPose();
           toLog("No Line");
-          mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(1.0);
+          mixer.setVelocity(0.0);//Drive slowly and turn i circle
+          mixer.setTurnrate(0.2);
         }
         else if(t.getTimePassed() > 10)
         {
