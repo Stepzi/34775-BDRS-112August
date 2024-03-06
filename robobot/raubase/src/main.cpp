@@ -49,7 +49,7 @@ int main (int argc, char **argv)
     // turn on LED on port 16
     gpio.setPin(16, 1);
     // run the planned missions
-    //mission0.run();
+    mission0.run();
     //plan20.run();
     //plan21.run();
     //plan40.run();
