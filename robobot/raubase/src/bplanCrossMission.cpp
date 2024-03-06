@@ -180,6 +180,130 @@ void BPlanCrossMission::run_StartToFirstCross()
 }
 
 
+void BPlanCrossMission::run_RoundaboutToAxe()
+{
+  if (not setupDone)
+    setup();
+  if (ini["PlanCrossMission"]["run"] == "false")
+    return;
+  UTime t("now");
+  bool finished = false;
+  bool lost = false;
+  state = 1;
+  oldstate = state;
+  const int MSL = 100;
+  char s[MSL];
+  
+  //Hardcoded Line data
+  float f_LineWidth_MinThreshold = 0.013;
+  float f_LineWidth_NoLine = 0.01;
+  float f_LineWidth_Crossing = 0.09;
+
+  //float f_Line_LeftOffset = 0.03;
+  float f_Line_RightOffset = -0.03;
+  //bool b_Line_HoldLeft = true;
+  bool b_Line_HoldRight = false;
+
+  //Hardcoded time data
+  float f_Time_Timeout = 10.0;
+
+  //Postion and velocity data
+  float f_Velocity_DriveForward = 0.25; 
+  //float f_Velocity_DriveBackwards = -0.15; 
+  //float f_Distance_FirstCrossMissed = 10;
+ 
+  //
+  toLog("PlanCrossMission2 started");
+  //
+  while (not finished and not lost and not service.stop)
+  {
+    switch (state)
+    {
+      //Case 1 - Starting with error handling if no line found
+      case 1: // Start Position, assume we are on a line but verify.
+        toLog(std::to_string(medge.width).c_str());
+        if(medge.width > f_LineWidth_MinThreshold) //We should be on a line 
+        {
+          pose.resetPose();
+          toLog("Started on Line");
+          toLog("Follow Line with velocity 0.25"); //Some parse of float to log, Villiams :)
+          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset);
+          mixer.setVelocity(f_Velocity_DriveForward); 
+          state = 2;
+        }
+        else if(medge.width < f_LineWidth_NoLine)
+        {
+          pose.resetPose();
+          toLog("No Line");
+          mixer.setVelocity(0.01);//Drive slowly and turn i circle
+          mixer.setTurnrate(1.0);
+        }
+        else if(t.getTimePassed() > f_Time_Timeout)
+        {
+          toLog("Never found Line");
+          lost = true;
+        }
+        break;
+
+      //Case 2 - first crossing on the track
+      case 2:
+        if(medge.width > f_LineWidth_Crossing) 
+        { 
+          // start driving
+          toLog("First split found");
+          pose.turned = 0;
+          mixer.setVelocity(0);
+          mixer.setTurnrate(1);
+          state = 3;
+        }
+        //If line missed, reverse and it is tried to be detected again with a lower line width measure. If missed again this continues.
+        break;
+      case 3: 
+        toLog(std::to_string(pose.turned).c_str());
+        if(pose.turned > 0.5) 
+        { 
+          // start driving
+          toLog("Turning done");
+          mixer.setVelocity(0.3);
+          state = 4;
+        }
+        //If line missed, reverse and it is tried to be detected again with a lower line width measure. If missed again this continues.
+        break;
+      case 4:
+        if(medge.width > f_LineWidth_Crossing) 
+        { 
+          // start driving
+          toLog("Second split found");
+          pose.dist=0;
+          finished = true;   
+        }
+      break;
+
+      default:
+        toLog("Default Start to Cross");
+        lost = true;
+      break;
+    }
+    if (state != oldstate)
+    { // C-type string print
+      snprintf(s, MSL, "State change from %d to %d", oldstate, state);
+      toLog(s);
+      oldstate = state;
+      t.now();
+    }
+    // wait a bit to offload CPU (4000 = 4ms)
+    usleep(4000);
+  }
+  if (lost)
+  { // there may be better options, but for now - stop
+    toLog("PlanCrossMission got lost - stopping");
+    mixer.setVelocity(0);
+    mixer.setTurnrate(0);
+  }
+  else
+    toLog("PlanCrossMission finished");
+}
+
 void BPlanCrossMission::terminate()
 { //
   if (logfile != nullptr)

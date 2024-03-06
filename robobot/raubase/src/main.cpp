@@ -51,11 +51,11 @@ int main (int argc, char **argv)
     // run the planned missions
     
     //Run from start to first crossing
-    planCrossMission.run_StartToFirstCross();
+    //planCrossMission.run_StartToFirstCross();
     
     //Roundabout
-    planIRTEST.run(true, false); //Enter from left == true, exit to the left == true
-
+    //planIRTEST.run(true); //Enter from left == true, exit to the left == true
+    planCrossMission.run_RoundaboutToAxe();
     //Axe
     /*planCrossMission.run_RoundaboutToAxe*/
     /*planAxe*/

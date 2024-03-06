@@ -40,6 +40,8 @@ public:
   /**
    * run this mission */
   void run_StartToFirstCross();
+
+  void run_RoundaboutToAxe();
   /**
    * terminate */
   void terminate();
