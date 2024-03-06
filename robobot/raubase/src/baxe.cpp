@@ -40,13 +40,14 @@
 #include "baxe.h"
 
 double normalSpeed        =  0.3;   //speed under normal conditions
-double lineWidth          =  0.02;   //width to determine if we are on the line
+double lineWidth          =  0.02;  //width to determine if we are on the line
 double lineGone           =  0.1;   //width to determine if the line was lost
-double lineOffset         = -0.04;  //offset for line edge detection
+double lineOffset         =  0;  //offset for line edge detection
 double intersectionWidth  =  0.05;  //used to detect intersections
 
-double stopDistance = 0.25;  //distance to assume that there is something in front of the robot
-double axeLenght    = 5;     //distance from start to finish of mission Axe
+double stopDistance       = 0.2;   //distance to assume that there is something in front of the robot
+double intersectionToAxe  = 0.9;    //distance from intersection to axe start
+double axeLenght          = 2;      //distance from start to finish of mission Axe
 
 // create class object
 BAxe axe;
@@ -127,36 +128,47 @@ void BAxe::run()
       case 2:
         if (medge.width > intersectionWidth)
         {
-          toLog("found intersection")
+          toLog("found intersection");
           //reset pose?
           mixer.setVelocity(0);
           //mixer.setEdgeMode(true, lineOffset);
           mixer.setVelocity(0.1);
+          pose.dist = 0;
           state = 3;
         }
 
         else
         {
-          mixer.setVelocity(normalSpeed);
+          if (pose.dist > 0.1)
+          {
+            mixer.setVelocity(normalSpeed);
+          }
         }
         
       break;
       case 3:
-        if (dist.dist[0] < stopDistance)
-        { //there's an object in front of the robot
+        if (dist.dist[0] < stopDistance or pose.dist > intersectionToAxe)
+        {
           pose.resetPose();
-          toLog("Waiting for axe");
+          toLog("robot in front of axe");
           //mixer.setVelocity(0.025);
           mixer.setVelocity(0);
-          while (dist.dist[0] < stopDistance)
-          {
-            mixer.setVelocity(0);
-          }
-          mixer.setVelocity(0.5);
           state = 4;
         }
         break;
-      case 4:
+
+      case 4: 
+      float currentDistToAxe = dist.dist[0];
+      while (dist.dist[0] <= stopDistance)
+      {
+        toLog ("waiting for axe");
+        mixer.setVelocity(0); //waiting for axe to pass
+      }
+      toLog ("axe has passed");
+      mixer.setVelocity(0.5);
+      break;
+
+      case 5:
         if(pose.dist > axeLenght) //lenght of the axe
         {
           mixer.setVelocity(0);
