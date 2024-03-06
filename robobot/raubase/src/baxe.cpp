@@ -37,7 +37,7 @@
 #include "cmixer.h"
 #include "sdist.h"
 
-#include "baxe0.h"
+#include "baxe.h"
 
 double normalSpeed  =  0.3;   //speed under normal conditions
 double lineWidth    =  0.2;   //width to determine if we are on the line
@@ -134,7 +134,7 @@ void BAxe::run()
           {
             mixer.setVelocity(0);
           }
-          mixer.setVelocity(0.5)
+          mixer.setVelocity(0.5);
           state = 3;
         }
         break;
