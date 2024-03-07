@@ -30,7 +30,9 @@
 #include <string>
 #include <string.h>
 #include <math.h>
-#include <opencv2/aruco.hpp> // Check here
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <filesystem>
 
 #include "mgolfball.h"
@@ -123,11 +125,50 @@ int Mgolfball::findGolfball(cv::Mat * sourcePtr = nullptr, int& pos)
 
 
   // load params, min size, max size
+  
+  Mat blurred;
+  cv::GuassianBlur(frame, blurred, cv::Scalar(11, 11), 0);
+  int width = frame.rows;
+  int height = frame.cols;
+  Mat mask;
+  cv::cvtColor(blurred, mask, cv::COLOR_BGR2HSV);
+  cv::inRange(mask, mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255));
+  // cv::erode(mask, mask, Mat, 2);
+  // cv::dilate(mask, mask, Mat, 2);
+  vector<vector<cv::Point>> circles;
+  cv::findContours(mask, circles, cv::noArray(),cv::RETR_EXTERNAL,
+                            cv::HAIN_APPROX_SIMPLE);
+
+    
+  for( size_t i = 0; i < circles.size(); i++ )
+  {
+      vector<cv::Point> c = circles[i];
+      
+      // loop over all contours and do stuff
+      
+      // cv::Point center = Point(c[0], c[1]);
+      // // circle center
+      // circle( src, center, 1, Scalar(0,100,100), 3, LINE_AA);
+      // // circle outline
+      // int radius = c[2];
+      // circle( src, center, radius, Scalar(255,0,255), 3, LINE_AA);
+  }
+    // imshow("detected circles", src);
+    // waitKey();
+
+
+  //=============================================
+
+
+
+
 
   // filter
+  cv::gaussianBlur()
   // convert colors
   // apply color filter
   // detect circles
+  // count == no. of detected golfball candidates
   // set bool to true if no of circles greater than 0
   // choose closest
   
