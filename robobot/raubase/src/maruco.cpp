@@ -125,7 +125,8 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
   cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
   if (sourcePtr == nullptr)
   {
-    frame = cam.getFrameRaw();
+    //frame = cam.getFrameRaw();
+    frame = cam.getFrame();
     imgTime = cam.imgTime;
   }
   else

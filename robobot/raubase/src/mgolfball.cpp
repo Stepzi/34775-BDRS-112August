@@ -96,7 +96,7 @@ void Mgolfball::toLog(const char * message)
   }
 }
 
-int Mgolfball::findGolfball(float size, cv::Mat * sourcePtr)
+int Mgolfball::findGolfball(cv::Mat * sourcePtr = nullptr, int& pos)
 { // taken from https://docs.opencv.org
   int count = 0;
   cv::Mat frame;
@@ -119,29 +119,34 @@ int Mgolfball::findGolfball(float size, cv::Mat * sourcePtr)
   cv::Mat img;
   if (debugSave)
     frame.copyTo(img);
+
+
+
+  // load params, min size, max size
+
+  // filter
+  // convert colors
+  // apply color filter
+  // detect circles
+  // set bool to true if no of circles greater than 0
+  // choose closest
   
-  std::vector<std::vector<cv::Point2f>> markerCorners;
-  // cv::aruco::detectMarkers(frame, dictionary, markerCorners, arID);
-  // count = arID.size();
-  // // estimate pose of all markers
-  // cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
-  // //
-  // if (debugSave)
-  // { // paint found markers in image copy 'img'.
-  //   const int MSL = 200;
-  //   char s[MSL];
-  //   // draw axis for each marker
-  //   for(int i=0; i<count; i++)
-  //   {
-  //     cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
-  //     cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
-  //     snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
-  //              arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
-  //              arRotate[i][0], arRotate[i][1], arRotate[i][2]);
-  //     toLog(s);
-  //   }
-  //   saveImageTimestamped(img, imgTime);
-  // }
+  //
+  if (debugSave)
+  { // paint found golfballs in image copy 'img'.
+    const int MSL = 200;
+    char s[MSL];
+    // draw axis for each marker
+    for(int i=0; i<count; i++)
+    {
+      // Draw circels and center
+      snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
+               arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
+               arRotate[i][0], arRotate[i][1], arRotate[i][2]);
+      toLog(s);
+    }
+    saveImageTimestamped(img, imgTime);
+  }
   return count;
 }
 
@@ -167,11 +172,4 @@ void Mgolfball::saveImageTimestamped(cv::Mat & img, UTime imgTime)
   saveImageInPath(img, string(s) + ".jpg");
 }
 
-void Mgolfball::saveCodeImage(int arucoID)
-{
-  // cv::Mat markerImage;
-  // int pixSize = 240;
-  // cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
-  // cv::aruco::drawMarker(dictionary, arucoID, pixSize, markerImage, 1);
-  // saveImageInPath(markerImage, string("marker_") + to_string(arucoID) + ".png");
-}
+
