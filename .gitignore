@@ -41,6 +41,9 @@
 *.config
 *.iml
 
+#Notebook checkpoints
+*-checkpoint.ipynb
+
 log/
 regbot/
 robobot/.svn/
