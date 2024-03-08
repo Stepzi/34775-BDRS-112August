@@ -124,7 +124,7 @@ void BAxe::run()
           toLog("Never found Line");
           lost = true;
         }
-      break;
+        break;
 
       //finding an intersection
       case 2:
@@ -145,7 +145,7 @@ void BAxe::run()
             mixer.setVelocity(normalSpeed);
           }
         }
-      break;
+        break;
 
     // getting the robot to the axe
     // based on the driven distance.
@@ -159,37 +159,37 @@ void BAxe::run()
           mixer.setVelocity(0);
           state = 4;
         }
-      break;
+        break;
 
       // waiting for axe
       case 4:
         //float currentDistToAxe = dist.dist[0];
-        bool logWrite = true;
+        bool tempBool = true;
 
         mixer.setVelocity(0);
         while (dist.dist[0] >= stopDistance * 2)  //nothing in front - waiting for axe to appear
         {
-          if (logWrite) 
+          if (tempBool) 
           {
             toLog ("waiting for axe");
-            logWrite = false;
+            tempBool = false;
           }
         } 
         
-        logWrite = true;
+        tempBool = true;
         while (dist.dist[0] <= stopDistance)        //axe in front - waiting for it to be gone
         {
-          if (logWrite) 
+          if (tempBool) 
           {
             toLog ("waiting for axe to pass");
-            logWrite = false;
+            tempBool = false;
           }
         }
 
         toLog ("axe is gone");                      //yeet
         mixer.setVelocity(0.5);
         state = 5;
-      break;
+        break;
 
       // deciding when to finish the mission
       case 5:
@@ -205,7 +205,7 @@ void BAxe::run()
           toLog("Gave up waiting for Regbot");
           lost = true;
         }
-      break;
+        break;
 
       default:
         toLog("Default Axe");
