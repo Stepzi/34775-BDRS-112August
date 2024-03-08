@@ -98,10 +98,11 @@ void Mgolfball::toLog(const char * message)
   }
 }
 
-int Mgolfball::findGolfball(cv::Mat * sourcePtr = nullptr, int& pos)
+bool Mgolfball::findGolfball(int& pos, cv::Mat * sourcePtr = nullptr)
 { // taken from https://docs.opencv.org
-  int count = 0;
   cv::Mat frame;
+  cv::Point2f center;
+  float radius;
   if (sourcePtr == nullptr)
   {
     frame = cam.getFrameRaw();
@@ -112,59 +113,18 @@ int Mgolfball::findGolfball(cv::Mat * sourcePtr = nullptr, int& pos)
     frame = *sourcePtr;
   }
   //
-  // printf("# MVision::findAruco looking for ArUco of size %.3fm\n", size);
   if (frame.empty())
   {
-    printf("MVision::findAruco: Failed to get an image\n");
+    printf("MVision::findGolfball: Failed to get an image\n");
     return 0;
   }
   cv::Mat img;
   if (debugSave)
     frame.copyTo(img);
-
-
-
-  // load params, min size, max size
-  
-  Mat blurred;
-  cv::GuassianBlur(frame, blurred, cv::Scalar(11, 11), 0);
-  int width = frame.rows;
-  int height = frame.cols;
-  Mat mask;
-  cv::cvtColor(blurred, mask, cv::COLOR_BGR2HSV);
-  cv::inRange(mask, mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255));
-  // cv::erode(mask, mask, Mat, 2);
-  // cv::dilate(mask, mask, Mat, 2);
-  vector<vector<cv::Point>> circles;
-  cv::findContours(mask, circles, cv::noArray(),cv::RETR_EXTERNAL,
-                            cv::HAIN_APPROX_SIMPLE);
-
-    
-  for( size_t i = 0; i < circles.size(); i++ )
-  {
-      vector<cv::Point> c = circles[i];
-      
-      // loop over all contours and do stuff
-      
-      // cv::Point center = Point(c[0], c[1]);
-      // // circle center
-      // circle( src, center, 1, Scalar(0,100,100), 3, LINE_AA);
-      // // circle outline
-      // int radius = c[2];
-      // circle( src, center, radius, Scalar(255,0,255), 3, LINE_AA);
-  }
-    // imshow("detected circles", src);
-    // waitKey();
-
-
   //=============================================
 
-
-
-
-
   // filter
-  cv::gaussianBlur()
+  // blur
   // convert colors
   // apply color filter
   // detect circles
@@ -172,23 +132,50 @@ int Mgolfball::findGolfball(cv::Mat * sourcePtr = nullptr, int& pos)
   // set bool to true if no of circles greater than 0
   // choose closest
   
+  cv::Mat blurred;
+  cv::GuassianBlur(frame, blurred, cv::Scalar(11, 11), 0);
+  int width = frame.rows;
+  int height = frame.cols;
+  cv::Mat mask;
+  cv::cvtColor(blurred, mask, cv::COLOR_BGR2HSV);
+  cv::inRange(mask, mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255));
+  // cv::erode(mask, mask, Mat, 2);
+  // cv::dilate(mask, mask, Mat, 2);
+  vector<vector<cv::Point>> circles;
+  cv::findContours(mask, circles, cv::noArray(),cv::RETR_EXTERNAL,
+                            cv::HAIN_APPROX_SIMPLE);
+  if (circles.length() > 0){
+    auto c = max_element(circles.begin(), circles.end(), 
+                        [] (auto const& lhs, auto const& rhs) {
+                          return cv::contourArea(lhs) < cv::contourArea(rhs);
+            });
+
+    cv::Point2f circle
+    cv::minEncolsingCircle(c, circle, radius);
+    if (radius < 10 && radius > 65)
+      return false;
+    cv::Moments M = cv::moments(c);
+    center = cv::Point2f(int(M.m10 / M.m00), int(M.m01 / M.m00));
+    // center = static_cast<int>(center);
+    pos[0] = center.x;
+    pos[1] = center.y;
+  }
+  
   //
   if (debugSave)
   { // paint found golfballs in image copy 'img'.
     const int MSL = 200;
     char s[MSL];
-    // draw axis for each marker
-    for(int i=0; i<count; i++)
-    {
-      // Draw circels and center
-      snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
-               arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
-               arRotate[i][0], arRotate[i][1], arRotate[i][2]);
-      toLog(s);
-    }
+    // Draw circle and its center
+    cv::circle(img, center, static_cast<int>(radius), cv::Scalar(0,255,0), 2);
+    cv::circle(img, center, 1, cv::Scalar(0, 0, 255), 2);
+    snprintf(s, MSL, "center: (%d, %d), radius: %d", center[0], centert[1], radius);
+    toLog(s);
+    
     saveImageTimestamped(img, imgTime);
   }
-  return count;
+
+  return true;
 }
 
 void Mgolfball::saveImageInPath(cv::Mat& img, string name)

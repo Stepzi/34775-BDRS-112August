@@ -36,6 +36,7 @@
 #include "medge.h"
 #include "cedge.h"
 #include "cmixer.h"
+#include "mgolfball.h"
 
 #include "bgolfballtest.h"
 
@@ -92,11 +93,18 @@ void bgolfballtest::run()
     switch (state)
     { // make a shift in heading-mission
       case 10:
-        pose.resetPose();
-        toLog("forward at 0.3m/s");
-        mixer.setVelocity(0.3);
-        state = 11;
-        break;
+
+        int center = {0,0};
+        if(Mgolfball::findGolfball(center)){
+            
+            const int MSL = 200;
+            char s[MSL];
+
+            snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
+            toLog(s);
+
+            // turn kp times error from center
+        }
       case 11: // wait for distance
         if (pose.dist >= 1.0)
         { // done, and then
