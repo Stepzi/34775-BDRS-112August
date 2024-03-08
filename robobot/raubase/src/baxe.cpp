@@ -9,6 +9,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the “Software”), to deal in the Software without restriction, 
  * including without limitation the rights to use, copy, modify, merge, publish, distribute, 
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
  * is furnished to do so, subject to the following conditions:
  * 
  * The above copyright notice and this permission notice shall be included in all copies 
@@ -123,13 +124,13 @@ void BAxe::run()
           toLog("Never found Line");
           lost = true;
         }
-        break;
+      break;
 
+      //finding an intersection
       case 2:
         if (medge.width > intersectionWidth)
         {
           toLog("found intersection");
-          //reset pose?
           mixer.setVelocity(0);
           //mixer.setEdgeMode(true, lineOffset);
           mixer.setVelocity(0.1);
@@ -144,30 +145,53 @@ void BAxe::run()
             mixer.setVelocity(normalSpeed);
           }
         }
-        
       break;
+
+    // getting the robot to the axe
+    // based on the driven distance.
+    // the distance sensor is for 
+    // additional safety
       case 3:
         if (dist.dist[0] < stopDistance or pose.dist > intersectionToAxe)
         {
           pose.resetPose();
           toLog("robot in front of axe");
-          //mixer.setVelocity(0.025);
           mixer.setVelocity(0);
           state = 4;
         }
-        break;
-
-      case 4: 
-      float currentDistToAxe = dist.dist[0];
-      while (dist.dist[0] <= stopDistance)
-      {
-        toLog ("waiting for axe");
-        mixer.setVelocity(0); //waiting for axe to pass
-      }
-      toLog ("axe has passed");
-      mixer.setVelocity(0.5);
       break;
 
+      // waiting for axe
+      case 4:
+        //float currentDistToAxe = dist.dist[0];
+        bool logWrite = true;
+
+        mixer.setVelocity(0);
+        while (dist.dist[0] >= stopDistance * 2)  //nothing in front - waiting for axe to appear
+        {
+          if (logWrite) 
+          {
+            toLog ("waiting for axe");
+            logWrite = false;
+          }
+        } 
+        
+        logWrite = true;
+        while (dist.dist[0] <= stopDistance)        //axe in front - waiting for it to be gone
+        {
+          if (logWrite) 
+          {
+            toLog ("waiting for axe to pass");
+            logWrite = false;
+          }
+        }
+
+        toLog ("axe is gone");                      //yeet
+        mixer.setVelocity(0.5);
+        state = 5;
+      break;
+
+      // deciding when to finish the mission
       case 5:
         if(pose.dist > axeLenght) //lenght of the axe
         {
@@ -175,17 +199,20 @@ void BAxe::run()
           mixer.setTurnrate(0);
           finished = true;
         }
+        //probably not needed
         else if (t.getTimePassed() > 30)
         {
           toLog("Gave up waiting for Regbot");
           lost = true;
         }
-        break;
+      break;
+
       default:
         toLog("Default Axe");
         lost = true;
       break;
     }
+
     if (state != oldstate)
     { // C-type string print
       snprintf(s, MSL, "State change from %d to %d", oldstate, state);
@@ -205,7 +232,6 @@ void BAxe::run()
   else
     toLog("axe finished");
 }
-
 
 void BAxe::terminate()
 { //
