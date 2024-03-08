@@ -56,6 +56,9 @@ robobot/raubase/build/
 robobot/golfball/.vs/
 robobot/golfball/test.cpp
 robobot/golfball/images/
+robobot/golfball/build/
+robobot/golfball/CMakeLists.txt
+robobot/golfball/test2.cpp
 
 .vscode/
 
