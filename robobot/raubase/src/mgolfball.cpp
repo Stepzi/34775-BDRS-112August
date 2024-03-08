@@ -133,7 +133,7 @@ bool Mgolfball::findGolfball(int& pos, cv::Mat * sourcePtr = nullptr)
   // choose closest
   
   cv::Mat blurred;
-  cv::GuassianBlur(frame, blurred, cv::Scalar(11, 11), 0);
+  cv::GuassianBlur(frame, blurred, cv::Size(11, 11), 0);
   int width = frame.rows;
   int height = frame.cols;
   cv::Mat mask;
@@ -141,16 +141,23 @@ bool Mgolfball::findGolfball(int& pos, cv::Mat * sourcePtr = nullptr)
   cv::inRange(mask, mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255));
   // cv::erode(mask, mask, Mat, 2);
   // cv::dilate(mask, mask, Mat, 2);
-  vector<vector<cv::Point>> circles;
-  cv::findContours(mask, circles, cv::noArray(),cv::RETR_EXTERNAL,
-                            cv::HAIN_APPROX_SIMPLE);
-  if (circles.length() > 0){
-    auto c = max_element(circles.begin(), circles.end(), 
-                        [] (auto const& lhs, auto const& rhs) {
-                          return cv::contourArea(lhs) < cv::contourArea(rhs);
-            });
+  std::vector<std::vector<cv::Point>> circles;
+  cv::findContours(mask, circles, cv::noArray(),cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
+  if (circles.size() > 0)
+    {
+        double max_area = 0;
+        std::vector<cv::Point> c;
 
-    cv::Point2f circle
+        for (int i = 0; i < circles.size(); i++){
+            double area = cv::contourArea(circles[i]);
+            if (area > max_area)
+            {
+                max_area = area;
+                c = circles[i];
+            }
+        }
+
+    cv::Point2f circle;
     cv::minEncolsingCircle(c, circle, radius);
     if (radius < 10 && radius > 65)
       return false;
