@@ -41,36 +41,13 @@ public:
   void terminate();
 
   /**
-   * Find ArUco code
-   * \param size is the side-size of the code.
+   * Find Golfball code
    * \param sourcePth is a pointer to a potential source image, if
    * this pointer is a nullptr (default), then a frame is taken from camera.
-   * \returns the number of codes found. */
-  int findGolfball(float size, cv::Mat * sourcePtr = nullptr);
-  /**
-   * Make an image with this ArUco ID */
-  void saveCodeImage(int arucoID);
-
-  std::vector<cv::Vec3d> arTranslate;
-  std::vector<cv::Vec3d> arRotate;
-  // Detected marked IDs
-  std::vector<int> arID;
-  
-  // Position in world frame
-  cv::Vec3d pos_w;
-  // Marker positions in robot frame
-  std::vector<cv::Vec3d> pos_m;
-  // Rotation (Euler angles) in world frame
-  cv::Vec3d rot_w;
-  // Marker rotations in robot frame
-  std::vector<cv::Vec3d> rot_m;
-
-
-  // // Pos of robot in world coordinates (X,Y,Z)
-  // float pos_w[3] = {0.0,0.0,0.0};
-  // // Pos of robot in world coordinates (X,Y,Z)
-  // float pos_m[5][3] = {{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0}};
-
+   * \param pos is a reference to the x,y postionn of the closest golfball
+   * \returns the x,y position in pixel of the closes golf ball. */
+  bool findGolfball(cv::Mat * sourcePtr = nullptr,int& pos);
+ 
 
 protected:
   /// PC time of last update

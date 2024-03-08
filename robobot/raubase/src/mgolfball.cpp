@@ -30,7 +30,9 @@
 #include <string>
 #include <string.h>
 #include <math.h>
-#include <opencv2/aruco.hpp> // Check here
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <filesystem>
 
 #include "mgolfball.h"
@@ -96,7 +98,7 @@ void Mgolfball::toLog(const char * message)
   }
 }
 
-int Mgolfball::findGolfball(float size, cv::Mat * sourcePtr)
+int Mgolfball::findGolfball(cv::Mat * sourcePtr = nullptr, int& pos)
 { // taken from https://docs.opencv.org
   int count = 0;
   cv::Mat frame;
@@ -119,29 +121,73 @@ int Mgolfball::findGolfball(float size, cv::Mat * sourcePtr)
   cv::Mat img;
   if (debugSave)
     frame.copyTo(img);
+
+
+
+  // load params, min size, max size
   
-  std::vector<std::vector<cv::Point2f>> markerCorners;
-  // cv::aruco::detectMarkers(frame, dictionary, markerCorners, arID);
-  // count = arID.size();
-  // // estimate pose of all markers
-  // cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
-  // //
-  // if (debugSave)
-  // { // paint found markers in image copy 'img'.
-  //   const int MSL = 200;
-  //   char s[MSL];
-  //   // draw axis for each marker
-  //   for(int i=0; i<count; i++)
-  //   {
-  //     cv::aruco::drawAxis(img, cam.cameraMatrix, cam.distCoeffs, arRotate[i], arTranslate[i], 0.1);
-  //     cv::aruco::drawDetectedMarkers(img, markerCorners, arID);
-  //     snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
-  //              arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
-  //              arRotate[i][0], arRotate[i][1], arRotate[i][2]);
-  //     toLog(s);
-  //   }
-  //   saveImageTimestamped(img, imgTime);
-  // }
+  Mat blurred;
+  cv::GuassianBlur(frame, blurred, cv::Scalar(11, 11), 0);
+  int width = frame.rows;
+  int height = frame.cols;
+  Mat mask;
+  cv::cvtColor(blurred, mask, cv::COLOR_BGR2HSV);
+  cv::inRange(mask, mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255));
+  // cv::erode(mask, mask, Mat, 2);
+  // cv::dilate(mask, mask, Mat, 2);
+  vector<vector<cv::Point>> circles;
+  cv::findContours(mask, circles, cv::noArray(),cv::RETR_EXTERNAL,
+                            cv::HAIN_APPROX_SIMPLE);
+
+    
+  for( size_t i = 0; i < circles.size(); i++ )
+  {
+      vector<cv::Point> c = circles[i];
+      
+      // loop over all contours and do stuff
+      
+      // cv::Point center = Point(c[0], c[1]);
+      // // circle center
+      // circle( src, center, 1, Scalar(0,100,100), 3, LINE_AA);
+      // // circle outline
+      // int radius = c[2];
+      // circle( src, center, radius, Scalar(255,0,255), 3, LINE_AA);
+  }
+    // imshow("detected circles", src);
+    // waitKey();
+
+
+  //=============================================
+
+
+
+
+
+  // filter
+  cv::gaussianBlur()
+  // convert colors
+  // apply color filter
+  // detect circles
+  // count == no. of detected golfball candidates
+  // set bool to true if no of circles greater than 0
+  // choose closest
+  
+  //
+  if (debugSave)
+  { // paint found golfballs in image copy 'img'.
+    const int MSL = 200;
+    char s[MSL];
+    // draw axis for each marker
+    for(int i=0; i<count; i++)
+    {
+      // Draw circels and center
+      snprintf(s, MSL, "%d %d %g %g %g %g  %g %g %g", i, arID[i], size,
+               arTranslate[i][0], arTranslate[i][1], arTranslate[i][2],
+               arRotate[i][0], arRotate[i][1], arRotate[i][2]);
+      toLog(s);
+    }
+    saveImageTimestamped(img, imgTime);
+  }
   return count;
 }
 
@@ -167,11 +213,4 @@ void Mgolfball::saveImageTimestamped(cv::Mat & img, UTime imgTime)
   saveImageInPath(img, string(s) + ".jpg");
 }
 
-void Mgolfball::saveCodeImage(int arucoID)
-{
-  // cv::Mat markerImage;
-  // int pixSize = 240;
-  // cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
-  // cv::aruco::drawMarker(dictionary, arucoID, pixSize, markerImage, 1);
-  // saveImageInPath(markerImage, string("marker_") + to_string(arucoID) + ".png");
-}
+
