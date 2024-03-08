@@ -101,8 +101,6 @@ void Mgolfball::toLog(const char * message)
 bool Mgolfball::findGolfball(int& pos, cv::Mat * sourcePtr = nullptr)
 { // taken from https://docs.opencv.org
   cv::Mat frame;
-  cv::Point2f center;
-  float radius;
   if (sourcePtr == nullptr)
   {
     frame = cam.getFrameRaw();
@@ -138,18 +136,18 @@ bool Mgolfball::findGolfball(int& pos, cv::Mat * sourcePtr = nullptr)
   int height = frame.cols;
   cv::Mat mask;
   cv::cvtColor(blurred, mask, cv::COLOR_BGR2HSV);
-  cv::inRange(mask, mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255));
+  cv::inRange(mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255), mask);
   // cv::erode(mask, mask, Mat, 2);
   // cv::dilate(mask, mask, Mat, 2);
   std::vector<std::vector<cv::Point>> circles;
   cv::findContours(mask, circles, cv::noArray(),cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
   if (circles.size() > 0)
     {
-        double max_area = 0;
+        float max_area = 0;
         std::vector<cv::Point> c;
 
         for (int i = 0; i < circles.size(); i++){
-            double area = cv::contourArea(circles[i]);
+            float area = cv::contourArea(circles[i]);
             if (area > max_area)
             {
                 max_area = area;
@@ -157,8 +155,9 @@ bool Mgolfball::findGolfball(int& pos, cv::Mat * sourcePtr = nullptr)
             }
         }
 
-    cv::Point2f circle;
-    cv::minEncolsingCircle(c, circle, radius);
+    cv::Point2f center;
+    float radius;
+    cv::minEncolsingCircle(c, center, radius);
     if (radius < 10 && radius > 65)
       return false;
     cv::Moments M = cv::moments(c);
