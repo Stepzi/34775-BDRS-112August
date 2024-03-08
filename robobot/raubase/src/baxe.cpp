@@ -43,12 +43,13 @@
 double normalSpeed        =  0.3;   //speed under normal conditions
 double lineWidth          =  0.02;  //width to determine if we are on the line
 double lineGone           =  0.1;   //width to determine if the line was lost
-double lineOffset         =  0;  //offset for line edge detection
+double lineOffset         =  0;     //offset for line edge detection
 double intersectionWidth  =  0.05;  //used to detect intersections
 
-double stopDistance       = 0.2;   //distance to assume that there is something in front of the robot
+double stopDistance       = 0.2;    //distance to assume that there is something in front of the robot
 double intersectionToAxe  = 0.9;    //distance from intersection to axe start
 double axeLenght          = 2;      //distance from start to finish of mission Axe
+float  axeGoneTimer       = 1;      //time to start driving after the axe is gone
 
 // create class object
 BAxe axe;
@@ -164,31 +165,32 @@ void BAxe::run()
       // waiting for axe
       case 4:
         //float currentDistToAxe = dist.dist[0];
-        //bool tempBool = true;
+        bool tempBool = true;
 
         mixer.setVelocity(0);
-        if (dist.dist[0] >= stopDistance * 2)  //nothing in front - waiting for axe to appear
+        while (dist.dist[0] >= stopDistance * 2)  //nothing in front - waiting for axe to appear
         {
-          toLog ("waiting for axe");
-          /*if (tempBool) 
+          //toLog ("waiting for axe");
+          if (tempBool) 
           {
             toLog ("waiting for axe");
             tempBool = false;
-          }*/
+          }
         } 
         
-        //tempBool = true;
-        if (dist.dist[0] <= stopDistance)        //axe in front - waiting for it to be gone
+        tempBool = true;
+        while (dist.dist[0] <= stopDistance)        //axe in front - waiting for it to be gone
         {
-          toLog ("waiting for axe to pass");
-          /*if (tempBool) 
+          //toLog ("waiting for axe to pass");
+          if (tempBool) 
           {
             toLog ("waiting for axe to pass");
             tempBool = false;
-          }*/
+          }
         }
 
-        toLog ("axe is gone");                      //yeet
+        toLog ("axe is gone");                     //yeet
+        
         mixer.setVelocity(0.5);
         state = 5;
       break;
