@@ -105,7 +105,7 @@ void CEdge::setup()
 
 void CEdge::changePID(float sTime, float proportional, float lead_tau, float lead_alpha, float tau_integrator)
 {
-  pid.setup(sTime, proportional, lead_tau, lead_alpha, tau_integrator);
+  pid.setup(sTime/1000.0, proportional, lead_tau, lead_alpha, tau_integrator);
 }
 
 void CEdge::toLog()

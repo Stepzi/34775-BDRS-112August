@@ -85,11 +85,11 @@ void BRaceTrack::run()
   const int MSL = 100;
   char s[MSL];
   float speed = 0;
-  float maxSpeed = 1; //1.5
-  float maxDist = 5.5; //around 4
+  float maxSpeed = 1.2; //1.5
+  float maxDist = 5.0; //around 4
   float offset = 0.0;
-  state = 3;//TESTING
-  pose.dist = maxDist+1.0;//TESTING
+  state = 1;//TESTING
+  pose.dist = maxDist;//+1.0;//TESTING
   oldstate = state; 
   //
   toLog("racetrack started");
@@ -98,20 +98,22 @@ void BRaceTrack::run()
   {
     switch (state)
     {
+      //SET PID kp = 5.0, lead = 0.6 0.15, taui = 0.0
       case 1: // Start Position, assume we are on a line but verify.
         if(medge.width > 0.02) //We should be on a line 
         {
           pose.resetPose();
           toLog("Started on Line");
-          mixer.setEdgeMode(false /* right */,  0.0 /* offset */);
-          mixer.setVelocity(0.5);
+          cedge.changePID(8.0, 5.0, 0.6, 0.15, 0.0);
+          mixer.setEdgeMode(true /* right */,  0.00 /* offset */);
+          mixer.setVelocity(0.6);
           pose.dist = 0;
           state = 2;
         }
         else if(medge.width < 0.01)
         {
           pose.resetPose();
-          mixer.setVelocity(0.0);//Drive slowly and turn i circle
+          mixer.setVelocity(0.15);//Drive slowly and turn i circle
           mixer.setTurnrate(0.2);
         }
         else if(t.getTimePassed() > 5)
@@ -123,73 +125,87 @@ void BRaceTrack::run()
       //Add identification of curves in the road. For localizing while doing the race track.
       case 2:
 
-        if(pose.dist < maxDist  && speed < maxSpeed)
+        if(speed < maxSpeed)
         {
-          speed = speed + 0.01;
+          speed = speed + 0.005;
           mixer.setVelocity(0.5 + speed);
         }
         else if(speed >= maxSpeed)
         {
-          toLog("Reached Turn");
+          toLog("Speed up");
           state = 3;
         }
       break;
       case 3:
         //toLog(std::to_string(abs(pose.dist)).c_str());
-        if(abs(pose.dist) > maxDist)
+        if(pose.dist > maxDist)
         {
-          mixer.setVelocity(0.5);
-          toLog("Change PID: KP 40, Lead: 0.6 , 0.15");
-          cedge.changePID(10.0, 40.0, 0.3, 0.5, 0.0);
-          //pid.setup();
+          toLog("Reaeched Turn");
+          toLog("Change PID: KP 25, Lead: 0.6 , 0.15");
+          //cedge.changePID(10.0, 25.0, 0.3, 0.3, 0.0);
+          cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
+          mixer.setEdgeMode(true,0.03);
           toLog(std::to_string(pose.dist).c_str());
           pose.dist = 0.0;
           state = 4;
         }
         break;  
       case 4:
-        if (pose.dist > 2.5){
+        if (pose.dist > 1.8){
           toLog(std::to_string(pose.dist).c_str());
           toLog("Drive straight");
-          cedge.changePID(10.0, 10.0, 0.6, 0.3, 0.0);
-          mixer.setEdgeMode(false,0.00);
-          mixer.setVelocity(1.0);
+//          cedge.changePID(10.0, 30.0, 0.4, 0.2, 0.0);
+          cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
+          mixer.setEdgeMode(true,0.02);
+          mixer.setVelocity(0.6);
+          toLog(std::to_string(offset).c_str());
+          toLog(std::to_string(speed).c_str());
           pose.dist = 0;
           offset = 0;
           speed = 0;
           state = 5; 
         }
-        else if (offset < 0.02){
-          offset = offset + 0.0001;
-          mixer.setEdgeMode(false,offset);
+        else if (offset < 0.03){
+           offset = offset + 0.00005;
+           mixer.setEdgeMode(true,offset);
         }
         else if(!medge.edgeValid){
           //lost = true;
         }
+        if(speed > 0.6)
+        {
+          speed = speed - 0.003;
+          mixer.setVelocity(speed);
+        }
       break;
       case 5:
-          if (pose.dist > 1.5){
+          if (pose.dist > 1.8){
           toLog("Second Turn");
-          cedge.changePID(10.0, 40.0, 0.6, 0.3, 0.0);
-
-          mixer.setVelocity(0.5);
-          mixer.setEdgeMode(false,0.02);
+          //cedge.changePID(10.0, 40.0, 0.6, 0.15, 0.0);
+          cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
+          mixer.setVelocity(0.6);
+          mixer.setEdgeMode(true,0.03);
           pose.dist = 0;
           state = 6;
           }
+        //   else if (offset < 0.03){
+        //   offset = offset + 0.0001;
+        //   //mixer.setEdgeMode(false,offset);
+        // }
       break;
       case 6:
           if (pose.dist > 1.5){
           toLog("Drive straight");
-          cedge.changePID(10.0, 10.0, 0.6, 0.3, 0.0);
-          mixer.setEdgeMode(false,0.00);
-          mixer.setVelocity(0.8);
+//          cedge.changePID(10.0, 20.0, 0.6, 0.15, 0.0);
+          cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
+          //mixer.setEdgeMode(false,0.00);
+          mixer.setVelocity(0.6);
           pose.dist = 0;
           state = 7; 
         }
       break;
       case 7:
-        if (!medge.edgeValid)//Gotta test the distance messured. && medge.valid == false) //A Large number will trigger on the ramp and gates
+        if (!medge.edgeValid && medge.width < 0.015)//Gotta test the distance messured. && medge.valid == false) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
           pose.resetPose();
