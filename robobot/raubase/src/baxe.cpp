@@ -39,6 +39,7 @@
 #include "sdist.h"
 
 #include "baxe.h"
+#include <iostream>
 
 double normalSpeed        =  0.3;   //speed under normal conditions
 double lineWidth          =  0.02;  //width to determine if we are on the line
@@ -46,10 +47,10 @@ double lineGone           =  0.1;   //width to determine if the line was lost
 double lineOffset         =  0;     //offset for line edge detection
 double intersectionWidth  =  0.05;  //used to detect intersections
 
-double stopDistance       = 0.2;    //distance to assume that there is something in front of the robot
-double intersectionToAxe  = 0.9;    //distance from intersection to axe start
+double axeStop            = 0.4;    //distance to assume that axe is in front of the robot
+double axeToIntersection  = 0.8;    //distance from intersection to axe start
 double axeLenght          = 2;      //distance from start to finish of mission Axe
-float  axeGoneTimer       = 1;      //time to start driving after the axe is gone
+//float  axeGoneTimer       = 1;      //time to start driving after the axe is gone
 
 // create class object
 BAxe axe;
@@ -90,19 +91,22 @@ void BAxe::run()
   if (ini["axe"]["run"] == "false")
     return;
   UTime t("now");
-  bool finished = false;
+  bool finished = false; 
   bool lost = false;
   state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
+
+  std::string distSens1;
+  //bool tempBool1;
   //
   toLog("axe started");
   //
   while (not finished and not lost and not service.stop)
   {
     switch (state)
-    {
+    {      
       case 1: // Start Position, assume we are on a line but verify.
         if(medge.width > lineWidth) //We should be on a line 
         {
@@ -153,7 +157,7 @@ void BAxe::run()
     // the distance sensor is for 
     // additional safety
       case 3:
-        if (dist.dist[0] < stopDistance or pose.dist > intersectionToAxe)
+        if (dist.dist[0] < axeStop or pose.dist > axeToIntersection)
         {
           pose.resetPose();
           toLog("robot in front of axe");
@@ -164,33 +168,19 @@ void BAxe::run()
 
       // waiting for axe
       case 4:
-        //float currentDistToAxe = dist.dist[0];
-        bool tempBool = true;
-
         mixer.setVelocity(0);
-        while (dist.dist[0] >= stopDistance * 2)  //nothing in front - waiting for axe to appear
+
+        while (dist.dist[1] >= axeStop)    //nothing in front - waiting for axe to appear
         {
-          //toLog ("waiting for axe");
-          if (tempBool) 
-          {
-            toLog ("waiting for axe");
-            tempBool = false;
-          }
+          toLog ("waiting for axe");
         } 
-        
-        tempBool = true;
-        while (dist.dist[0] <= stopDistance)        //axe in front - waiting for it to be gone
+
+        while (dist.dist[1] < axeStop)         //axe in front - waiting for it to be gone
         {
-          //toLog ("waiting for axe to pass");
-          if (tempBool) 
-          {
-            toLog ("waiting for axe to pass");
-            tempBool = false;
-          }
+          toLog ("waiting for axe to pass");
         }
 
         toLog ("axe is gone");                     //yeet
-        
         mixer.setVelocity(0.5);
         state = 5;
       break;
@@ -209,6 +199,47 @@ void BAxe::run()
           toLog("Gave up waiting for Regbot");
           lost = true;
         }
+      break;
+
+      //testing the loops
+      case 11:
+        mixer.setVelocity(0);
+        //tempBool1 = true;
+
+        while (dist.dist[1] >= axeStop)    //nothing in front - waiting for axe to appear
+        {
+          toLog ("waiting for axe");
+          /*if (tempBool1)
+          {
+            toLog ("waiting for axe");
+            tempBool1 = false;
+          }
+          else
+          {
+            //wait
+          }*/
+        } 
+
+        //tempBool1 = true;
+        while (dist.dist[1] < axeStop)         //axe in front - waiting for it to be gone
+        {
+          toLog ("waiting for axe to pass");
+          /*if (tempBool1)
+          {
+            toLog ("waiting for axe to pass");
+            tempBool1 = false;
+          }*/
+        }
+        
+        toLog ("axe is gone");                      //yeet
+        finished = true;
+      break;
+
+      //testing the ir sensor
+      case 111: 
+        mixer.setVelocity(0);
+        distSens1 = std::to_string(dist.dist[1]);
+        toLog(const_cast<char*>(distSens1.c_str()));
       break;
 
       default:
