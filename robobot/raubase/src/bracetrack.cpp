@@ -87,7 +87,10 @@ void BRaceTrack::run()
   float speed = 0;
   float maxSpeed = 1.2; //1.5
   float maxDist = 5.0; //around 4
+  float maxSpeed = 1.2; //1.5
+  float maxDist = 5.0; //around 4
   float offset = 0.0;
+  float Turn90Deg = 3.14 / 2.0;
   state = 1;//TESTING
   pose.dist = maxDist;//+1.0;//TESTING
   oldstate = state; 
@@ -98,9 +101,33 @@ void BRaceTrack::run()
   {
     switch (state)
     {
+      case 1: //Drive to end of tape and turn around.
+        if(medge.edgeValid)
+        {
+          pose.resetPose();
+          toLog("Go to end of racetrack.");
+          cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
+          mixer.setEdgeMode(true, 0.00);
+          mixer.setVelocity(0.3);
+          state = 2;
+        }
+        else{
+          toLog("Expected to start on a line. Did not find the Line");
+          lost = true;
+        }
+        break;
+      case 2:
+        if(!medge.edgeValid)
+        {
+          toLog("Assume end of raceTrack is reached");
+          mixer.setVelocity(0.2);
+          mixer.setDesiredHeading(3.14);
+          pose.resetPose();
+        }
+      break;    
       //SET PID kp = 5.0, lead = 0.6 0.15, taui = 0.0
-      case 1: // Start Position, assume we are on a line but verify.
-        if(medge.width > 0.02) //We should be on a line 
+      case 3: // Start Position, assume we are on a line but verify.
+        if(pose.dist > 0.5 && medge.edgeValid == true) //We should be on a line 
         {
           pose.resetPose();
           toLog("Started on Line");
@@ -108,7 +135,7 @@ void BRaceTrack::run()
           mixer.setEdgeMode(true /* right */,  0.00 /* offset */);
           mixer.setVelocity(0.6);
           pose.dist = 0;
-          state = 2;
+          state = 4;
         }
         else if(medge.width < 0.01)
         {
@@ -123,7 +150,7 @@ void BRaceTrack::run()
         }
         break;
       //Add identification of curves in the road. For localizing while doing the race track.
-      case 2:
+      case 4:
 
         if(speed < maxSpeed)
         {
@@ -133,10 +160,10 @@ void BRaceTrack::run()
         else if(speed >= maxSpeed)
         {
           toLog("Speed up");
-          state = 3;
+          state = 5;
         }
       break;
-      case 3:
+      case 5:
         //toLog(std::to_string(abs(pose.dist)).c_str());
         if(pose.dist > maxDist)
         {
@@ -147,23 +174,24 @@ void BRaceTrack::run()
           mixer.setEdgeMode(true,0.03);
           toLog(std::to_string(pose.dist).c_str());
           pose.dist = 0.0;
-          state = 4;
+          pose.turned = 0.0;
+          state = 6;
         }
         break;  
-      case 4:
-        if (pose.dist > 1.8){
+      case 6: 
+        if (pose.turned > Turn90Deg)}//Turn 90 degrees //pose.dist > 1.8){
           toLog(std::to_string(pose.dist).c_str());
           toLog("Drive straight");
 //          cedge.changePID(10.0, 30.0, 0.4, 0.2, 0.0);
           cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
           mixer.setEdgeMode(true,0.02);
-          mixer.setVelocity(0.6);
+          mixer.setVelocity(0.0);
           toLog(std::to_string(offset).c_str());
           toLog(std::to_string(speed).c_str());
           pose.dist = 0;
           offset = 0;
           speed = 0;
-          state = 5; 
+          state = 7; 
         }
         else if (offset < 0.03){
            offset = offset + 0.00005;
@@ -178,7 +206,7 @@ void BRaceTrack::run()
           mixer.setVelocity(speed);
         }
       break;
-      case 5:
+      case 7:
           if (pose.dist > 1.8){
           toLog("Second Turn");
           //cedge.changePID(10.0, 40.0, 0.6, 0.15, 0.0);
@@ -186,14 +214,14 @@ void BRaceTrack::run()
           mixer.setVelocity(0.6);
           mixer.setEdgeMode(true,0.03);
           pose.dist = 0;
-          state = 6;
+          state = 8;
           }
         //   else if (offset < 0.03){
         //   offset = offset + 0.0001;
         //   //mixer.setEdgeMode(false,offset);
         // }
       break;
-      case 6:
+      case 8:
           if (pose.dist > 1.5){
           toLog("Drive straight");
 //          cedge.changePID(10.0, 20.0, 0.6, 0.15, 0.0);
@@ -201,10 +229,10 @@ void BRaceTrack::run()
           //mixer.setEdgeMode(false,0.00);
           mixer.setVelocity(0.6);
           pose.dist = 0;
-          state = 7; 
+          state = 9; 
         }
       break;
-      case 7:
+      case 9:
         if (!medge.edgeValid && medge.width < 0.015)//Gotta test the distance messured. && medge.valid == false) //A Large number will trigger on the ramp and gates
         { // something is close, assume it is the goal
           // start driving
