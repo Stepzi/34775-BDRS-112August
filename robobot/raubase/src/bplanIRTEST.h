@@ -39,7 +39,7 @@ public:
   void setup();
   /**
    * run this mission */
-  void run(bool entryDirectionStart);
+  void run(bool entryDirectionStart, bool exitDirectionStart);
   /**
    * terminate */
   void terminate();
