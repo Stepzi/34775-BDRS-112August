@@ -100,7 +100,7 @@ void BPlanCrossMission::run_StartToFirstCross()
   float f_Time_Timeout = 10.0;
 
   //Postion and velocity data
-  float f_Velocity_DriveForward = 0.25; 
+  float f_Velocity_DriveForward = 0.4; 
   float f_Velocity_DriveBackwards = -0.15; 
   float f_Distance_FirstCrossMissed = 10;
  
