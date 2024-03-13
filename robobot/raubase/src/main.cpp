@@ -38,6 +38,7 @@
 #include "bplan101.h"
 #include "bplanCrossMission.h"
 #include "bplanIRTEST.h"
+#include "bplanGate.h"
 
 
 int main (int argc, char **argv)
@@ -53,7 +54,8 @@ int main (int argc, char **argv)
     //
     //planCrossMission.run_StartToFirstCross();
     //planIRTEST.run(false,false);
-    planCrossMission.run_AxeToTunnel();
+    planGate.run();
+    //planCrossMission.run_AxeToTunnel();
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
