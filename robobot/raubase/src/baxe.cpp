@@ -47,6 +47,7 @@ double lineGone           =  0.1;   //width to determine if the line was lost
 double lineOffset         =  0;     //offset for line edge detection
 double intersectionWidth  =  0.05;  //used to detect intersections
 
+int    startSide          = 21;     //select the side we start from - 21 from the roundabout and 22 from the stairs
 double axeStop            = 0.4;    //distance to assume that axe is in front of the robot
 double axeToIntersection  = 0.8;    //distance from intersection to axe start
 double axeLenght          = 2;      //distance from start to finish of mission Axe
@@ -114,7 +115,7 @@ void BAxe::run()
           toLog("Follow Line with velocity 0.2");
           mixer.setEdgeMode(true /* right */, lineOffset /* offset */);
           mixer.setVelocity(0.1);
-          state = 21;
+          state = startSide;
         }
         else if(medge.width < lineGone)
         {
@@ -136,7 +137,28 @@ void BAxe::run()
         {
           toLog("found intersection");
           mixer.setVelocity(0);
-          //mixer.setEdgeMode(true, lineOffset);
+          mixer.setVelocity(0.1);
+          pose.dist = 0;
+          state = 3;
+        }
+
+        else
+        {                                                             //TEST IF if IS NEEDED
+          if (pose.dist > 0.1)
+          {
+            mixer.setVelocity(normalSpeed);
+          }
+        }
+      break;
+
+      case 22
+        mixer.setEdgeMode(false, lineOffset);
+        if (medge.width > intersectionWidth)
+        {
+          toLog("found intersection");
+          mixer.setVelocity(0);
+          pose.turned = 0;
+          mixer.setDesiredHeading(2);
           mixer.setVelocity(0.1);
           pose.dist = 0;
           state = 3;
