@@ -50,7 +50,6 @@ double intersectionWidth  =  0.05;  //used to detect intersections
 double axeStop            = 0.4;    //distance to assume that axe is in front of the robot
 double axeToIntersection  = 0.8;    //distance from intersection to axe start
 double axeLenght          = 2;      //distance from start to finish of mission Axe
-//float  axeGoneTimer       = 1;      //time to start driving after the axe is gone
 
 // create class object
 BAxe axe;
@@ -100,13 +99,13 @@ void BAxe::run()
 
   std::string distSens1;
   //bool tempBool1;
-  //
+  
   toLog("axe started");
-  //
+  
   while (not finished and not lost and not service.stop)
   {
     switch (state)
-    {      
+    {  
       case 1: // Start Position, assume we are on a line but verify.
         if(medge.width > lineWidth) //We should be on a line 
         {
@@ -115,7 +114,7 @@ void BAxe::run()
           toLog("Follow Line with velocity 0.2");
           mixer.setEdgeMode(true /* right */, lineOffset /* offset */);
           mixer.setVelocity(0.1);
-          state = 2;
+          state = 21;
         }
         else if(medge.width < lineGone)
         {
@@ -132,7 +131,7 @@ void BAxe::run()
       break;
 
       //finding an intersection
-      case 2:
+      case 21:
         if (medge.width > intersectionWidth)
         {
           toLog("found intersection");
@@ -144,22 +143,22 @@ void BAxe::run()
         }
 
         else
-        {
+        {                                                             //TEST IF if IS NEEDED
           if (pose.dist > 0.1)
           {
             mixer.setVelocity(normalSpeed);
           }
         }
       break;
-
+        
     // getting the robot to the axe
     // based on the driven distance.
     // the distance sensor is for 
     // additional safety
       case 3:
-        if (dist.dist[0] < axeStop or pose.dist > axeToIntersection)
+        if (dist.dist[0] < axeStop or pose.dist > axeToIntersection)    //TEST THE DISTANCE SENSOR HERE
         {
-          pose.resetPose();
+          pose.dist = 0;
           toLog("robot in front of axe");
           mixer.setVelocity(0);
           state = 4;
@@ -170,7 +169,7 @@ void BAxe::run()
       case 4:
         mixer.setVelocity(0);
 
-        while (dist.dist[1] >= axeStop)    //nothing in front - waiting for axe to appear
+        while (dist.dist[1] >= axeStop)       //nothing in front - waiting for axe to appear
         {
           toLog ("waiting for axe");
         } 
@@ -180,7 +179,7 @@ void BAxe::run()
           toLog ("waiting for axe to pass");
         }
 
-        toLog ("axe is gone");                     //yeet
+        toLog ("axe is gone");                 //yeet
         mixer.setVelocity(0.5);
         state = 5;
       break;
@@ -245,7 +244,7 @@ void BAxe::run()
       default:
         toLog("Default Axe");
         lost = true;
-      break;
+        break;
     }
 
     if (state != oldstate)
