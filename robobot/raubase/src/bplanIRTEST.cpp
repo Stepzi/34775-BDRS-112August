@@ -174,26 +174,58 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       /******************** Coming from the axe-side ********************/
       /********************************************************************/
       //Case 11 - Drive from the Axe-side
-      case 11:  // Stop goal reached case
-        if(pose.dist > f_Distance_LeftCrossToRoundabout)
-        { 
-          toLog("Ready to enter the roundabout from the start-side");
-          mixer.setVelocity(0);
-          pose.dist = 0;
-          toLog("Ready to enter the roundabout from the start-side");
-          pose.turned = 0;
-          mixer.setVelocity(0.01);//Drive slowly and turn i circle
-          mixer.setTurnrate(0.5);
+      case 11: 
+          toLog("Axe side started");
+          pose.resetPose();
+          mixer.setDesiredHeading(-0.8);
           state = 12;
-        }
-        break;
+        
+      break;
       
-      //Case 12 - Stop turning after some angle
       case 12:
-        if(pose.turned > -0.3){
-          mixer.setTurnrate(0);
-          state = 21;
+        if(abs(pose.turned) > 0.78)
+        {
+          state = 13;
+        } 
+      break;
+
+      //Case 21 - If robot is seen, clear time and wait until case 6
+      case 13: 
+        if(dist.dist[1] < 0.35){
+          toLog("Robot seen!");
+          t.clear();
+          pose.dist = 0;
+          state = 14;
         }
+      break;  
+
+      //Case 22 - After 2 seconds, reset distance, set follow line mode and drive forward slowly.
+      case 14: 
+        //toLog(std::to_string(t.getTimePassed()).c_str());
+        if(t.getTimePassed() > 5)
+        {
+          pose.dist = 0;
+          mixer.setVelocity(0.1);
+          state = 15;
+        }
+      break;
+
+      case 15:
+        if(abs(pose.dist) > 0.15)
+        {
+          mixer.setVelocity(0);
+          pose.resetPose();
+          mixer.setDesiredHeading(0.8);
+          state = 16;
+        } 
+      break;
+
+      case 16:
+        if(abs(pose.turned) > 0.78)
+        {
+          mixer.setVelocity(0.2);
+          state = 95;
+        } 
       break;
 
       /******************************************************************/
@@ -373,6 +405,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         }
       break;
 
+      //Turn left or right depending on exitDirectionStart boolean
       case 44:
       if((medge.width > f_LineWidth_Crossing) && (pose.dist >= 0.05)) 
         { 
@@ -391,11 +424,12 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         }
       break;
 
+      //When turned enough, drive forward and follow line
       case 45:
         if(abs(pose.turned) > 1.58)
         {
           mixer.setVelocity(0.2);
-          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset );
+          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
           state = 46;
         }
       break;
@@ -406,14 +440,16 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           if(medge.width > f_LineWidth_Crossing)
           {
             mixer.setVelocity(0.2);
+            pose.resetPose();
+            mixer.setDesiredHeading(0);
             pose.dist = 0;
-            mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
-            state = 47;
+            //mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+            state = 666;
           }
         }
         else
         {
-          if(medge.width > f_LineWidth_Crossing)
+          if(medge.width > 0.05)
           {
             mixer.setVelocity(0);
             toLog("FINISH at axe :)");
@@ -422,14 +458,49 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         }
       break;
       
+      case 666:
+        if(abs(pose.dist) > 0.1)
+        {
+          mixer.setVelocity(0.2);
+          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+          state = 47;
+        }
+
+
+      break;
+
       case 47:
-      if((medge.width > f_LineWidth_Crossing) && (pose.dist >= 0.05)) 
+      if(medge.width > f_LineWidth_Crossing) 
         { 
+          mixer.setVelocity(0);
+          pose.resetPose();
+          mixer.setDesiredHeading(3);
+          
+          state = 48;
+        }
+      break;
+
+      case 48:
+        if(abs(pose.turned) > 2.98)
+        {
+          pose.dist = 0;
+          mixer.setVelocity(-0.1);
+          state = 49;
+        }
+      break;
+
+      case 49:
+        if(abs(pose.dist) > 0.3)
+        {
           mixer.setVelocity(0);
           toLog("FINISH at Start :)");
           finished = true;
         }
       break;
+
+
+
+
 
       case 99: // IR dist case 
         float irDist0;

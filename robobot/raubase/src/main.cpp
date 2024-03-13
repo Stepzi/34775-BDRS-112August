@@ -51,9 +51,9 @@ int main (int argc, char **argv)
     gpio.setPin(16, 1);
     // run the planned missions
     //
-    planCrossMission.run_StartToFirstCross();
-    planIRTEST.run(true,false);
-
+    //planCrossMission.run_StartToFirstCross();
+    //planIRTEST.run(false,false);
+    planCrossMission.run_AxeToTunnel();
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop

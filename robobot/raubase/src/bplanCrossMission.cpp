@@ -100,7 +100,7 @@ void BPlanCrossMission::run_StartToFirstCross()
   float f_Time_Timeout = 10.0;
 
   //Postion and velocity data
-  float f_Velocity_DriveForward = 0.4; 
+  float f_Velocity_DriveForward = 0.3; 
   float f_Velocity_DriveBackwards = -0.15; 
   float f_Distance_FirstCrossMissed = 10;
  
@@ -326,4 +326,113 @@ void BPlanCrossMission::toLog(const char* message)
            oldstate,
            message);
   }
+
+ 
 }
+
+void BPlanCrossMission::run_AxeToTunnel()
+{
+  if (not setupDone)
+    setup();
+  if (ini["PlanCrossMission"]["run"] == "false")
+    return;
+  UTime t("now");
+  bool finished = false;
+  bool lost = false;
+  state = 1;
+  oldstate = state;
+  const int MSL = 100;
+  char s[MSL];
+  
+  //Hardcoded Line data
+  float f_LineWidth_MinThreshold = 0.02;
+  float f_LineWidth_NoLine = 0.01;
+  float f_LineWidth_Crossing = 0.09;
+
+  float f_Line_LeftOffset = 0.03;
+  //float f_Line_RightOffset = -0.03;
+  bool b_Line_HoldLeft = true;
+  //bool b_Line_HoldRight = false;
+
+  //Hardcoded time data
+  float f_Time_Timeout = 10.0;
+
+  //Postion and velocity data
+  float f_Velocity_DriveForward = 0.3; 
+  float f_Velocity_DriveBackwards = -0.15; 
+  float f_Distance_FirstCrossMissed = 10;
+ 
+  //
+  toLog("PlanCrossMission started");
+  //
+  while (not finished and not lost and not service.stop)
+  {
+    switch (state)
+    {
+      //Case 1 - Starting with error handling if no line found
+      case 1: // Start Position, assume we are on a line but verify
+        pose.resetPose();
+        mixer.setDesiredHeading(0.8);
+        state = 2;
+        break;
+
+      //Case 2 - first crossing on the track
+      case 2:
+        if(pose.turned > 0.78) 
+        { 
+          mixer.setVelocity(0.2);
+          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
+          pose.dist = 0;
+          state = 3;
+        }
+      break;
+
+      case 3:
+        if(pose.dist > 1)
+        {
+          state = 4;
+        }
+      break;
+
+      case 4:
+        if(medge.width > f_LineWidth_Crossing) //We should be on a line 
+        {
+          mixer.setVelocity(0);
+          pose.resetPose();
+          mixer.setDesiredHeading(1.6);
+          state = 5;
+        }
+      break;
+
+      case 5:
+        if(pose.turned > 1.6-0.02) //We should be on a line 
+        {
+          finished = true;
+        }
+      break;
+     
+      default:
+        toLog("Default Start to Cross");
+        lost = true;
+      break;
+    }
+    if (state != oldstate)
+    { // C-type string print
+      snprintf(s, MSL, "State change from %d to %d", oldstate, state);
+      toLog(s);
+      oldstate = state;
+      t.now();
+    }
+    // wait a bit to offload CPU (4000 = 4ms)
+    usleep(4000);
+  }
+  if (lost)
+  { // there may be better options, but for now - stop
+    toLog("PlanCrossMission got lost - stopping");
+    mixer.setVelocity(0);
+    mixer.setTurnrate(0);
+  }
+  else
+    toLog("PlanCrossMission finished");
+}
+  
