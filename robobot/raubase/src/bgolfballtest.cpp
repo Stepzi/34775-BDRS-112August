@@ -51,9 +51,28 @@ void bgolfballtest::setup()
     ini["golfballtest"]["log"] = "true";
     ini["golfballtest"]["run"] = "false";
     ini["golfballtest"]["print"] = "true";
+    ini["golfballtest"]["deadband_x"] = "10";
+    ini["golfballtest"]["deadband_y"] = "10";
+    ini["golfballtest"]["k_x"] = "1";
+    ini["golfballtest"]["k_y"] = "1";
+    ini["golfballtest"]["target_x"] = "640";
+    ini["golfballtest"]["target_y"] = "650";
+    ini["golfballtest"]["dist_y"] = "0.05";
+    ini["golfballtest"]["servo_velocity"] = "200";
+    ini["golfballtest"]["servo_down"] = "0";
   }
   // get values from ini-file
   toConsole = ini["golfballtest"]["print"] == "true";
+  int deadband_x = strtol(ini["golfballtest"]["deadband_x"].c_str(), nullptr, 10);
+  int deadband_y = strtol(ini["golfballtest"]["deadband_y"].c_str(), nullptr, 10);
+  int k_x = strtol(ini["golfballtest"]["k_x"].c_str(), nullptr, 10);
+  int k_y = strtol(ini["golfballtest"]["k_y"].c_str(), nullptr, 10);
+  int target_x = strtol(ini["golfballtest"]["target_x"].c_str(), nullptr, 10);
+  int target_y = strtol(ini["golfballtest"]["target_y"].c_str(), nullptr, 10);
+  float dist_y = strtof(ini["golfballtest"]["dist_y"].c_str(), nullptr, 10);
+  int servo_down = strtol(ini["golfballtest"]["servo_down"].c_str(), nullptr, 10);
+  int servo_velocity = strtol(ini["golfballtest"]["servo_velocity"].c_str(), nullptr, 10);
+
   //
   if (ini["golfballtest"]["log"] == "true")
   { // open logfile
@@ -85,6 +104,9 @@ void bgolfballtest::run()
   bool lost = false;
   state = 10;
   oldstate = state;
+
+  int center = {0,0};
+
   //
   toLog("golfballtest started");
   //
@@ -92,27 +114,91 @@ void bgolfballtest::run()
   {
     switch (state)
     { // make a shift in heading-mission
-      case 10:
 
-        int center = {0,0};
+    
+      case 10:
+        
         if(Mgolfball::findGolfball(center)){
-            
+
+                      
             const int MSL = 200;
             char s[MSL];
 
             snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
             toLog(s);
+            state = 11;
 
-            // turn kp times error from center
+        }else{
+          toLog("No Golfball Found");
+          lost = true;
         }
-      case 11: // wait for distance
-        if (pose.dist >= 1.0)
-        { // done, and then
+        
+
+        break;
+
+      case 11: 
+        // Lateral Error
+        int error = target_x - center[0];
+        if(abs(error) > deadband_x){
+          //pose.resetPose();
+          //mixer.setDesiredHeading(k*error);
+          mixer.setVelocity(0);
+          mixer.setTurnrate(k_x*((error > 0) ? 1 : ((error < 0) ? -1 : 0))));
+          state = 10;
+        }else{
+          // Goldfball on line
+          state = 12;
+        }
+        break;
+
+      case 12:
+        // Forward Error
+        int error = target_y - center[1];
+        if(abs(error) > deadband_y){
+          //pose.resetPose();
+          //mixer.setDesiredHeading(k*error);
+          mixer.setTurnrate(0);
+          mixer.setVelocity(k_y*((error > 0) ? 1 : ((error < 0) ? -1 : 0))));
+          state = 10;
+        }else{
+          state = 13;
+        }
+
+        break;
+
+      case 13:
+        // Goldfball on line close to robot    
+        mixer.setVelocity(0);
+        mixer.setTurnrate(0);
+        pose.resetPose();
+
+        mixer.setVelocity(0.1);
+        state = 14;
+
+        break;
+
+      case 14:
+        if(pose.dist >= dist_y){
+          //set servo down
+          servo.setServo(1,true,servo_down,servo_velocity);
+          state = 15;
+        }
+        break;
+
+      case 15:
+        pose.resetPose();
+        mixer.setDesiredHeading(1.570796)
+        state = 16;
+        break;
+
+      case 16:
+        if(abs(pose.turned-1.570796) < 0.1){
           finished = true;
         }
-        else if (t.getTimePassed() > 10)
-          lost = true;
         break;
+
+
+
       default:
         toLog("Unknown state");
         lost = true;
