@@ -102,7 +102,7 @@ void bgolfballtest::run()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 10;
+  state = 5;
   oldstate = state;
 
   int center = {0,0};
@@ -115,12 +115,17 @@ void bgolfballtest::run()
     switch (state)
     { // make a shift in heading-mission
 
+
+      case 5:
+        toLog("On branch facing up");
+        
+
+
+        break;
     
       case 10:
         
         if(Mgolfball::findGolfball(center)){
-
-                      
             const int MSL = 200;
             char s[MSL];
 
@@ -138,12 +143,14 @@ void bgolfballtest::run()
 
       case 11: 
         // Lateral Error
+        
         int error = target_x - center[0];
         if(abs(error) > deadband_x){
           //pose.resetPose();
           //mixer.setDesiredHeading(k*error);
           mixer.setVelocity(0);
           mixer.setTurnrate(k_x*((error > 0) ? 1 : ((error < 0) ? -1 : 0))));
+          toLog("Correcting  x-offset");
           state = 10;
         }else{
           // Goldfball on line
@@ -159,6 +166,7 @@ void bgolfballtest::run()
           //mixer.setDesiredHeading(k*error);
           mixer.setTurnrate(0);
           mixer.setVelocity(k_y*((error > 0) ? 1 : ((error < 0) ? -1 : 0))));
+          toLog("Correcting  y-offset");
           state = 10;
         }else{
           state = 13;
@@ -173,6 +181,7 @@ void bgolfballtest::run()
         pose.resetPose();
 
         mixer.setVelocity(0.1);
+        toLog("Drive Forward Open-Loop");
         state = 14;
 
         break;
@@ -181,23 +190,30 @@ void bgolfballtest::run()
         if(pose.dist >= dist_y){
           //set servo down
           servo.setServo(1,true,servo_down,servo_velocity);
+          toLog("Set Servo down");
           state = 15;
         }
         break;
 
       case 15:
-        pose.resetPose();
-        mixer.setDesiredHeading(1.570796)
-        state = 16;
+        if(servo.servo_position - servo_down < 10){
+          pose.resetPose();
+          mixer.setDesiredHeading(1.570796)
+          toLog("Servo reached down position");
+          toLog("Start Turning 90 deg");
+          state = 16;
+        }
+        toLog("Wait for servo to reach down position");
+        
         break;
 
       case 16:
         if(abs(pose.turned-1.570796) < 0.1){
+          toLog("Finished Turn, finish Program");
           finished = true;
         }
+        toLog("Wait to finish turn");
         break;
-
-
 
       default:
         toLog("Unknown state");
