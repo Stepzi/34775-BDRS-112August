@@ -102,7 +102,7 @@ void bgolfballtest::run()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 5;
+  state = 2;
   oldstate = state;
 
   int center = {0,0};
@@ -116,12 +116,53 @@ void bgolfballtest::run()
     { // make a shift in heading-mission
 
 
-      case 5:
-        toLog("On branch facing up");
-        
-
+      case 2:
+        if(medge.edgeValid && (medge.width > 0.02)) //We should be on a line 
+        {          
+          pose.resetPose();
+          toLog("Started on Line");
+          toLog("Follow Line with velocity 0.2");
+          mixer.setEdgeMode(true /*left*/, 0.00 /* offset */);
+          mixer.setVelocity(0.4);
+          state = 3;
+        }else{
+          lost = true;
+        }
 
         break;
+      case 3:
+        if(medge.edgeValid && (medge.width > 0.02)) //We should be on a line 
+        {
+          const int MSL = 200;
+          char s[MSL];
+          snprintf(s, MSL, "Following Line, driven %f m", pose.dist);
+          toLog(s);
+
+          if(pose.dist >= 1){
+            toLog("Driven far enough");
+            pose.resetPose();
+            mixer.setDesiredHeading(1.570796);
+            state = 4;
+          }
+          
+        }else{
+          lost = true;
+        }
+
+        break;
+
+      case 4:
+       if(abs(pose.turned-1.570796) < 0.1){
+          pose.resetPose();
+          mixer.setTurnrate(0);
+          toLog("Finished Turn");
+          state = 10;
+        }else{
+          toLog("Wait to finish turn");
+        }        
+        break;
+
+
     
       case 10:
         
@@ -202,8 +243,10 @@ void bgolfballtest::run()
           toLog("Servo reached down position");
           toLog("Start Turning 90 deg");
           state = 16;
+        }else{
+          toLog("Wait for servo to reach down position");
         }
-        toLog("Wait for servo to reach down position");
+        
         
         break;
 
@@ -211,8 +254,10 @@ void bgolfballtest::run()
         if(abs(pose.turned-1.570796) < 0.1){
           toLog("Finished Turn, finish Program");
           finished = true;
+        }else{
+          toLog("Wait to finish turn");
         }
-        toLog("Wait to finish turn");
+        
         break;
 
       default:
