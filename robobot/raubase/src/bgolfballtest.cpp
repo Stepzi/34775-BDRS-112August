@@ -69,7 +69,7 @@ void bgolfballtest::setup()
   int k_y = strtol(ini["golfballtest"]["k_y"].c_str(), nullptr, 10);
   int target_x = strtol(ini["golfballtest"]["target_x"].c_str(), nullptr, 10);
   int target_y = strtol(ini["golfballtest"]["target_y"].c_str(), nullptr, 10);
-  float dist_y = strtof(ini["golfballtest"]["dist_y"].c_str(), nullptr, 10);
+  float dist_y = strtof(ini["golfballtest"]["dist_y"].c_str(), nullptr);
   int servo_down = strtol(ini["golfballtest"]["servo_down"].c_str(), nullptr, 10);
   int servo_velocity = strtol(ini["golfballtest"]["servo_velocity"].c_str(), nullptr, 10);
 
