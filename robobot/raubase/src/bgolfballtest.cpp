@@ -48,33 +48,21 @@ void bgolfballtest::setup()
 { // ensure there is default values in ini-file
   if (not ini["golfballtest"].has("log"))
   { // no data yet, so generate some default values
-    ini["golfballtest"]["log"] = "true";
-    ini["golfballtest"]["run"] = "false";
-    ini["golfballtest"]["print"] = "true";
-    ini["golfballtest"]["deadband_x"] = "10";
-    ini["golfballtest"]["deadband_y"] = "10";
-    ini["golfballtest"]["k_x"] = "1";
-    ini["golfballtest"]["k_y"] = "1";
-    ini["golfballtest"]["target_x"] = "640";
-    ini["golfballtest"]["target_y"] = "650";
-    ini["golfballtest"]["dist_y"] = "0.05";
-    ini["golfballtest"]["servo_velocity"] = "200";
-    ini["golfballtest"]["servo_down"] = "0";
+    ini["golfball"]["log"] = "true";
+    ini["golfball"]["run"] = "false";
+    ini["golfball"]["print"] = "true";
+    ini["golfball"]["deadband_x"] = "10";
+    ini["golfball"]["deadband_y"] = "10";
+    ini["golfball"]["k_x"] = "0.5";
+    ini["golfball"]["k_y"] = "0.5";
+    ini["golfball"]["target_x"] = "640";
+    ini["golfball"]["target_y"] = "650";
+    ini["golfball"]["dist_y"] = "0.05";
+    ini["golfball"]["servo_velocity"] = "200";
+    ini["golfball"]["servo_down"] = "0";
   }
-  // get values from ini-file
-  toConsole = ini["golfballtest"]["print"] == "true";
-  int deadband_x = strtol(ini["golfballtest"]["deadband_x"].c_str(), nullptr, 10);
-  int deadband_y = strtol(ini["golfballtest"]["deadband_y"].c_str(), nullptr, 10);
-  int k_x = strtol(ini["golfballtest"]["k_x"].c_str(), nullptr, 10);
-  int k_y = strtol(ini["golfballtest"]["k_y"].c_str(), nullptr, 10);
-  int target_x = strtol(ini["golfballtest"]["target_x"].c_str(), nullptr, 10);
-  int target_y = strtol(ini["golfballtest"]["target_y"].c_str(), nullptr, 10);
-  float dist_y = strtof(ini["golfballtest"]["dist_y"].c_str(), nullptr);
-  int servo_down = strtol(ini["golfballtest"]["servo_down"].c_str(), nullptr, 10);
-  int servo_velocity = strtol(ini["golfballtest"]["servo_velocity"].c_str(), nullptr, 10);
-
   //
-  if (ini["golfballtest"]["log"] == "true")
+  if (ini["golfball"]["log"] == "true")
   { // open logfile
     std::string fn = service.logPath + "log_golfballtest.txt";
     logfile = fopen(fn.c_str(), "w");
@@ -94,18 +82,32 @@ bgolfballtest::~bgolfballtest()
 
 void bgolfballtest::run()
 {
+  // setup
   if (not setupDone)
     setup();
   if (ini["golfballtest"]["run"] == "false")
     return;
+
+  // get values from ini-file
+  
+  int deadband_x = strtol(ini["golfballtest"]["deadband_x"].c_str(), nullptr, 10);
+  int deadband_y = strtol(ini["golfballtest"]["deadband_y"].c_str(), nullptr, 10);
+  float k_x = strtol(ini["golfballtest"]["k_x"].c_str(), nullptr);
+  float k_y = strtol(ini["golfballtest"]["k_y"].c_str(), nullptr);
+  int target_x = strtol(ini["golfballtest"]["target_x"].c_str(), nullptr, 10);
+  int target_y = strtol(ini["golfballtest"]["target_y"].c_str(), nullptr, 10);
+  float dist_y = strtof(ini["golfballtest"]["dist_y"].c_str(), nullptr);
+  int servo_down = strtol(ini["golfballtest"]["servo_down"].c_str(), nullptr, 10);
+  int servo_velocity = strtol(ini["golfballtest"]["servo_velocity"].c_str(), nullptr, 10);
   //
+
   UTime t("now");
   bool finished = false;
   bool lost = false;
   state = 2;
   oldstate = state;
-
-  int center = {0,0};
+  const int MSL = 200;
+  std::vector<int> center{0,0};
 
   //
   toLog("golfballtest started");
@@ -161,15 +163,11 @@ void bgolfballtest::run()
           toLog("Wait to finish turn");
         }        
         break;
-
-
     
       case 10:
         
-        if(Mgolfball::findGolfball(center)){
-            const int MSL = 200;
+        if(golfball.findGolfball(center, nullptr)){
             char s[MSL];
-
             snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
             toLog(s);
             state = 11;
@@ -178,38 +176,37 @@ void bgolfballtest::run()
           toLog("No Golfball Found");
           lost = true;
         }
-        
 
         break;
 
       case 11: 
         // Lateral Error
         
-        int error = target_x - center[0];
-        if(abs(error) > deadband_x){
-          //pose.resetPose();
-          //mixer.setDesiredHeading(k*error);
+        int error_x = target_x - center[0];
+        if(abs(error_x) > deadband_x){
           mixer.setVelocity(0);
-          mixer.setTurnrate(k_x*((error > 0) ? 1 : ((error < 0) ? -1 : 0))));
+          mixer.setTurnrate(k_x*((error_x > 0) ? 1 : -1));
           toLog("Correcting  x-offset");
           state = 10;
         }else{
           // Goldfball on line
+          mixer.setTurnrate(0);
           state = 12;
         }
         break;
 
       case 12:
         // Forward Error
-        int error = target_y - center[1];
-        if(abs(error) > deadband_y){
+        int error_y = target_y - center[1];
+        if(abs(error_y) > deadband_y){
           //pose.resetPose();
           //mixer.setDesiredHeading(k*error);
           mixer.setTurnrate(0);
-          mixer.setVelocity(k_y*((error > 0) ? 1 : ((error < 0) ? -1 : 0))));
+          mixer.setVelocity(k_y*((error_y > 0) ? 1 : -1));
           toLog("Correcting  y-offset");
           state = 10;
         }else{
+          mixer.setVelocity(0);
           state = 13;
         }
 
@@ -217,7 +214,6 @@ void bgolfballtest::run()
 
       case 13:
         // Goldfball on line close to robot    
-        mixer.setVelocity(0);
         mixer.setTurnrate(0);
         pose.resetPose();
 
@@ -239,7 +235,7 @@ void bgolfballtest::run()
       case 15:
         if(servo.servo_position - servo_down < 10){
           pose.resetPose();
-          mixer.setDesiredHeading(1.570796)
+          mixer.setDesiredHeading(1.570796);
           toLog("Servo reached down position");
           toLog("Start Turning 90 deg");
           state = 16;
@@ -295,6 +291,7 @@ void bgolfballtest::terminate()
 
 void bgolfballtest::toLog(const char* message)
 {
+  toConsole = ini["golfballtest"]["print"] == "true";
   UTime t("now");
   if (logfile != nullptr)
   {

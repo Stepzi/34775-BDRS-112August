@@ -46,7 +46,7 @@ public:
    * this pointer is a nullptr (default), then a frame is taken from camera.
    * \param pos is a reference to the x,y postionn of the closest golfball
    * \returns the x,y position in pixel of the closes golf ball. */
-  bool findGolfball(int& pos, cv::Mat * sourcePtr = nullptr);
+  bool findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr);
  
 
 protected:
