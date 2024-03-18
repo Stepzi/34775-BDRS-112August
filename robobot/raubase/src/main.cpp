@@ -51,11 +51,12 @@ int main (int argc, char **argv)
     // turn on LED on port 16
     gpio.setPin(16, 1);
     // run the planned missions
-    //
+    // pik og patter
     //planCrossMission.run_StartToFirstCross();
-    //planIRTEST.run(false,false);
-    planGate.run();
+    //planIRTEST.run(true,false>>>>);
     //planCrossMission.run_AxeToTunnel();
+    //planGate.runOpen();
+    planGate.runClose();
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop

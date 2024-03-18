@@ -39,7 +39,8 @@ public:
   void setup();
   /**
    * run this mission */
-  void run();
+  void runClose();
+  void runOpen();
   /**
    * terminate */
   void terminate();

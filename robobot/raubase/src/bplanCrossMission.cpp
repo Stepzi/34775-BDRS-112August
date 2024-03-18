@@ -199,9 +199,9 @@ void BPlanCrossMission::run_RoundaboutToAxe()
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
 
-  //float f_Line_LeftOffset = 0.03;
+  float f_Line_LeftOffset = 0.03;
   float f_Line_RightOffset = -0.03;
-  //bool b_Line_HoldLeft = true;
+  bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
   //Hardcoded time data
@@ -227,7 +227,7 @@ void BPlanCrossMission::run_RoundaboutToAxe()
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.25"); //Some parse of float to log, Villiams :)
-          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset);
+          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
           mixer.setVelocity(f_Velocity_DriveForward); 
           state = 2;
         }
@@ -349,10 +349,10 @@ void BPlanCrossMission::run_AxeToTunnel()
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
 
-  float f_Line_LeftOffset = 0.03;
-  //float f_Line_RightOffset = -0.03;
+  float f_Line_LeftOffset = 0;
+  float f_Line_RightOffset = 0;
   bool b_Line_HoldLeft = true;
-  //bool b_Line_HoldRight = false;
+  bool b_Line_HoldRight = false;
 
   //Hardcoded time data
   float f_Time_Timeout = 10.0;
@@ -399,18 +399,47 @@ void BPlanCrossMission::run_AxeToTunnel()
         {
           mixer.setVelocity(0);
           pose.resetPose();
-          mixer.setDesiredHeading(1.6);
+          mixer.setDesiredHeading(-1.2);
           state = 5;
         }
       break;
 
       case 5:
-        if(pose.turned > 1.6-0.02) //We should be on a line 
+        if(abs(pose.turned) > 1.2-0.02) //We should be on a line 
         {
+          pose.dist = 0;
+          mixer.setVelocity(0.1);
+          mixer.setEdgeMode(b_Line_HoldRight, f_Line_LeftOffset);
+          state = 6;
+        }
+      break;
+
+      case 6:
+        if(abs(pose.dist) > 0.7) //We should be on a line 
+        {
+          mixer.setVelocity(0);
+          pose.resetPose();
+          pose.turned = 0;
+          mixer.setDesiredHeading(3.2);
+          state = 7;
+        }
+      break;
+
+      case 7:
+        if(abs(pose.turned) > 3) //We should be on a line 
+        {
+          pose.dist = 0;
+          mixer.setVelocity(0.1);
+          state = 8;
+        }
+      break;
+      case 8:
+        if(abs(pose.dist) > 0.2) //We should be on a line 
+        {
+          mixer.setVelocity(0.1);
           finished = true;
         }
       break;
-     
       default:
         toLog("Default Start to Cross");
         lost = true;
