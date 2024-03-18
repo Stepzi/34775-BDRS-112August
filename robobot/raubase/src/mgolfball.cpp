@@ -179,8 +179,8 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
       // Draw circle and its center
       cv::circle(img, center, static_cast<int>(radius), cv::Scalar(0,255,0), 2);
       cv::circle(img, center, 1, cv::Scalar(0, 0, 255), 2);
-      snprintf(s, MSL, "center: (%d, %d), radius: %d", center[0], centert[1], radius);
-      toLog(s);
+      // snprintf(s, MSL, "center: (%d, %d), radius: %d", center[0], centert[1], radius);
+      // toLog(s);
       saveImageTimestamped(img, imgTime);
     }
     return true;

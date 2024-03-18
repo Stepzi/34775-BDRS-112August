@@ -168,6 +168,8 @@ void bgolfballtest::run()
         
         if(golfball.findGolfball(center, nullptr)){
             char s[MSL];
+            // next need to modify the reference...since my C++ knowledge are shit I guess
+            // that we can just return the center as a whole (as in the function to return std::vector)
             snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
             toLog(s);
             state = 11;
