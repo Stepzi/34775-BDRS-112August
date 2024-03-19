@@ -85,6 +85,8 @@ void BRaceTrack::run()
   const int MSL = 100;
   char s[MSL];
   float speed = 0;
+  float turnSpeed = 1.1; //0.8
+  float toTurn = 0.0;
   float maxSpeed = 1.2; //1.5
   float maxDist = 5.3; //around 4
   float offset = 0.0;
@@ -102,7 +104,8 @@ void BRaceTrack::run()
       case 0: //Drive to end of tape and turn around.
         if(medge.edgeValid)
         {
-          pose.resetPose();
+          pose.turned = 0.0;
+          pose.dist = 0.0;
           toLog("Go to end of racetrack.");
           cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
           mixer.setEdgeMode(false, 0.00);
@@ -115,10 +118,11 @@ void BRaceTrack::run()
         }
         break;
       case 1:
-        if(!medge.edgeValid)
+        if(!medge.edgeValid && pose.dist > 0.5)
         {
           toLog("Assume end of raceTrack is reached");
-          pose.resetPose();
+          pose.turned = 0.0;
+          pose.dist = 0.0;
           mixer.setVelocity(0.0);
           mixer.setDesiredHeading(3.14);
 
@@ -126,11 +130,11 @@ void BRaceTrack::run()
         }
       break;    
       case 2:
-          toLog(std::to_string(pose.turned).c_str());
+          //toLog(std::to_string(pose.turned).c_str());
           if(abs(pose.turned) > 3.0)
           {
             mixer.setVelocity(0.3);
-            mixer.setEdgeMode(true /* right */,  0.00 /* offset */);
+            mixer.setEdgeMode(true /* lest */,  0.00 /* offset */);
             state = 3;
           }
       break;
@@ -140,7 +144,7 @@ void BRaceTrack::run()
         {
           toLog("Started on Line");
           cedge.changePID(8.0, 5.0, 0.6, 0.15, 0.0);
-          mixer.setEdgeMode(true /* right */,  0.00 /* offset */);
+          mixer.setEdgeMode(true /* lest */,  0.00 /* offset */);
           mixer.setVelocity(0.0);
           pose.dist = 0;
           state = 4;
@@ -163,6 +167,9 @@ void BRaceTrack::run()
           toLog("Speed up");
           state = 5;
         }
+        else if(!medge.edgeValid && medge.width < 0.015){
+          state = 101;
+        }
       break;
       case 5:
         //toLog(std::to_string(abs(pose.dist)).c_str());
@@ -178,8 +185,13 @@ void BRaceTrack::run()
           pose.turned = 0.0;
           state = 6;
         }
+        else if(!medge.edgeValid && medge.width < 0.015){
+          pose.dist = 0.0;
+          state = 101;
+        }
         break;  
       case 6: 
+        toLog(std::to_string(medge.edgeValid).c_str());
         if (abs(pose.turned) > Turn90Deg){//Turn 90 degrees //pose.dist > 1.8){
           toLog(std::to_string(pose.dist).c_str());
           toLog("Drive straight");
@@ -199,10 +211,11 @@ void BRaceTrack::run()
            offset = offset + 0.00005;
            mixer.setEdgeMode(true,offset);
         }
-        else if(!medge.edgeValid){
-          //lost = true;
+        if(!medge.edgeValid && medge.width < 0.015){
+          pose.dist = 0.0;
+          state = 101;
         }
-        if(speed > 0.8) //RAMP DOWN BEFORE TURN
+        if(speed > turnSpeed) //RAMP DOWN BEFORE TURN
         {
           speed = speed - 0.003;
           mixer.setVelocity(speed);
@@ -247,9 +260,87 @@ void BRaceTrack::run()
         else if(t.getTimePassed() > 20)
         {
           toLog("I am probably driving very fast somewhere I should not. I am very lost");
-          lost = true;
+          state = 101;
         }
         break;
+      case 101:
+        //LOST LINE. TURN 180 Degrees and folllow line to the right. 
+        if(pose.dist > 0.25){
+          toLog(std::to_string(pose.turned).c_str());
+          // if(pose.turned <= 0)
+          //   toTurn = pose.turned + (3.14);
+          // else{
+          //   toTurn = pose.turned - (3.14);
+          // }
+          pose.turned = 0;
+          toLog(std::to_string(toTurn).c_str());
+          mixer.setDesiredHeading(3.14);
+          mixer.setVelocity(0.1);
+          mixer.setDesiredHeading(toTurn);
+          pose.dist = 0;
+          toTurn = 0.0;
+          state = 102;
+        }
+        break;
+      case 102:
+        if(medge.edgeValid && medge.width > 0.06)
+        {
+          toLog("Found Line! I am vinkelret on the line");
+          mixer.setVelocity(0.0);
+          pose.turned = 0;
+          pose.dist = 0;
+          toTurn = -(3.14/2.0);
+          mixer.setDesiredHeading((toTurn));
+          t.clear();
+          state = 103;
+        }
+        else if (medge.edgeValid && medge.width > 0.03){
+          toLog("Found Line! I am not coming straight onto the line");
+          mixer.setVelocity(0.0);
+          pose.turned = 0;
+          pose.dist = 0;
+          toTurn = -0.5;
+          mixer.setDesiredHeading((toTurn));
+          t.clear();
+          state = 103;
+        }
+        else if (medge.edgeValid && medge.width > 0.02){
+          toLog("Found Line! I am straight on the line");
+          mixer.setVelocity(0.0);
+          pose.turned = 0;
+          pose.dist = 0;
+          toTurn = -(3.14/2.0);
+          mixer.setDesiredHeading(toTurn);
+          t.clear();
+          state = 103;
+        }
+        else if(pose.dist > 1)
+        {
+          toLog("Did not Find Line after 1 M. Look for ArUcO codes.");
+          lost = true;
+          
+        }
+        break;
+      case 103:
+        if(pose.turned >= toTurn && (t.getTimePassed() > 1.0))
+        {
+          state = 104;
+        }
+        else if(t.getTimePassed() > 1.5)
+        {
+          state = 104;
+        }
+      break;
+        case 104:
+        if(!medge.edgeValid){
+          mixer.setVelocity(0.1);
+          mixer.setDesiredHeading(0.2);
+        }
+        else if(medge.edgeValid)
+        {
+          state = 0;
+        }
+       break;
       default:
         toLog("Default Mission RaceTrack");
         lost = true;
