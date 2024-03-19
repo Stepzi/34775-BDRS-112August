@@ -85,7 +85,7 @@ void BRaceTrack::run()
   const int MSL = 100;
   char s[MSL];
   float speed = 0;
-  float turnSpeed = 1.1; //0.8
+  float turnSpeed = 0.8; //0.8
   float toTurn = 0.0;
   float maxSpeed = 1.2; //1.5
   float maxDist = 5.3; //around 4
