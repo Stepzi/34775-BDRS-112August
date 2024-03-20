@@ -63,6 +63,9 @@ void BStairs::setup()
     fprintf(logfile, "%% 2 \tMission state\n");
     fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
   }
+
+  servo.setServo(1, 1, -500, 200);
+  
   setupDone = true;
 }
 
@@ -99,7 +102,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   float f_Velocity_DriveForward = 0.25; 
   float f_Velocity_DriveSlow = 0.15;
   float f_Velocity_DriveBack = -0.15;
-  int servoDown = -200;
+  int servoDown = 300;
   int servoSpeed = 400;
   oldstate = state;
 
@@ -135,11 +138,13 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           {
             toLog("Crossed intersection to seesaw - continue until next intersection");
             mixer.setVelocity(f_Velocity_DriveSlow);
+            pose.dist = 0.0;
+            pose.turned = 0.0;
             state = 3;
           }
         break;
       case 3:
-          if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
+          if(medge.edgeValid && (medge.width > f_LineWidth_Crossing) && pose.dist > 0.2)
           {
             toLog("Reached Stairs Intersection");
             pose.dist = 0;
@@ -149,16 +154,17 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           }
         break;
       case 4:
-        if(pose.dist > 0.3){
+        if(pose.dist > 0.6){
           toLog("Reached start of Stairs, put down servo");
           mixer.setVelocity( 0.0 );
           servo.setServo(1, 1, servoDown, servoSpeed);
           t.clear();
           state = 5;
+          // finished = true;
         }
         break;
       case 5:
-        if(t.getTimePassed() > 2 || servo.servo_position[1] <= servoDown){
+        if(t.getTimePassed() > 2 || abs(servo.servo_position[1]- servoDown) <= 10){
           toLog("Servo Is Down, drive forward");
           mixer.setVelocity(f_Velocity_DriveSlow);
           pose.dist = 0;
@@ -204,6 +210,8 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   }
   else
     toLog("Plan Stairs finished");
+
+  // servo.setServo(1,0);
 }
 
 
