@@ -168,10 +168,18 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
       case 6:
         if(pose.dist > 0.3 /*|| imu_data z axis*/)
         {
+          toLog("Down First Step, drive Back");
           mixer.setVelocity(f_Velocity_DriveBack);
+          state = 7;
+          t.clear();
         }        
         break;
       case 7:
+        if(t.getTimePassed > 1){
+          toLog("Backed up aginst first step");
+          mixer.setVelocity(0.0);
+          finished = true;
+        }
         break;
       default:
         toLog("Unknown state");
