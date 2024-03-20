@@ -47,14 +47,13 @@ double lineGone           =  0.1;   //width to determine if the line was lost
 double lineOffset         =  0;     //offset for line edge detection
 double intersectionWidth  =  0.05;  //used to detect intersections
 
-int    startSide          = 21;     //select the side we start from - 21 from the roundabout and 22 from the stairs
+int    startSide          = 22;     //select the side we start from - 21 from the roundabout and 22 from the stairs
 double axeStop            = 0.4;    //distance to assume that axe is in front of the robot
 double axeToIntersection  = 0.8;    //distance from intersection to axe start
 double axeLenght          = 2;      //distance from start to finish of mission Axe
 
 // create class object
 BAxe axe;
-
 
 void BAxe::setup()
 { // ensure there is default values in ini-file
@@ -99,7 +98,10 @@ void BAxe::run()
   char s[MSL];
 
   std::string distSens1;
-  //bool tempBool1;
+  std::string pose1;
+
+  float waitTime;
+  float distanceToAxe;
   
   toLog("axe started");
   
@@ -121,7 +123,7 @@ void BAxe::run()
         {
           pose.resetPose();
           toLog("No Line");
-          mixer.setVelocity(0.0);//Drive slowly and turn i circle
+          mixer.setVelocity(0.0);//Drive slowly and turn in a circle
           mixer.setTurnrate(0.2);
         }
         else if(t.getTimePassed() > 10)
@@ -131,7 +133,7 @@ void BAxe::run()
         }
       break;
 
-      //finding an intersection
+      //finding an intersection - roundabout side
       case 21:
         if (medge.width > intersectionWidth)
         {
@@ -141,9 +143,8 @@ void BAxe::run()
           pose.dist = 0;
           state = 3;
         }
-
         else
-        {                                                             //TEST IF if IS NEEDED
+        {                                                             
           if (pose.dist > 0.1)
           {
             mixer.setVelocity(normalSpeed);
@@ -151,59 +152,111 @@ void BAxe::run()
         }
       break;
 
-      case 22
-        mixer.setEdgeMode(false, lineOffset);
+      //finding an intersection - goal side
+      case 22:
         if (medge.width > intersectionWidth)
         {
-          toLog("found intersection");
-          mixer.setVelocity(0);
-          pose.turned = 0;
-          mixer.setDesiredHeading(2);
-          mixer.setVelocity(0.1);
+          mixer.setEdgeMode(true, lineOffset);
+          toLog("preparing to turn around");
           pose.dist = 0;
-          state = 3;
+          pose.turned = 0;
+          state = 23;
         }
-
         else
-        {                                                             //TEST IF if IS NEEDED
+        {                                                             
           if (pose.dist > 0.1)
           {
             mixer.setVelocity(normalSpeed);
           }
         }
       break;
-        
-    // getting the robot to the axe
-    // based on the driven distance.
-    // the distance sensor is for 
-    // additional safety
-      case 3:
-        if (dist.dist[0] < axeStop or pose.dist > axeToIntersection)    //TEST THE DISTANCE SENSOR HERE
+
+      //going past the intersection and then turning around
+      case 23:
+        if (pose.dist > 0.3)
         {
+          //mixer.setVelocity(0.05);
+          toLog("turning around");
+          mixer.setVelocity(0);
+          mixer.setTurnrate(0.5);
+          //finished = true;
+          state = 24;
+        }
+        else
+        {
+          mixer.setVelocity(0.3);
+        }
+      break;
+
+      //continuing the track as if we started from the roundabout side
+      case 24:
+      mixer.setTurnrate(0.9);
+        if (pose.turned > 2.8)
+        {
+          //finished = true;
+          mixer.setTurnrate(0);
+          mixer.setVelocity(0.2);
+          mixer.setEdgeMode(true, lineOffset);
+          state = 21;
+        }
+      break;
+
+      // getting the robot to the axe.
+      // based on the driven distance.
+      case 3:
+        if (pose.dist > axeToIntersection )
+        {
+          toLog(const_cast<char*>((std::to_string(pose.dist)).c_str()));
           pose.dist = 0;
           toLog("robot in front of axe");
           mixer.setVelocity(0);
-          state = 4;
+          toLog ("axe timer");
+          t.clear();
+          state = 40;
         }
       break;
 
-      // waiting for axe
-      case 4:
-        mixer.setVelocity(0);
-
-        while (dist.dist[1] >= axeStop)       //nothing in front - waiting for axe to appear
+      // waiting to make sure to detect the axe
+      case 40:
+        waitTime = t.getTimePassed();
+        //toLog(const_cast<char*>((std::to_string(waitTime)).c_str()));
+        if (waitTime > 3)
         {
-          toLog ("waiting for axe");
+          toLog ("waiting for axe to appear");
+          state = 41;
+        }
+      break;
+      
+      //waiting for axe to appear
+      case 41: 
+        if (dist.dist[1] >= axeStop)       //nothing in front 
+        {
+          mixer.setVelocity(0);
+          distSens1 = std::to_string(dist.dist[1]);
+          toLog(const_cast<char*>(distSens1.c_str()));
         } 
 
-        while (dist.dist[1] < axeStop)         //axe in front - waiting for it to be gone
+        else 
         {
           toLog ("waiting for axe to pass");
+          state = 42;
         }
+      break;
 
-        toLog ("axe is gone");                 //yeet
-        mixer.setVelocity(0.5);
-        state = 5;
+      //waiting for it to be gone
+      case 42:
+        if (dist.dist[1] < axeStop)         //axe in front
+        {
+          mixer.setVelocity(0);
+          distSens1 = std::to_string(dist.dist[1]);
+          toLog(const_cast<char*>(distSens1.c_str()));
+        }
+        else 
+        {
+          toLog ("axe is gone");
+          mixer.setVelocity(0.4);
+          state = 5;
+        }
       break;
 
       // deciding when to finish the mission
@@ -222,46 +275,48 @@ void BAxe::run()
         }
       break;
 
-      //testing the loops
-      case 11:
-        mixer.setVelocity(0);
-        //tempBool1 = true;
-
-        while (dist.dist[1] >= axeStop)    //nothing in front - waiting for axe to appear
-        {
-          toLog ("waiting for axe");
-          /*if (tempBool1)
-          {
-            toLog ("waiting for axe");
-            tempBool1 = false;
-          }
-          else
-          {
-            //wait
-          }*/
-        } 
-
-        //tempBool1 = true;
-        while (dist.dist[1] < axeStop)         //axe in front - waiting for it to be gone
-        {
-          toLog ("waiting for axe to pass");
-          /*if (tempBool1)
-          {
-            toLog ("waiting for axe to pass");
-            tempBool1 = false;
-          }*/
-        }
-        
-        toLog ("axe is gone");                      //yeet
-        finished = true;
-      break;
-
+      //TESTS FOR DIFFERENT FUNCTIONS
+      
       //testing the ir sensor
       case 111: 
         mixer.setVelocity(0);
         distSens1 = std::to_string(dist.dist[1]);
         toLog(const_cast<char*>(distSens1.c_str()));
       break;
+
+      //testing the turn function
+    case 222:
+      mixer.setEdgeMode(true, lineOffset);
+      pose.turned = 0;
+      pose.dist = 0;
+      state = 223;
+    break;
+
+    case 223:
+      if (pose.dist < 0.1)
+      {
+        mixer.setVelocity(0.1);
+      }
+      else 
+      {
+        mixer.setVelocity(0);
+        //mixer.setDesiredHeading(3); //1.5 = 90 degree turn, 3 = 180
+        mixer.setTurnrate(0.5);
+        state = 224;
+      }
+    break;
+
+    case 224:
+      mixer.setTurnrate(0.5);
+      pose1 = std::to_string(pose.turned);
+      toLog(const_cast<char*>(pose1.c_str()));
+        if (pose.turned > 2.7)
+        {
+          mixer.setVelocity(0.2);
+          mixer.setTurnrate(0.5);
+          mixer.setEdgeMode(true, lineOffset);
+        }
+    break;
 
       default:
         toLog("Default Axe");
