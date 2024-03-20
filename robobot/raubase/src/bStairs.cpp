@@ -134,7 +134,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
           {
             toLog("Crossed intersection to seesaw - continue until next intersection");
-            mixer.setVelocity(f_Velocity_DriveSlow, 0 );
+            mixer.setVelocity(f_Velocity_DriveSlow);
             state = 3;
           }
         break;
@@ -150,7 +150,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         break;
       case 4:
         if(pose.dist > 0.3){
-          toLog("Reached start of Stairs, put down servo")
+          toLog("Reached start of Stairs, put down servo");
           mixer.setVelocity( 0.0 );
           servo.setServo(1, 1, servoDown, servoSpeed);
           t.clear();
@@ -158,8 +158,8 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         }
         break;
       case 5:
-        if(t.getTimePassed > 2 || servo.servo_position <= servoDown){
-          togLog("Servo Is Down, drive forward");
+        if(t.getTimePassed() > 2 || servo.servo_position[1] <= servoDown){
+          toLog("Servo Is Down, drive forward");
           mixer.setVelocity(f_Velocity_DriveSlow);
           pose.dist = 0;
           state = 6;
@@ -175,7 +175,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         }        
         break;
       case 7:
-        if(t.getTimePassed > 1){
+        if(t.getTimePassed() > 1){
           toLog("Backed up aginst first step");
           mixer.setVelocity(0.0);
           finished = true;
