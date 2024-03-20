@@ -98,6 +98,9 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   bool b_Line_HoldRight = false;
   float f_Velocity_DriveForward = 0.25; 
   float f_Velocity_DriveSlow = 0.15;
+  float f_Velocity_DriveBack = -0.15;
+  int servoDown = -200;
+  int servoSpeed = 400;
   oldstate = state;
 
   //
@@ -140,25 +143,33 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           {
             toLog("Reached Stairs Intersection");
             pose.dist = 0;
-            pose.turend = 0;
+            pose.turned = 0;
+            mixer.setEdgeMode(b_Line_HoldLeft, 0);
             state = 4;
           }
         break;
       case 4:
-        if(pose.dist > 0.2){
+        if(pose.dist > 0.3){
           toLog("Reached start of Stairs, put down servo")
-          servo.setServo(1, 1, -200, 500);
+          mixer.setVelocity( 0.0 );
+          servo.setServo(1, 1, servoDown, servoSpeed);
           t.clear();
           state = 5;
         }
         break;
       case 5:
-        if(t.getTimePassed > 2){
+        if(t.getTimePassed > 2 || servo.servo_position <= servoDown){
           togLog("Servo Is Down, drive forward");
-          
+          mixer.setVelocity(f_Velocity_DriveSlow);
+          pose.dist = 0;
+          state = 6;
         }
         break;
       case 6:
+        if(pose.dist > 0.3 /*|| imu_data z axis*/)
+        {
+          mixer.setVelocity(f_Velocity_DriveBack);
+        }        
         break;
       case 7:
         break;
