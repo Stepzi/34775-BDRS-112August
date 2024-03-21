@@ -93,7 +93,7 @@ void BAxe::run()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 222;
+  state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
