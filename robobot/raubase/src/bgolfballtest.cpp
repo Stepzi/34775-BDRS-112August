@@ -92,8 +92,8 @@ void bgolfballtest::run()
   
   int deadband_x = strtol(ini["golfballtest"]["deadband_x"].c_str(), nullptr, 10);
   int deadband_y = strtol(ini["golfballtest"]["deadband_y"].c_str(), nullptr, 10);
-  float k_x = strtol(ini["golfballtest"]["k_x"].c_str(), nullptr);
-  float k_y = strtol(ini["golfballtest"]["k_y"].c_str(), nullptr);
+  float k_x = strtof(ini["golfballtest"]["k_x"].c_str(), nullptr);
+  float k_y = strtof(ini["golfballtest"]["k_y"].c_str(), nullptr);
   int target_x = strtol(ini["golfballtest"]["target_x"].c_str(), nullptr, 10);
   int target_y = strtol(ini["golfballtest"]["target_y"].c_str(), nullptr, 10);
   float dist_y = strtof(ini["golfballtest"]["dist_y"].c_str(), nullptr);
@@ -238,9 +238,9 @@ void bgolfballtest::run()
         break;
 
       case 15:
-        if(servo.servo_position - servo_down < 10){
-            pose.dist = 0.0;
-  pose.turned = 0.0;
+        if(servo.servo_position[1] - servo_down < 10){
+          pose.dist = 0.0;
+          pose.turned = 0.0;
           mixer.setDesiredHeading(1.570796);
           toLog("Servo reached down position");
           toLog("Start Turning 90 deg");
