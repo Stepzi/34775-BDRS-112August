@@ -104,7 +104,7 @@ void bgolfballtest::run()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 2;
+  state = 10;
   oldstate = state;
   const int MSL = 200;
   std::vector<int> center{0,0};
@@ -121,9 +121,9 @@ void bgolfballtest::run()
       case 2:
         if(medge.edgeValid && (medge.width > 0.02)) //We should be on a line 
         {          
-          pose.resetPose();
-          toLog("Started on Line");
-          toLog("Follow Line with velocity 0.2");
+          pose.dist = 0.0;
+          pose.turned = 0.0;
+          toLog("Follow Line after branch");
           mixer.setEdgeMode(true /*left*/, 0.00 /* offset */);
           mixer.setVelocity(0.4);
           state = 3;
@@ -140,9 +140,10 @@ void bgolfballtest::run()
           snprintf(s, MSL, "Following Line, driven %f m", pose.dist);
           toLog(s);
 
-          if(pose.dist >= 1){
+          if(pose.dist >= 0.5){
             toLog("Driven far enough");
-            pose.resetPose();
+            pose.dist = 0.0;
+            pose.turned = 0.0;
             mixer.setDesiredHeading(1.570796);
             state = 4;
           }
@@ -155,7 +156,8 @@ void bgolfballtest::run()
 
       case 4:
        if(abs(pose.turned-1.570796) < 0.1){
-          pose.resetPose();
+          pose.dist = 0.0;
+          pose.turned = 0.0;
           mixer.setTurnrate(0);
           toLog("Finished Turn");
           state = 10;
@@ -217,7 +219,8 @@ void bgolfballtest::run()
       case 13:
         // Goldfball on line close to robot    
         mixer.setTurnrate(0);
-        pose.resetPose();
+          pose.dist = 0.0;
+  pose.turned = 0.0;
 
         mixer.setVelocity(0.1);
         toLog("Drive Forward Open-Loop");
@@ -236,7 +239,8 @@ void bgolfballtest::run()
 
       case 15:
         if(servo.servo_position - servo_down < 10){
-          pose.resetPose();
+            pose.dist = 0.0;
+  pose.turned = 0.0;
           mixer.setDesiredHeading(1.570796);
           toLog("Servo reached down position");
           toLog("Start Turning 90 deg");
