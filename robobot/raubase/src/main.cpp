@@ -32,6 +32,7 @@
 #include "cmixer.h"
 #include "sgpiod.h"
 #include "bplan20.h"
+#include "bgolfballtest.h"
 #include "bplan21.h"
 #include "bplan40.h"
 #include "bplan100.h"
@@ -56,7 +57,9 @@ int main (int argc, char **argv)
     //plan40.run();
     //planMission0.run();
     //plan100.run();
-    plan101.run();
+    //plan101.run();
+    golfballtest.run();
+
     //
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
