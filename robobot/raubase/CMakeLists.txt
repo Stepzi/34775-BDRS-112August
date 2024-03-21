@@ -34,7 +34,7 @@ add_executable(raubase
       src/bplan21.cpp
       src/bplan40.cpp
       src/bplan100.cpp
-      src/bmission0.cpp
+      src/baxe.cpp
       src/bplan101.cpp
       src/cedge.cpp
       src/cheading.cpp
