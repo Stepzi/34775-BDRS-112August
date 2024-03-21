@@ -119,6 +119,7 @@ void bgolfballtest::run()
 
 
       case 2:
+      {
         if(medge.edgeValid && (medge.width > 0.02)) //We should be on a line 
         {          
           pose.dist = 0.0;
@@ -132,7 +133,10 @@ void bgolfballtest::run()
         }
 
         break;
+      }
+
       case 3:
+      {
         if(medge.edgeValid && (medge.width > 0.02)) //We should be on a line 
         {
           const int MSL = 200;
@@ -153,9 +157,11 @@ void bgolfballtest::run()
         }
 
         break;
+      }
 
       case 4:
-       if(abs(pose.turned-1.570796) < 0.1){
+      {
+        if(abs(pose.turned-1.570796) < 0.1){
           pose.dist = 0.0;
           pose.turned = 0.0;
           mixer.setTurnrate(0);
@@ -165,9 +171,11 @@ void bgolfballtest::run()
           toLog("Wait to finish turn");
         }        
         break;
+      }
+       
     
       case 10:
-        
+      {
         if(golfball.findGolfball(center, nullptr)){
             char s[MSL];
             // next need to modify the reference...since my C++ knowledge are shit I guess
@@ -182,8 +190,14 @@ void bgolfballtest::run()
         }
 
         break;
+      }
+        
+        
 
-      case 11: 
+      case 11:
+      {
+        
+      
         // Lateral Error
         
         int error_x = target_x - center[0];
@@ -198,8 +212,10 @@ void bgolfballtest::run()
           state = 12;
         }
         break;
+      }
 
       case 12:
+      {
         // Forward Error
         int error_y = target_y - center[1];
         if(abs(error_y) > deadband_y){
@@ -215,20 +231,24 @@ void bgolfballtest::run()
         }
 
         break;
+      }
 
       case 13:
+      {
         // Goldfball on line close to robot    
         mixer.setTurnrate(0);
-          pose.dist = 0.0;
-  pose.turned = 0.0;
+        pose.dist = 0.0;
+        pose.turned = 0.0;
 
         mixer.setVelocity(0.1);
         toLog("Drive Forward Open-Loop");
         state = 14;
 
         break;
+      }
 
       case 14:
+      {
         if(pose.dist >= dist_y){
           //set servo down
           servo.setServo(1,true,servo_down,servo_velocity);
@@ -236,8 +256,10 @@ void bgolfballtest::run()
           state = 15;
         }
         break;
+      }
 
       case 15:
+      {
         if(servo.servo_position[1] - servo_down < 10){
           pose.dist = 0.0;
           pose.turned = 0.0;
@@ -251,8 +273,10 @@ void bgolfballtest::run()
         
         
         break;
+      }
 
       case 16:
+      {
         if(abs(pose.turned-1.570796) < 0.1){
           toLog("Finished Turn, finish Program");
           finished = true;
@@ -261,6 +285,7 @@ void bgolfballtest::run()
         }
         
         break;
+      }
 
       default:
         toLog("Unknown state");
