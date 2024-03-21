@@ -100,8 +100,6 @@ void Mgolfball::toLog(const char * message)
 
 bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
 { // taken from https://docs.opencv.org
-  // Init setup
-  setup()
 
   // Get frame 
   cv::Mat frame;
