@@ -40,6 +40,7 @@
 
 #include "baxe.h"
 #include <iostream>
+#include "simu.h"
 
 double normalSpeed        =  0.3;   //speed under normal conditions
 double lineWidth          =  0.02;  //width to determine if we are on the line
@@ -92,16 +93,20 @@ void BAxe::run()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 1;
+  state = 222;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
 
   std::string distSens1;
-  std::string pose1;
+  std::string pose1; 
+  std::string gs0;
+  std::string gs1; 
+  std::string gs2;
 
   float waitTime;
   float distanceToAxe;
+  float accValue1;
   
   toLog("axe started");
   
@@ -286,9 +291,10 @@ void BAxe::run()
 
       //testing the turn function
     case 222:
-      mixer.setEdgeMode(true, lineOffset);
+      //mixer.setEdgeMode(true, lineOffset);
       pose.turned = 0;
       pose.dist = 0;
+      mixer.setVelocity(0.1);
       state = 223;
     break;
 
@@ -299,6 +305,7 @@ void BAxe::run()
       }
       else 
       {
+        finished = true;
         mixer.setVelocity(0);
         //mixer.setDesiredHeading(3); //1.5 = 90 degree turn, 3 = 180
         mixer.setTurnrate(0.5);
@@ -310,18 +317,83 @@ void BAxe::run()
       mixer.setTurnrate(0.5);
       pose1 = std::to_string(pose.turned);
       toLog(const_cast<char*>(pose1.c_str()));
-        if (pose.turned > 2.7)
+        if (pose.turned > 1.45)
         {
-          mixer.setVelocity(0.2);
+          /*mixer.setVelocity(0.2);
           mixer.setTurnrate(0.5);
-          mixer.setEdgeMode(true, lineOffset);
+          mixer.setEdgeMode(true, lineOffset);*/
+          finished = true;
         }
     break;
 
-      default:
-        toLog("Default Axe");
-        lost = true;
-        break;
+    /*case 999:
+      imu.gyro[0] = 0;
+      imu.gyro[1] = 0;
+      imu.gyro[2] = 0;
+      state = 9999;
+    break;*/
+
+    case 999: 
+      gs0 = std::to_string(imu.acc[1]);
+      /*gs1 = std::to_string(imu.gyro[1]);
+      gs2 = std::to_string(imu.gyro[2]);
+      har a = const_cast<char*>(gs0.c_str());
+      char b = const_cast<char*>(gs1.c_str());
+      char c = const_cast<char*>(gs2.c_str());*/
+      toLog(const_cast<char*>(gs0.c_str()));
+      mixer.setVelocity(0);
+      mixer.setTurnrate(2);
+    break;
+
+    case 1001:
+      mixer.setEdgeMode(true /* right */, lineOffset /* offset */);
+      mixer.setVelocity(0.1);
+      state = 1002;
+    break;
+
+    case 1002:
+        if (medge.width > intersectionWidth+0.05)
+        {
+          toLog("found intersection");
+          mixer.setVelocity(0);
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 1003;
+        }
+        else
+        {                                                             
+          if (pose.dist > 0.1)
+          {
+            mixer.setVelocity(normalSpeed);
+          }
+        }
+    break;
+
+    case 1003:
+      mixer.setTurnrate(0.9);
+        if (pose.turned > 1.4)
+        {
+          //finished = true;
+          mixer.setTurnrate(0);
+          mixer.setVelocity(0.2);
+          mixer.setEdgeMode(true, lineOffset);
+          accValue1 = imu.acc[1];
+          state = 1004;
+        }
+    break;   
+
+    case 1004:
+      if (abs(imu.acc[1]) > accValue1 + 0.2)
+      {
+        toLog("step detected");
+        finished = true;
+      }
+    break;
+
+    default:
+      toLog("Default Axe");
+      lost = true;
+    break;
     }
 
     if (state != oldstate)
