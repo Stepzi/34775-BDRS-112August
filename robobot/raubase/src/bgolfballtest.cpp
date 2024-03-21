@@ -72,7 +72,6 @@ void bgolfballtest::setup()
     fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
   }
   setupDone = true;
-  servo.setServo(1,1,400,300);
 }
 
 bgolfballtest::~bgolfballtest()
@@ -105,13 +104,14 @@ void bgolfballtest::run()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 10;
+  state = 2;
   oldstate = state;
   const int MSL = 200;
   std::vector<int> center{0,0};
 
   //
   toLog("golfballtest started");
+  servo.setServo(1,1,-500,servo_velocity);
   //
   while (not finished and not lost and not service.stop)
   {
@@ -127,7 +127,7 @@ void bgolfballtest::run()
           pose.turned = 0.0;
           toLog("Follow Line after branch");
           mixer.setEdgeMode(true /*left*/, 0.00 /* offset */);
-          mixer.setVelocity(0.4);
+          mixer.setVelocity(0.1);
           state = 3;
         }else{
           lost = true;
@@ -145,11 +145,16 @@ void bgolfballtest::run()
           snprintf(s, MSL, "Following Line, driven %f m", pose.dist);
           toLog(s);
 
-          if(pose.dist >= 0.5){
+          if(pose.dist >= 0.6){
             toLog("Driven far enough");
-            pose.dist = 0.0;
-            pose.turned = 0.0;
-            mixer.setDesiredHeading(1.570796);
+            mixer.setVelocity(0.0);
+            // pose.dist = 0.0;
+            // pose.turned = 0.0;
+            // pose.h = 0.0;
+            pose.resetPose();
+            mixer.setDesiredHeading(1.57);
+            // mixer.setTurnrate(0.1);
+            // pose.resetPose();
             state = 4;
           }
           
@@ -230,6 +235,7 @@ void bgolfballtest::run()
         }else{
           mixer.setVelocity(0);
           state = 13;
+          finished = true;
         }
 
         break;

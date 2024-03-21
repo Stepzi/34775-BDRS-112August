@@ -139,6 +139,8 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
   cv::inRange(mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255), mask);
   // cv::erode(mask, mask, Mat, 2);
   // cv::dilate(mask, mask, Mat, 2);
+  
+    
   std::vector<std::vector<cv::Point>> contours;
   cv::findContours(mask, contours, cv::noArray(),cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
 
@@ -178,6 +180,7 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
       // snprintf(s, MSL, "center: (%d, %d), radius: %d", center[0], centert[1], radius);
       // toLog(s);
       saveImageTimestamped(img, imgTime);
+      saveImageTimestamped(mask, imgTime+1);
     }
     return true;
   }
