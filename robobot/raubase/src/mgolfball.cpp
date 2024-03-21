@@ -134,8 +134,6 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
   
   cv::Mat blurred;
   cv::GaussianBlur(frame, blurred, cv::Size(11, 11), 0);
-  int width = frame.rows;
-  int height = frame.cols;
   cv::Mat mask;
   cv::cvtColor(blurred, mask, cv::COLOR_BGR2HSV);
   cv::inRange(mask, cv::Scalar(10, 100, 100), cv::Scalar(20, 255, 255), mask);
@@ -145,7 +143,7 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
   cv::findContours(mask, contours, cv::noArray(),cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
 
   cv::Point2f center;
-  float radius;
+  float radius = 0;
   if (contours.size() > 0){
         float max_area = 0;
         std::vector<cv::Point> c;
@@ -156,9 +154,11 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
                 c = contours[i];
             }
         }
-
-    
-    cv::minEnclosingCircle(c, center, radius);
+    if (c.size() > 0)
+        cv::minEnclosingCircle(c, center, radius);
+    else
+        return false;
+   
     if (radius < 10 && radius > 65){
         debugSave = false;
         return false;
@@ -171,8 +171,6 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
     pos[1] = int(center.y);
       //
     if (debugSave){ 
-      const int MSL = 200;
-      char s[MSL];
       // paint found golfballs in image copy 'img'.
       // Draw circle and its center
       cv::circle(img, center, static_cast<int>(radius), cv::Scalar(0,255,0), 2);

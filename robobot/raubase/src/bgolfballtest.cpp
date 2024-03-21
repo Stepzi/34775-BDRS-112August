@@ -48,21 +48,21 @@ void bgolfballtest::setup()
 { // ensure there is default values in ini-file
   if (not ini["golfballtest"].has("log"))
   { // no data yet, so generate some default values
-    ini["golfball"]["log"] = "true";
-    ini["golfball"]["run"] = "false";
-    ini["golfball"]["print"] = "true";
-    ini["golfball"]["deadband_x"] = "10";
-    ini["golfball"]["deadband_y"] = "10";
-    ini["golfball"]["k_x"] = "0.5";
-    ini["golfball"]["k_y"] = "0.5";
-    ini["golfball"]["target_x"] = "640";
-    ini["golfball"]["target_y"] = "650";
-    ini["golfball"]["dist_y"] = "0.05";
-    ini["golfball"]["servo_velocity"] = "200";
-    ini["golfball"]["servo_down"] = "0";
+    ini["golfballtest"]["log"] = "true";
+    ini["golfballtest"]["run"] = "false";
+    ini["golfballtest"]["print"] = "true";
+    ini["golfballtest"]["deadband_x"] = "10";
+    ini["golfballtest"]["deadband_y"] = "10";
+    ini["golfballtest"]["k_x"] = "0.5";
+    ini["golfballtest"]["k_y"] = "0.5";
+    ini["golfballtest"]["target_x"] = "640";
+    ini["golfballtest"]["target_y"] = "650";
+    ini["golfballtest"]["dist_y"] = "0.05";
+    ini["golfballtest"]["servo_velocity"] = "200";
+    ini["golfballtest"]["servo_down"] = "200";
   }
   //
-  if (ini["golfball"]["log"] == "true")
+  if (ini["golfballtest"]["log"] == "true")
   { // open logfile
     std::string fn = service.logPath + "log_golfballtest.txt";
     logfile = fopen(fn.c_str(), "w");
@@ -72,6 +72,7 @@ void bgolfballtest::setup()
     fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
   }
   setupDone = true;
+  servo.setServo(1,1,400,300);
 }
 
 bgolfballtest::~bgolfballtest()
@@ -176,6 +177,7 @@ void bgolfballtest::run()
     
       case 10:
       {
+         toLog("Looking for golfball");
         if(golfball.findGolfball(center, nullptr)){
             char s[MSL];
             // next need to modify the reference...since my C++ knowledge are shit I guess
@@ -251,7 +253,8 @@ void bgolfballtest::run()
       {
         if(pose.dist >= dist_y){
           //set servo down
-          servo.setServo(1,true,servo_down,servo_velocity);
+          servo.setServo(1,1,servo_down,servo_velocity);
+          t.clear();
           toLog("Set Servo down");
           state = 15;
         }
@@ -260,7 +263,7 @@ void bgolfballtest::run()
 
       case 15:
       {
-        if(servo.servo_position[1] - servo_down < 10){
+        if((t.getTimePassed() > 2) || (servo.servo_position[1] - servo_down < 10)){
           pose.dist = 0.0;
           pose.turned = 0.0;
           mixer.setDesiredHeading(1.570796);
@@ -310,6 +313,8 @@ void bgolfballtest::run()
   }
   else
     toLog("golfballtest finished");
+
+  servo.setServo(1,0);
 }
 
 
