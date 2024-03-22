@@ -88,7 +88,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   }
   else
   {
-    state = 11;
+    state = 11; // should be 11.
   }
 
   oldstate = state;
@@ -156,7 +156,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           toLog("Ready to enter the roundabout from the start-side");
           mixer.setVelocity(0);
           pose.resetPose();
-          mixer.setDesiredHeading(1.67); // (3*pi) / 8
+          mixer.setDesiredHeading(1.4); // (3*pi) / 8
           state = 3;
         }
         break;
@@ -164,7 +164,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 3 - Stop turning after some angle
       case 3:
         toLog(std::to_string(pose.turned).c_str());
-        if(abs(pose.turned) > 1.65){
+        if(abs(pose.turned) > 1.38){
           mixer.setTurnrate(0);
           state = 21;
         }
@@ -233,10 +233,13 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       /********************************************************************/
       //Case 21 - If robot is seen, clear time and wait until case 6
       case 21: 
-        if(dist.dist[1] < 0.25){
+        // toLog(std::to_string(dist.dist[0]).c_str()); print out side sensor
+        if(dist.dist[1] < 0.25){ // dist.dist should be 1 !!
           toLog("Robot seen!");
           t.clear();
           pose.dist = 0;
+          pose.resetPose();
+          mixer.setDesiredHeading(0.4);
           state = 22;
         }
       break;
@@ -275,19 +278,30 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 24:
       if(medge.width > f_LineWidth_Crossing) //0.07
         { 
+          //pose.resetPose();
+          toLog("Make 3 test");
+          pose.dist = 0;
+          //state = 25;
+          state = 25;
+        }
+        break;
+
+      case 25:
+      if(pose.dist > 0.7) //0.07
+        { 
           
           mixer.setVelocity(0);
           //pose.resetPose();
           toLog("Make 3 test");
           pose.resetPose();
-          mixer.setDesiredHeading(1.3);
+          mixer.setDesiredHeading(1.5);
           //state = 25;
-          state = 25;
+          state = 26;
         }
-        break;
+      break;
       
       //Case 25 - After turning some angle, go to state 10
-      case 25:
+      case 26:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
       //toLog("Turned");
       //toLog(std::to_string(pose.turned).c_str());
@@ -295,7 +309,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //toLog(std::to_string(pose.turnrate).c_str());
 
 
-        if(abs(pose.turned) > 1.28){
+        if(abs(pose.turned) > 1.48){
           mixer.setVelocity(-0.3);
           state = 31;
         }
@@ -332,7 +346,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 27 - After turning some angle, ready for turning around on the roundabout. 
       case 33:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
-        if(abs(pose.turned) > 6.3)
+        if(abs(pose.turned) > 6.15)
         {
           mixer.setVelocity(0);
           mixer.setTurnrate(0);
@@ -435,61 +449,37 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       break;
 
       case 46:
-        if(exitDirectionStart)
+        if(exitDirectionStart) // false = axe, true = cross
         {
-          if(medge.width > f_LineWidth_Crossing)
-          {
-            mixer.setVelocity(0.2);
-            pose.resetPose();
-            mixer.setDesiredHeading(0);
-            pose.dist = 0;
-            //mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
-            state = 666;
-          }
+          state = 51;
         }
         else
         {
-          if(medge.width > 0.05)
-          {
-            mixer.setVelocity(0);
-            toLog("FINISH at axe :)");
-            finished = true;
-          }
+           state = 61;
         }
       break;
       
-      case 666:
-        if(abs(pose.dist) > 0.1)
-        {
-          mixer.setVelocity(0.2);
-          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
-          state = 47;
-        }
-
-
-      break;
-
-      case 47:
-      if(medge.width > f_LineWidth_Crossing) 
+      case 51:
+       if(medge.width > f_LineWidth_Crossing) 
         { 
           mixer.setVelocity(0);
           pose.resetPose();
           mixer.setDesiredHeading(3);
           
-          state = 48;
+          state = 52;
         }
       break;
 
-      case 48:
+      case 52:
         if(abs(pose.turned) > 2.98)
         {
           pose.dist = 0;
           mixer.setVelocity(-0.1);
-          state = 49;
+          state = 53;
         }
       break;
 
-      case 49:
+      case 53:
         if(abs(pose.dist) > 0.3)
         {
           mixer.setVelocity(0);
@@ -497,8 +487,33 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           finished = true;
         }
       break;
+      
+      case 61: 
+       if(medge.width > f_LineWidth_Crossing) 
+        { 
+          pose.resetPose();
+          mixer.setDesiredHeading(0);
+          mixer.setVelocity(0.2);
+          state = 62;
+        }
+      break;
 
+      case 62:
+        if(pose.dist > 0.1)
+        {
+          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+          state = 63;
+        } 
+      break;
 
+      case 63:
+        if(medge.width > 0.05){
+          mixer.setVelocity(0);
+          finished = true;
+          toLog("Finished at Axe");
+        }
+      break;
+        break;
 
 
 
