@@ -49,9 +49,9 @@ float normalSpeed        =  0.3;   //speed under normal conditions
 float lineWidth          =  0.02;  //width to determine if we are on the line
 float lineGone           =  0.01;   //width to determine if the line was lost
 float lineOffset         =  0;     //offset for line edge detection
-float intersectionWidth  =  0.05;  //used to detect intersections
+float intersectionWidth  =  0.06;  //used to detect intersections
 float intersectionToEdge =  0.23;
-float edgeToSeesaw       =  0.87;   // distance from edge to tilting point
+float edgeToSeesaw       =  0.84;   // distance from edge to tilting point
 float edgeWidth          =  0.098;  
 
 float speed              = 0;
@@ -97,7 +97,7 @@ void BSeesaw::run()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 1;
+  state = 100;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -192,7 +192,7 @@ void BSeesaw::run()
         //servo.setServo(1, 1, -500, 200);
         
         waitTime = t.getTimePassed();
-        if (waitTime>5){
+        if (waitTime>3){
         state = 7;}
       break;
 
@@ -201,8 +201,8 @@ void BSeesaw::run()
         {*/
           mixer.setEdgeMode(leftEdge, lineOffset);
           toLog("going down");
-          mixer.setVelocity(0.1);
-          state = 8;
+          mixer.setVelocity(0.05);
+          state = 9;
         
       break;
 
@@ -224,7 +224,6 @@ void BSeesaw::run()
       case 9:
         if(medge.width < lineGone)
         {
-          finished = true;
           pose.resetPose();
           toLog("No Line");
           mixer.setVelocity(0.1);
@@ -233,7 +232,7 @@ void BSeesaw::run()
       break;
 
       case 10:
-        if(medge.width > lineWidth) //We should be on a line 
+        if(medge.width > lineWidth)
         {
           mixer.setVelocity(0);          
           pose.turned = 0;
@@ -242,12 +241,12 @@ void BSeesaw::run()
       break;
 
       case 11:
-        mixer.setTurnrate(0.5);
-        if (pose.turned > 1.4)
+        mixer.setTurnrate(-0.5);
+        if (pose.turned < -1.4)
         {
           mixer.setEdgeMode(leftEdge, lineOffset);
           toLog("back on the line");
-          mixer.setVelocity(0.8);
+          mixer.setVelocity(0.5);
           pose.dist = 0;
           state = 12;
         }
@@ -260,6 +259,29 @@ void BSeesaw::run()
         }
       break;
 
+      //test cases
+
+      case 100:
+      mixer.setVelocity(0);
+        pose.dist = 0;
+        pose.turned = 0;        
+        state = 101;
+      break;
+      case 101:
+        toLog(const_cast<char*>((std::to_string(pose.turned)).c_str()));
+        mixer.setTurnrate(-0.5);
+        if (pose.turned < -1.4)
+        {
+          state = 102;
+        }
+
+        break;
+
+        case 102:
+          finished = true;
+        break;
+        
+      break;
 
 
     default:
