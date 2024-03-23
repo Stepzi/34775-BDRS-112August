@@ -97,7 +97,7 @@ void BSeesaw::run()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 100;
+  state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -326,7 +326,7 @@ void BSeesaw::toLog(const char* message)
             oldstate,
             message);
   }
-  if (toConsole)
+  if (toConsole)  
   {
     printf("%lu.%04ld %d %% %s\n", t.getSec(), t.getMicrosec()/100,
            oldstate,
