@@ -242,7 +242,7 @@ void BSeesaw::run()
 
       case 11:
         mixer.setTurnrate(-0.5);
-        if (pose.turned < -1.4)
+        if (pose.turned < -1.3)
         {
           mixer.setEdgeMode(leftEdge, lineOffset);
           toLog("back on the line");
