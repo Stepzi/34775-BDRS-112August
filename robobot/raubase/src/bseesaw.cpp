@@ -326,7 +326,7 @@ void BSeesaw::toLog(const char* message)
             oldstate,
             message);
   }
-  if (toConsole)
+  if (toConsole)  
   {
     printf("%lu.%04ld %d %% %s\n", t.getSec(), t.getMicrosec()/100,
            oldstate,
