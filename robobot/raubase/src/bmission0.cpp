@@ -26,7 +26,6 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
-#include <opencv2/calib3d.hpp>
 #include "mpose.h"
 #include "steensy.h"
 #include "uservice.h"
@@ -37,32 +36,30 @@
 #include "medge.h"
 #include "cedge.h"
 #include "cmixer.h"
-#include "maruco.h"
-#include "scam.h"
+#include "sdist.h"
 
-
-#include "bplan101.h"
+#include "bmission0.h"
 
 // create class object
-BPlan101 plan101;
+BMission0 mission0;
 
 
-void BPlan101::setup()
+void BMission0::setup()
 { // ensure there is default values in ini-file
-  if (not ini["plan101"].has("log"))
+  if (not ini["mission0"].has("log"))
   { // no data yet, so generate some default values
-    ini["plan101"]["log"] = "true";
-    ini["plan101"]["run"] = "false";
-    ini["plan101"]["print"] = "true";
+    ini["mission0"]["log"] = "true";
+    ini["mission0"]["run"] = "true";
+    ini["mission0"]["print"] = "true";
   }
   // get values from ini-file
-  toConsole = ini["plan101"]["print"] == "true";
+  toConsole = ini["mission0"]["print"] == "true";
   //
-  if (ini["plan101"]["log"] == "true")
+  if (ini["mission0"]["log"] == "true")
   { // open logfile
-    std::string fn = service.logPath + "log_plan101.txt";
+    std::string fn = service.logPath + "log_mission0.txt";
     logfile = fopen(fn.c_str(), "w");
-    fprintf(logfile, "%% Mission plan101 logfile\n");
+    fprintf(logfile, "%% Mission mission0 logfile\n");
     fprintf(logfile, "%% 1 \tTime (sec)\n");
     fprintf(logfile, "%% 2 \tMission state\n");
     fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
@@ -70,110 +67,110 @@ void BPlan101::setup()
   setupDone = true;
 }
 
-BPlan101::~BPlan101()
+BMission0::~BMission0()
 {
   terminate();
 }
 
-
-
-void BPlan101::run()
+void BMission0::run()
 {
   if (not setupDone)
     setup();
-  if (ini["plan101"]["run"] == "false")
+  if (ini["mission0"]["run"] == "false")
     return;
-  //
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 10;
+  state = 1;
   oldstate = state;
+  const int MSL = 100;
+  char s[MSL];
   //
-  toLog("Plan101 started");
-  int count = 0;
+  toLog("mission0 started");
   //
   while (not finished and not lost and not service.stop)
   {
     switch (state)
-    { // Test ArUco plan
-      case 10:
-      { // brackets to allow local variables
-
-        int n = aruco.IDs.size();
-        
-        // save as local copy
-        std::vector<cv::Vec3d> pos_m = aruco.pos_m;
-        std::vector<cv::Vec3d> rot_m = aruco.rot_m;
-        std::vector<int> IDs = aruco.IDs;
-        UTime fixTime = aruco.fixTime;
-
-        const int MSL = 200;
-        char s[MSL];
-        snprintf(s, MSL, "# Last Aruco codes found: %lu.%04lu",fixTime.getSec(),fixTime.getMicrosec()/100);
-        toLog(s);
-
-        for (int i = 0; i < n; i++)
-        { 
-          if (logfile != nullptr or toConsole)
-          {
-            const int MSL = 200;
-            char s[MSL];
-            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, IDs[i], pos_m[i][0], pos_m[i][1], pos_m[i][2]);
-            toLog(s);
-            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", rot_m[i][0], rot_m[i][1], rot_m[i][2]);
-            toLog(s);
-          }
+    {
+      case 1: // Start Position, assume we are on a line but verify.
+        if(medge.width > 0.02) //We should be on a line 
+        {
+          pose.resetPose();
+          toLog("Started on Line");
+          toLog("Follow Line with velocity 0.2");
+          mixer.setEdgeMode(false /* right */, -0.04 /* offset */);
+          mixer.setVelocity(0.15);
+          state = 2;
         }
-        if (n == 0 and (logfile != nullptr or toConsole))        {
-
-          const int MSL = 200;
-          char s[MSL];
-          snprintf(s, MSL, "# No Aruco code found yet");
-          toLog(s);
-
-          
+        else if(medge.width < 0.01)
+        {
+          pose.resetPose();
+          mixer.setVelocity(0.0);//Drive slowly and turn i circle
+          mixer.setTurnrate(0.2);
         }
-        count++;
-        // repeat 4 times (to get some statistics)
-        // if (count > 3)
-        //   finished = true;
+        else if(t.getTimePassed() > 10)
+        {
+          toLog("Never found Line");
+          lost = true;
+        }
         break;
-      }
+      case 2:
+        if (dist.dist[0] < 0.20) //A Large number will trigger on the ramp and gates
+        { // something is close, assume it is the goal
+          // start driving
+          pose.resetPose();
+          toLog("Object Found");
+          mixer.setVelocity(0.025);
+          state = 3;
+        }
+        break;
+      case 3:
+        if(pose.dist > 0.20)
+        {
+          mixer.setVelocity(0);
+          mixer.setTurnrate(0);
+          finished = true;
+        }
+        else if (t.getTimePassed() > 30)
+        {
+          toLog("Gave up waiting for Regbot");
+          lost = true;
+        }
+        break;
       default:
-        toLog("Unknown state");
+        toLog("Default Mission 0");
         lost = true;
-        break;
+      break;
     }
     if (state != oldstate)
-    {
+    { // C-type string print
+      snprintf(s, MSL, "State change from %d to %d", oldstate, state);
+      toLog(s);
       oldstate = state;
-      toLog("state start");
-      // reset time in new state
       t.now();
     }
-    // wait a bit to offload CPU
-    usleep(1000000); //Sleep increased
+    // wait a bit to offload CPU (4000 = 4ms)
+    usleep(4000);
   }
   if (lost)
   { // there may be better options, but for now - stop
-    toLog("Plan101 got lost");
+    toLog("mission0 got lost - stopping");
     mixer.setVelocity(0);
     mixer.setTurnrate(0);
   }
   else
-    toLog("Plan101 finished");
+    toLog("mission0 finished");
 }
 
 
-void BPlan101::terminate()
+void BMission0::terminate()
 { //
   if (logfile != nullptr)
     fclose(logfile);
   logfile = nullptr;
 }
 
-void BPlan101::toLog(const char* message)
+void BMission0::toLog(const char* message)
 {
   UTime t("now");
   if (logfile != nullptr)
@@ -189,4 +186,3 @@ void BPlan101::toLog(const char* message)
            message);
   }
 }
-

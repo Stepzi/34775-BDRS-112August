@@ -23,9 +23,7 @@
 #pragma once
 
 #include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
 #include "utime.h"
-#include "thread"
 
 
 using namespace std;
@@ -33,7 +31,7 @@ using namespace std;
 /**
  * Class with example of vision processing
  * */
-class MArUco
+class Mgolfball
 {
 public:
   /** setup and request data */
@@ -41,43 +39,15 @@ public:
   /**
    * terminate */
   void terminate();
+
   /**
-   * thread to do updates, when new data is available */
-  void run();
-  /**
-   * Find ArUco code
-   * \param size is the side-size of the code.
+   * Find Golfball code
    * \param sourcePth is a pointer to a potential source image, if
    * this pointer is a nullptr (default), then a frame is taken from camera.
-   * \returns the number of codes found. */
-  int findAruco(float size, cv::Mat * sourcePtr = nullptr);
-  /**
-   * Make an image with this ArUco ID */
-  void saveCodeImage(int arucoID);
-
-  std::vector<cv::Vec3d> arTranslate;
-  std::vector<cv::Vec3d> arRotate;
-  // Detected marked IDs
-  std::vector<int> arID;
-  std::vector<int> IDs;
-  UTime fixTime;
-  
-  
-  // Position in world frame
-  cv::Vec3d pos_w;
-  // Marker positions in robot frame
-  std::vector<cv::Vec3d> pos_m;
-  // Rotation (Euler angles) in world frame
-  cv::Vec3d rot_w;
-  // Marker rotations in robot frame
-  std::vector<cv::Vec3d> rot_m;
-
-
-  // // Pos of robot in world coordinates (X,Y,Z)
-  // float pos_w[3] = {0.0,0.0,0.0};
-  // // Pos of robot in world coordinates (X,Y,Z)
-  // float pos_m[5][3] = {{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0}};
-
+   * \param pos is a reference to the x,y postionn of the closest golfball
+   * \returns the x,y position in pixel of the closes golf ball. */
+  bool findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr);
+ 
 
 protected:
   /// PC time of last update
@@ -87,11 +57,6 @@ protected:
 
 
 private:
-  static void runObj(MArUco * obj)
-  { // called, when thread is started
-    // transfer to the class run() function.
-    obj->run();
-  }
   /**
    * print to console and logfile */
   void toLog(const char * message);
@@ -99,12 +64,11 @@ private:
   bool toConsole = false;
   /// Logfile - most details
   FILE * logfile = nullptr;
-  std::thread * th1;
   /// save debug images
   bool debugSave = false;
 };
 
 /**
  * Make this visible to the rest of the software */
-extern MArUco aruco;
+extern Mgolfball golfball;
 
