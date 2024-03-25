@@ -339,7 +339,7 @@ void BPlanCrossMission::run_AxeToTunnel()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 1;
+  state = 3;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -348,6 +348,12 @@ void BPlanCrossMission::run_AxeToTunnel()
   float f_LineWidth_MinThreshold = 0.02;
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
+  
+  int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+  int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+  int woodWhite = 550;
+  int blackWhite = 350;
 
   float f_Line_LeftOffset = 0;
   float f_Line_RightOffset = 0;
@@ -371,7 +377,11 @@ void BPlanCrossMission::run_AxeToTunnel()
     {
       //Case 1 - Starting with error handling if no line found
       case 1: // Start Position, assume we are on a line but verify
-        pose.resetPose();
+        pose.dist = 0;
+        pose.turned = 0;
+        medge.updateCalibBlack(wood,8);
+        medge.updatewhiteThreshold(woodWhite);
+
         mixer.setDesiredHeading(0.8);
         state = 2;
         break;
@@ -388,10 +398,12 @@ void BPlanCrossMission::run_AxeToTunnel()
       break;
 
       case 3:
-        if(pose.dist > 1)
-        {
+          mixer.setVelocity(0.2);
+          heading.setMaxTurnRate(3);
+          medge.updateCalibBlack(wood,8);
+          medge.updatewhiteThreshold(woodWhite);
+          mixer.setEdgeMode(b_Line_HoldLeft,f_Line_LeftOffset);
           state = 4;
-        }
       break;
 
       case 4:
@@ -399,6 +411,7 @@ void BPlanCrossMission::run_AxeToTunnel()
         {
           mixer.setVelocity(0);
           pose.resetPose();
+          heading.setMaxTurnRate(1);
           mixer.setDesiredHeading(-1.2);
           state = 5;
         }
@@ -409,6 +422,7 @@ void BPlanCrossMission::run_AxeToTunnel()
         {
           pose.dist = 0;
           mixer.setVelocity(0.1);
+          heading.setMaxTurnRate(3);
           mixer.setEdgeMode(b_Line_HoldRight, f_Line_LeftOffset);
           state = 6;
         }
@@ -420,6 +434,7 @@ void BPlanCrossMission::run_AxeToTunnel()
           mixer.setVelocity(0);
           pose.resetPose();
           pose.turned = 0;
+          heading.setMaxTurnRate(1);
           mixer.setDesiredHeading(3.2);
           state = 7;
         }
@@ -429,17 +444,18 @@ void BPlanCrossMission::run_AxeToTunnel()
         if(abs(pose.turned) > 3) //We should be on a line 
         {
           pose.dist = 0;
-          mixer.setVelocity(0.1);
-          state = 8;
-        }
-      break;
-      case 8:
-        if(abs(pose.dist) > 0.2) //We should be on a line 
-        {
-          mixer.setVelocity(0.1);
+          heading.setMaxTurnRate(3);
+          mixer.setVelocity(0);
           finished = true;
         }
       break;
+      // case 8:
+      //   if(abs(pose.dist) > 0.2) //We should be on a line 
+      //   {
+      //     mixer.setVelocity(0.1);
+      //     finished = true;
+      //   }
+      // break;
       default:
         toLog("Default Start to Cross");
         lost = true;

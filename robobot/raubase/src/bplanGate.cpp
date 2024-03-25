@@ -37,6 +37,7 @@
   #include "cedge.h"
   #include "cmixer.h"
   #include "sdist.h"
+  #include "cheading.h"
 
   #include "bplanGate.h"
 
@@ -46,20 +47,20 @@
 
   void BPlanGate::setup()
   { // ensure there is default values in ini-file
-    if (not ini["PlanIRTEST"].has("log"))
+    if (not ini["PlanGate"].has("log"))
     { // no data yet, so generate some default values
-      ini["PlanIRTEST"]["log"] = "true";
-      ini["PlanIRTEST"]["run"] = "true";
-      ini["PlanIRTEST"]["print"] = "true";
+      ini["PlanGate"]["log"] = "true";
+      ini["PlanGate"]["run"] = "true";
+      ini["PlanGate"]["print"] = "true";
     }
     // get values from ini-file
-    toConsole = ini["PlanIRTEST"]["print"] == "true";
+    toConsole = ini["PlanGate"]["print"] == "true";
     //
-    if (ini["PlanIRTEST"]["log"] == "true")
+    if (ini["PlanGate"]["log"] == "true")
     { // open logfile
-      std::string fn = service.logPath + "log_PlanIRTEST.txt";
+      std::string fn = service.logPath + "log_PlanGate.txt";
       logfile = fopen(fn.c_str(), "w");
-      fprintf(logfile, "%% Mission PlanIRTEST logfile\n");
+      fprintf(logfile, "%% Mission PlanGate logfile\n");
       fprintf(logfile, "%% 1 \tTime (sec)\n");
       fprintf(logfile, "%% 2 \tMission state\n");
       fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
@@ -76,14 +77,14 @@
   {
     if (not setupDone)
       setup();
-    if (ini["PlanIRTEST"]["run"] == "false")
+    if (ini["PlanGate"]["run"] == "false")
       return;
     UTime t("now");
     bool finished = false;
     bool lost = false;
     
 
-    state = 1;
+    state = 0;
     oldstate = state;
 
 
@@ -100,6 +101,12 @@
     //bool b_Line_HoldLeft = true;
     bool b_Line_HoldRight = false;
 
+
+    int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+    int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+    int woodWhite = 550;
+    int blackWhite = 350;
     //Hardcoded time data
     //float f_Time_Timeout = 10.0;
 
@@ -109,8 +116,7 @@
     //float f_Distance_FirstCrossMissed = 1.5;
     //float f_Distance_LeftCrossToRoundabout = 0.85;
     
-    toLog("PlanIRTEST started");;
-    toLog("Time stamp, IR dist 0, IR dist 1");
+    toLog("PlanGate started");;
     //
     while (not finished and not lost and not service.stop)
     {
@@ -121,26 +127,57 @@
         /********************************************************************/
         //Case 1 - first crossing on the track and forward
 
-      case 1:
-          pose.resetPose();
+      case 0:
+          toLog("Start Open Gate");
+          pose.dist = 0;
+          pose.turned = 0;
+          medge.updateCalibBlack(wood,8);
+          medge.updatewhiteThreshold(woodWhite);
+          heading.setMaxTurnRate(3);
           mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
           mixer.setVelocity(0.15);
-          state = 2;  
+          state = 1;  
+      break;
+      
+      case 1:
+          if(medge.width > 0.06){
+             toLog("Found crossing, change line sensor thresholds");
+            pose.dist = 0;
+            pose.turned = 0;
+            state = 101;
+          }
+      break;
+
+      case 101:
+        if(pose.dist > 0.30)
+        {
+          toLog("30 cm after crossing, i am on black floor now");
+          medge.updateCalibBlack(black,8);
+          medge.updatewhiteThreshold(blackWhite);
+          pose.turned = 0;
+          pose.dist = 0;
+          state = 2;
+        }
       break;
       
       case 2:
+       toLog(std::to_string(dist.dist[1]).c_str());
           if(dist.dist[1] < 0.2)
           {
               mixer.setVelocity(0);
-              pose.resetPose();
-              mixer.setDesiredHeading(1.8);
+              pose.dist = 0.0;
+              pose.turned = 0.0;
+              heading.setMaxTurnRate(1);
+              mixer.setDesiredHeading(-1.25);
               state = 3;
           }
       break;
 
       case 3:
-          if(pose.turned > 1.8-0.02){
-              pose.resetPose();
+        toLog(std::to_string(pose.turned).c_str());
+          if(abs(pose.turned) > 1.5-0.02){
+              pose.dist = 0;
+              pose.turned = 0;
               mixer.setVelocity(0.15);
               state = 4;
           }
@@ -158,13 +195,13 @@
           if(pose.dist > 0.2){
               pose.resetPose();
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(-1.8);
+              mixer.setDesiredHeading(-1.5);
               state = 6;
           }
       break; 
 
       case 6:
-          if(abs(pose.turned) > 1.8-0.02){
+          if(abs(pose.turned) > 1.6-0.02){
               pose.dist = 0;
               pose.turned = 0;
               pose.resetPose();
@@ -176,13 +213,13 @@
       case 7:
           if(pose.dist > 0.5){
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(-1.8);
+              mixer.setDesiredHeading(1.6);
               state = 8;
           }
       break; 
 
       case 8:
-          if(abs(pose.turned) > 1.8-0.02){
+          if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
               mixer.setVelocity(0.1);
               state = 9;
@@ -193,13 +230,13 @@
           if(dist.dist[1] < 0.2){
               pose.resetPose();
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(-1.8);
+              mixer.setDesiredHeading(1.6);
               state = 10;
           }
       break; 
 
       case 10:
-          if(abs(pose.turned) > 1.80-0.02){
+          if(abs(pose.turned) > 1.60-0.02){
               pose.resetPose();
               mixer.setVelocity(0.15);
               state = 11;
@@ -229,7 +266,7 @@
           //toLog(std::to_string(t.getTimePassed()).c_str());
           if(t.getTimePassed() > 1)
           {
-            mixer.setDesiredHeading(1.6);
+            mixer.setDesiredHeading(-1.6);
             state = 14;
           }
         break;
@@ -255,7 +292,7 @@
             { 
               pose.resetPose();
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(1.4);
+              mixer.setDesiredHeading(-1.4);
               state = 17;  
             }
       break;
@@ -271,6 +308,7 @@
       case 18:
         if(abs(pose.dist) > 0.2)
             { 
+              heading.setMaxTurnRate(3);
               mixer.setVelocity(0.2);
               mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
               state = 19;
@@ -288,7 +326,8 @@
         if(abs(pose.dist) > 0.4)
             { 
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(1.8);
+              heading.setMaxTurnRate(1);
+              mixer.setDesiredHeading(-1.6);
               state = 21;
             }
       break;
@@ -324,6 +363,7 @@
         if(abs(pose.turned) > 1.3 - 0.02)
             { 
               pose.dist = 0;
+              heading.setMaxTurnRate(3);
               mixer.setVelocity(0.2);
               mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
               state = 25;
@@ -356,19 +396,19 @@
     }
     if (lost)
     { // there may be better options, but for now - stop
-      toLog("PlanIRTEST got lost - stopping");
+      toLog("PlanGate got lost - stopping");
       mixer.setVelocity(0);
       mixer.setTurnrate(0);
     }
     else
-      toLog("PlanIRTEST finished");
+      toLog("PlanGate finished");
   }
 
   void BPlanGate::runClose()
   {
     if (not setupDone)
       setup();
-    if (ini["PlanIRTEST"]["run"] == "false")
+    if (ini["PlanGate"]["run"] == "false")
       return;
     UTime t("now");
     bool finished = false;
@@ -401,7 +441,7 @@
     //float f_Distance_FirstCrossMissed = 1.5;
     //float f_Distance_LeftCrossToRoundabout = 0.85;
     
-    toLog("PlanIRTEST started");;
+    toLog("PlanGate started");;
     toLog("Time stamp, IR dist 0, IR dist 1");
     //
     while (not finished and not lost and not service.stop)
@@ -645,12 +685,12 @@
     }
     if (lost)
     { // there may be better options, but for now - stop
-      toLog("PlanIRTEST got lost - stopping");
+      toLog("PlanGate got lost - stopping");
       mixer.setVelocity(0);
       mixer.setTurnrate(0);
     }
     else
-      toLog("PlanIRTEST finished");
+      toLog("PlanGate finished");
   }
 
 

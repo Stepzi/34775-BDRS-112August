@@ -212,6 +212,18 @@ void MEdge::findEdge()
   toLog();
 }
 
+void MEdge::updatewhiteThreshold(int newThreshold){
+  whiteThresholdPm = newThreshold;
+}
+
+void MEdge::updateCalibBlack(int newCalibBlack[], int size){
+  for(int i = 0; i < size; i++){
+    // (int)(sizeof(calibBlack) / sizeof(int))
+    calibBlack[i] = newCalibBlack[i];
+  }
+
+}
+
 void MEdge::run()
 {
   int loop = 0;

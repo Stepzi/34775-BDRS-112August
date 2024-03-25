@@ -32,7 +32,6 @@
 #include "cmixer.h"
 #include "sgpiod.h"
 #include "bplan20.h"
-#include "bgolfballtest.h"
 #include "bplan21.h"
 #include "bplan40.h"
 #include "bplan100.h"
@@ -57,22 +56,23 @@ int main (int argc, char **argv)
     // run the planned missions
     
     //mission0.run();
-    axe.run();
+    
     //plan20.run();
     //plan21.run();
     //plan40.run();
     //planMission0.run();
     //plan100.run();
     //plan101.run();
-    golfballtest.run();
+    //golfballtest.run();
 
     //
 
     // pik og patter
-    planCrossMission.run_StartToFirstCross();
-    planIRTEST.run(true,false);
-    // planCrossMission.run_AxeToTunnel();
-    //planGate.runOpen();
+    //planCrossMission.run_StartToFirstCross();
+    //planIRTEST.run(true,false);
+    axe.run();
+    planCrossMission.run_AxeToTunnel();
+    planGate.runOpen();
     // planGate.runClose();
 
     mixer.setVelocity(0.0);

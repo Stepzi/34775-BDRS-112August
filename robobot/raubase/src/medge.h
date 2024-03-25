@@ -46,6 +46,10 @@ public:
    * terminate */
   void terminate();
 
+  void updatewhiteThreshold(int newThreshold);
+
+  void updateCalibBlack(int newCalibBlack[], int size);
+  
 protected:
   /**
    * Find left and right edge

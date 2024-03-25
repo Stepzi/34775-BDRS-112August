@@ -46,13 +46,13 @@ double normalSpeed        =  0.3;   //speed under normal conditions
 double lineWidth          =  0.02;  //width to determine if we are on the line
 double lineGone           =  0.1;   //width to determine if the line was lost
 double lineOffset         =  0;     //offset for line edge detection
-double intersectionWidth  =  0.05;  //used to detect intersections
+double intersectionWidth  =  0.07;  //used to detect intersections
 
-int    startSide          = 22;     //select the side we start from - 21 from the roundabout and 22 from the stairs
-double axeStop            = 0.4;    //distance to assume that axe is in front of the robot
-double axeToIntersection  = 0.8;    //distance from intersection to axe start
-double axeLenght          = 2;      //distance from start to finish of mission Axe
-
+int    startSide          = 21;     //select the side we start from - 21 from the roundabout and 22 from the stairs
+double axeStop            = 0.50;    //distance to assume that axe is in front of the robot
+double axeToIntersection  = 0.7;    //distance from intersection to axe start
+double axeLenght          = 2.0;      //distance from start to finish of mission Axe
+int    numberOfSamples    = 0;
 // create class object
 BAxe axe;
 
@@ -234,16 +234,21 @@ void BAxe::run()
       
       //waiting for axe to appear
       case 41: 
-        if (dist.dist[1] >= axeStop)       //nothing in front 
+        if (dist.dist[1] >= axeStop )       //nothing in front 
         {
           mixer.setVelocity(0);
           distSens1 = std::to_string(dist.dist[1]);
           toLog(const_cast<char*>(distSens1.c_str()));
+          numberOfSamples = 0;
         } 
-
-        else 
+        else if(dist.dist[1] < axeStop)
+        {
+          numberOfSamples += 1;
+        }
+        if(numberOfSamples > 10)
         {
           toLog ("waiting for axe to pass");
+          numberOfSamples = 0;
           state = 42;
         }
       break;
@@ -255,8 +260,14 @@ void BAxe::run()
           mixer.setVelocity(0);
           distSens1 = std::to_string(dist.dist[1]);
           toLog(const_cast<char*>(distSens1.c_str()));
+          numberOfSamples = 0;
         }
-        else 
+        else if(dist.dist[1] >= axeStop)
+        {
+          toLog(std::to_string(numberOfSamples).c_str());
+          numberOfSamples += 1;
+        }
+        if (numberOfSamples >= 10)
         {
           toLog ("axe is gone");
           mixer.setVelocity(0.4);
