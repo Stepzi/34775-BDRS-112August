@@ -107,7 +107,11 @@ void CHeading::setRef(bool useTurnrate, float turnrate, float absHeading)
   headingRef = absHeading;
 }
 
-
+void CHeading::setMaxTurnRate(float maxTurn)
+{
+  maxTurnrate = maxTurn;
+}
+  
 
 void CHeading::run()
 {

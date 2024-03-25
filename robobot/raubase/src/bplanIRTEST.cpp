@@ -37,6 +37,7 @@
 #include "cedge.h"
 #include "cmixer.h"
 #include "sdist.h"
+#include "cheading.h"
 
 #include "bplanIRTEST.h"
 
@@ -112,7 +113,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   float f_Velocity_DriveForward = 0.25; 
   //float f_Velocity_DriveBackwards = -0.15; 
   //float f_Distance_FirstCrossMissed = 1.5;
-  float f_Distance_LeftCrossToRoundabout = 0.85;
+  float f_Distance_LeftCrossToRoundabout = 0.95;
   bool b_Flag_Once = true;
   //
   toLog("PlanIRTEST started");;
@@ -156,7 +157,8 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           toLog("Ready to enter the roundabout from the start-side");
           mixer.setVelocity(0);
           pose.resetPose();
-          mixer.setDesiredHeading(1.4); // (3*pi) / 8
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(0.8); // (3*pi) / 8
           state = 3;
         }
         break;
@@ -164,7 +166,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 3 - Stop turning after some angle
       case 3:
         toLog(std::to_string(pose.turned).c_str());
-        if(abs(pose.turned) > 1.38){
+        if(abs(pose.turned) > 0.8-0.02){
           mixer.setTurnrate(0);
           state = 21;
         }
@@ -234,12 +236,12 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 21 - If robot is seen, clear time and wait until case 6
       case 21: 
         // toLog(std::to_string(dist.dist[0]).c_str()); print out side sensor
-        if(dist.dist[1] < 0.25){ // dist.dist should be 1 !!
+        if(dist.dist[1] < 0.35){ // dist.dist should be 1 !!
           toLog("Robot seen!");
           t.clear();
           pose.dist = 0;
           pose.resetPose();
-          mixer.setDesiredHeading(0.4);
+          mixer.setDesiredHeading(0.65);
           state = 22;
         }
       break;
@@ -251,6 +253,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         {
           pose.dist = 0;
           mixer.setVelocity(0.2);
+          heading.setMaxTurnRate(3);
           state = 95;
         }
       break;
@@ -294,7 +297,8 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           //pose.resetPose();
           toLog("Make 3 test");
           pose.resetPose();
-          mixer.setDesiredHeading(1.5);
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(1.2);
           //state = 25;
           state = 26;
         }
@@ -309,7 +313,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //toLog(std::to_string(pose.turnrate).c_str());
 
 
-        if(abs(pose.turned) > 1.48){
+        if(abs(pose.turned) > 1.18){
           mixer.setVelocity(-0.3);
           state = 31;
         }
@@ -320,7 +324,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       /********************************************************************/
       //Case 31 - after some distance, stop and turn for the circle
       case 31:
-        if(abs(pose.dist) > 0.55)
+        if(abs(pose.dist) > 0.50)
         {
           pose.resetPose();
           mixer.setVelocity(0); //TEST THIS!!!!!
@@ -391,9 +395,10 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 41 - If robot is seen, clear time and wait until case 6
       case 41: 
       toLog(std::to_string(dist.dist[1]).c_str());
-        if(dist.dist[1] < 0.25)
+        if(dist.dist[1] < 0.35)
         {
           toLog("Robot seen!");
+          heading.setMaxTurnRate(3);
           t.clear();
           state = 42;
         }
@@ -501,13 +506,13 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 62:
         if(pose.dist > 0.1)
         {
-          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+          mixer.setEdgeMode(b_Line_HoldRight, -0.05 );
           state = 63;
         } 
       break;
 
       case 63:
-        if(medge.width > 0.05){
+        if(medge.width > 0.07){
           mixer.setVelocity(0);
           finished = true;
           toLog("Finished at Axe");
