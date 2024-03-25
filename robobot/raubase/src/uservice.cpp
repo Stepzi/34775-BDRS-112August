@@ -36,6 +36,7 @@
 #include "medge.h"
 #include "mpose.h"
 #include "maruco.h"
+#include "mgolfball.h"
 #include "scam.h"
 #include "sdist.h"
 #include "sedge.h"
@@ -214,6 +215,7 @@ bool UService::setup(int argc,char **argv)
     joyLogi.setup();
     cam.setup();
     aruco.setup();
+    golfball.setup();
     setupComplete = true;
     usleep(2000);
     //
@@ -340,6 +342,7 @@ void UService::terminate()
   pyvision.terminate();
   cam.terminate();
   aruco.terminate();
+  golfball.terminate();
   // service must be the last to close
   if (not ini.has("ini"))
   {

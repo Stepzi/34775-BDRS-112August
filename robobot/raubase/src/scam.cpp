@@ -191,7 +191,7 @@ void UCam::run()
       cap.read(frame);
       if (not frame.empty())
       {
-        printf("# UCam::run: read frame %d/%d\n", gotFrameCnt, frameCnt);
+        //printf("# UCam::run: read frame %d/%d\n", gotFrameCnt, frameCnt);
         gotFrameCnt++;
         imgTime.now();
         getNewFrame = false;
@@ -350,6 +350,15 @@ bool UCam::calibrate()
       // Displaying the detected corner points on the checker board
       cv::drawChessboardCorners(frame, cv::Size(CHECKERBOARD[0],CHECKERBOARD[1]), corner_pts,success);
 
+      const int MSL = 500;
+      char sfn[MSL];
+      const char * sfn_ptr = sfn;
+      char s[MSL];
+      // Save draw chessboard corners
+      snprintf(s, MSL, "%s/img_chessboardCorners_%s_%d.jpg", ini["camera"]["imagepath"].c_str(), sfn_ptr,i);
+      // save
+      cv::imwrite(s, frame);
+
       objpoints.push_back(objp);
       imgpoints.push_back(corner_pts);
       printf("# %2d succes    %s\n", j++, images[i].c_str());
@@ -374,6 +383,7 @@ bool UCam::calibrate()
       * and corresponding pixel coordinates of the
       * detected corners (imgpoints)
       */
+    //std::cout << objpoints[0] << endl;
     cv::calibrateCamera(objpoints, imgpoints,cv::Size(gray.rows,gray.cols),cameraMatrix,distCoeffs,rvecs,tvecs);
     // show results
     for (int i = 0; i < cameraMatrix.rows; i++)

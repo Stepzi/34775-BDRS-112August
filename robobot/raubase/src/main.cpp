@@ -38,6 +38,12 @@
 #include "bplan101.h"
 #include "bmission0.h"
 #include "bracetrack.h"
+#include "baxe.h"
+
+#include "bplanCrossMission.h"
+#include "bplanIRTEST.h"
+#include "bplanGate.h"
+
 int main (int argc, char **argv)
 { // prepare all modules and start data flow
   // but also handle command-line options
@@ -46,17 +52,31 @@ int main (int argc, char **argv)
   if (not service.theEnd)
   { // all set to go
     // turn on LED on port 16
+    
     gpio.setPin(16, 1);
     // run the planned missions
     mission0.run();
     racetrack.run();
+    
+    //mission0.run();
+    
     //plan20.run();
     //plan21.run();
     //plan40.run();
     //planMission0.run();
     //plan100.run();
     //plan101.run();
+    //golfballtest.run();
     //
+
+    // pik og patter
+    //planCrossMission.run_StartToFirstCross();
+    //planIRTEST.run(true,false);
+    axe.run();
+    planCrossMission.run_AxeToTunnel();
+    planGate.runOpen();
+    // planGate.runClose();
+
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
