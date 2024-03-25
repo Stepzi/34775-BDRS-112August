@@ -37,6 +37,7 @@
 #include "bplan100.h"
 #include "bplan101.h"
 #include "bmission0.h"
+#include "bracetrack.h"
 #include "baxe.h"
 
 #include "bplanCrossMission.h"
@@ -54,6 +55,8 @@ int main (int argc, char **argv)
     
     gpio.setPin(16, 1);
     // run the planned missions
+    mission0.run();
+    racetrack.run();
     
     //mission0.run();
     
@@ -64,7 +67,6 @@ int main (int argc, char **argv)
     //plan100.run();
     //plan101.run();
     //golfballtest.run();
-
     //
 
     // pik og patter

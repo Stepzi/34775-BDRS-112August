@@ -48,6 +48,8 @@ public:
   /**
    * terminate */
   void terminate();
+    /** Change PID values*/
+  void changePID(float sTime, float proportional, float lead_tau, float lead_alpha, float tau_integrator);
 
 public:
   /// controller output limit (same value positive and negative)

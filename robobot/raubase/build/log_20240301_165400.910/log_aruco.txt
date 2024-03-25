@@ -1,0 +1,7 @@
+% Vision activity (log_20240301_165400.910/log_aruco.txt)
+% 1 	Time (sec)
+% 2 	Detected marker in this image
+% 3 	Detected marker code
+% 4 	Marker size (position in same units as size)
+% 5,6,7 	Detected marker position in camera coordinates (x=right, y=down, z=forward)
+% 8,9,10 	Detected marker orientation in Rodrigues notation (vector, rotated)

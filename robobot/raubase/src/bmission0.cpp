@@ -81,6 +81,10 @@ void BMission0::run()
   UTime t("now");
   bool finished = false;
   bool lost = false;
+  float Turn90Deg = 3.14 / 2.0;
+  float speed = 0;
+  float rampSpeed = 0.6;
+  int numOfDistMeas = 0;
   state = 1;
   oldstate = state;
   const int MSL = 100;
@@ -93,20 +97,20 @@ void BMission0::run()
     switch (state)
     {
       case 1: // Start Position, assume we are on a line but verify.
-        if(medge.width > 0.02) //We should be on a line 
+        if(medge.edgeValid && (medge.width > 0.02)) //We should be on a line 
         {
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.2");
-          mixer.setEdgeMode(false /* right */, -0.04 /* offset */);
-          mixer.setVelocity(0.15);
+          mixer.setEdgeMode(false /* right */, 0.00 /* offset */);
+          mixer.setVelocity(0.4);
           state = 2;
         }
         else if(medge.width < 0.01)
         {
           pose.resetPose();
-          mixer.setVelocity(0.0);//Drive slowly and turn i circle
-          mixer.setTurnrate(0.2);
+          mixer.setVelocity(0.1);//Drive slowly and turn i circle
+          mixer.setDesiredHeading(0.5);
         }
         else if(t.getTimePassed() > 10)
         {
@@ -115,27 +119,151 @@ void BMission0::run()
         }
         break;
       case 2:
-        if (dist.dist[0] < 0.20) //A Large number will trigger on the ramp and gates
-        { // something is close, assume it is the goal
-          // start driving
-          pose.resetPose();
-          toLog("Object Found");
-          mixer.setVelocity(0.025);
+        if(medge.edgeValid && (medge.width > 0.05))
+        {
+          toLog("Crossed first intersection");
+          pose.dist = 0;
+          pose.turned = 0;
           state = 3;
         }
-        break;
-      case 3:
-        if(pose.dist > 0.20)
+        else if(!medge.edgeValid)
         {
-          mixer.setVelocity(0);
-          mixer.setTurnrate(0);
-          finished = true;
-        }
-        else if (t.getTimePassed() > 30)
-        {
-          toLog("Gave up waiting for Regbot");
+          toLog("Lost Line between goal and first intersection - handle accordingly");
           lost = true;
         }
+        break;      
+      case 3:
+        if(medge.edgeValid && pose.dist > 1)
+        {
+          toLog("Heading for Ramp");
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 4;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line between First intersection and heading for the ramp - handle accordingly");
+          lost = true;
+        }
+        break;
+      case 4:
+        if(medge.edgeValid && abs(pose.turned) > Turn90Deg - 0.2) //Offset might be close to 90 and not exactly 90.
+        {
+          toLog("Going up the Ramp - Could be validated by using IMU");
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 5;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line before the ramp - handle accordingly");
+          lost = true;
+        }
+        break;
+      case 5:
+        if(medge.edgeValid && medge.width > 0.05)
+        {
+          toLog("Crossed first intersection on Ramp towards SeeSaw");
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 7;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line beofre first intersection on the ramp - handle accordingly");
+          lost = true;
+        }
+        break;
+      case 7:
+        if(medge.edgeValid && medge.width > 0.05 && pose.dist > 0.1)
+        {
+          toLog("Crossed second intersection on the ramp, towards stairs, reach plateu. Validate using IMU?");
+          toLog("Slowing down");
+          mixer.setVelocity(0.2);
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 8;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line on between the two intersections on the ramp - handle accordingly");
+          lost = true;
+        }
+      break;
+      case 8:
+        if(medge.edgeValid && abs(pose.turned) > Turn90Deg - 0.2) //Offset might be close to 90 and not exactly 90.
+        {
+          toLog("Heading down the ramp.");
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 9;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line before going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+        break;
+      case 9:
+        if(speed < rampSpeed)
+        {
+          speed = speed + 0.001;
+          mixer.setVelocity(0.2 + speed);
+        }
+        else if(speed >= rampSpeed)
+        {
+          toLog("Speed up");
+          state = 10;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+        break;
+      case 10:
+        if(medge.edgeValid && pose.dist > 2.0)
+        {
+          toLog("Got Down the Ramp, slow down");
+          mixer.setVelocity(0.2);
+          state = 11;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line after going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+        break;
+      case 11:
+        //toLog(std::to_string(dist.dist[1]).c_str());
+        if (medge.edgeValid && dist.dist[1] < 0.3) //A Large number will trigger on the ramp and gates
+        { // something is close, assume it is the goal
+          toLog("Found distance meassure");
+          numOfDistMeas = numOfDistMeas + 1;
+        }
+        else if( dist.dist[1] > 0.3)
+        {
+          numOfDistMeas = 0;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line after going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+
+        if(numOfDistMeas >= 10) //USER MORE THAN 1 SAMPLE
+        {
+          state = 12;
+        }
+        break;
+      case 12:
+          toLog("Goal Found- stop in front of it");
+          mixer.setVelocity(0.0);
+          finished = true;
         break;
       default:
         toLog("Default Mission 0");
