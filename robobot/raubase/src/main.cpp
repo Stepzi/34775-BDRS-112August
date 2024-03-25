@@ -36,6 +36,9 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
+#include "bplanCrossMission.h"
+#include "bplanIRTEST.h"
+#include "bplanGate.h"
 
 
 int main (int argc, char **argv)
@@ -46,14 +49,15 @@ int main (int argc, char **argv)
   if (not service.theEnd)
   { // all set to go
     // turn on LED on port 16
+    
     gpio.setPin(16, 1);
     // run the planned missions
-    plan20.run();
-    plan21.run();
-    plan40.run();
-    plan100.run();
-    plan101.run();
-    //
+    // pik og patter
+    // planCrossMission.run_StartToFirstCross();
+    // planIRTEST.run(true,false);
+    // planCrossMission.run_AxeToTunnel();
+    planGate.runOpen();
+    // planGate.runClose();
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
