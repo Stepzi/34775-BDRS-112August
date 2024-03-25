@@ -118,7 +118,7 @@ private:
   }
   // camera
   cv::Mat frame;
-  cv::VideoCapture cam;
+  cv::VideoCapture cap;
   int frameCnt = 0;
   int gotFrameCnt = 0;
   bool getNewFrame = false;

@@ -20,7 +20,7 @@
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
  * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
- * THE SOFTWARE. */
+ * THE SOFTWARE. XDDDDDDDDDDDDDDDDd*/
 
 #include <string>
 #include <string.h>
@@ -49,7 +49,7 @@ void BPlan40::setup()
   if (not ini["plan40"].has("log"))
   { // no data yet, so generate some default values
     ini["plan40"]["log"] = "true";
-    ini["plan40"]["run"] = "false";
+    ini["plan40"]["run"] = "true";
     ini["plan40"]["print"] = "true";
   }
   // get values from ini-file
@@ -81,122 +81,67 @@ void BPlan40::run()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 5;
+  state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
   //
-  toLog("Plan40 started");
+  toLog("plan40 started");
   //
   while (not finished and not lost and not service.stop)
   {
     switch (state)
     {
-      case 5: // wait for Regbot, then go forward
-        if (dist.dist[0] < 0.25)
-        { // something is close, assume it is the Regbot
+      case 1: // Start Position, assume we are on a line but verify.
+        if(medge.width > 0.02) //We should be on a line 
+        {
+
+          pose.resetPose();
+          toLog("Started on Line");
+          toLog("Follow Line with velocity 0.2");
+          mixer.setEdgeMode(false /* right */, -0.04 /* offset */);
+          mixer.setVelocity(0.2);
+          state = 2;
+        }
+        else if(medge.width < 0.01)
+        {
+          pose.resetPose();
+          mixer.setVelocity(0.0);//Drive slowly and turn i circle
+          mixer.setTurnrate(0.2);
+        }
+        else if(t.getTimePassed() > 10)
+        {
+          toLog("Never found Line");
+          lost = true;
+        }
+        break;
+      case 2:
+        if (dist.dist[0] < 0.20) //A Large number will trigger on the ramp and gates
+        { // something is close, assume it is the goal
           // start driving
           pose.resetPose();
-          toLog("forward 0.1 m/sec");
-          mixer.setVelocity(0.25);
-          mixer.setTurnrate(0);
-          state = 12;
+          toLog("Object Found");
+          mixer.setVelocity(0.025);
+          state = 3;
         }
-        else if (t.getTimePassed() > 10)
+        break;
+      case 3:
+        if(pose.dist > 0.20)
+        {
+          mixer.setVelocity(0);
+          mixer.setTurnrate(0);
+          finished = true;
+        }
+        else if (t.getTimePassed() > 30)
         {
           toLog("Gave up waiting for Regbot");
           lost = true;
         }
         break;
-      case 12: // forward until distance, then look for edge
-        if (pose.dist > 0.3)
-        {
-          toLog("Continue until edge is found");
-          state = 20;
-          pose.dist = 0;
-        }
-        else if (t.getTimePassed() > 10)
-        { // line should be found within 10 seconds, else lost
-          toLog("failed to find line after 10 sec");
-          lost = true;
-        }
-        break;
-      case 20: // forward looking for line, then turn
-        if (medge.width > 0.05)
-        {
-          toLog("found line, turn left");
-          // set to edge control, left side and 0 offset
-          mixer.setVelocity(0.2); // slow
-          mixer.setTurnrate(1.0); // rad/s
-          state = 30;
-          pose.dist = 0;
-          pose.turned = 0;
-        }
-        else if (t.getTimePassed() > 10 or pose.dist > 0.6)
-        { // line should be found within 10 seconds, else lost
-          toLog("failed to find line after 10 sec / 30cm");
-          lost = true;
-        }
-        break;
-      case 30: // Continue turn until right edge is almost reached, then follow right edge
-        if (medge.edgeValid and medge.rightEdge > -0.04 and pose.turned > 0.3)
-        {
-          toLog("Line detected, that is OK to follow");
-          mixer.setEdgeMode(false /* right */, -0.03 /* offset */);
-          mixer.setVelocity(0.3);
-          state = 40;
-          pose.dist = 0;
-        }
-        else if (t.getTimePassed() > 10)
-        {
-          toLog("Time passed, no crossing line");
-          lost = true;
-        }
-        else if (pose.dist > 1.0)
-        {
-          toLog("Driven too long");
-          state = 90;
-        }
-        break;
-      case 40: // follow edge until crossing line, the go straight
-        if (medge.width > 0.075 and pose.dist > 0.2)
-        { // go straight
-          mixer.setTurnrate(0);
-          pose.dist = 0;
-          state = 50;
-        }
-        else if (t.getTimePassed() > 10)
-        {
-          toLog("too long time");
-          finished = true;
-        }
-        else if (not medge.edgeValid)
-        {
-          toLog("Lost line");
-          state = 80;
-        }
-        break;
-      case 50: // continue straight until wall is close
-        if (dist.dist[0] < 0.15)
-        { // wall found
-          toLog("wall found");
-          mixer.setVelocity(0);
-          finished = true;
-        }
-        else if (t.getTimePassed() > 10)
-        {
-          toLog("too long time");
-          lost = true;
-        }
-        else if (pose.dist > 1.5)
-        {
-          toLog("too far");
-          lost = true;
-        }
-        break;
       default:
+        toLog("Default Mission 0");
         lost = true;
-        break;
+      break;
     }
     if (state != oldstate)
     { // C-type string print
@@ -210,12 +155,12 @@ void BPlan40::run()
   }
   if (lost)
   { // there may be better options, but for now - stop
-    toLog("Plan40 got lost - stopping");
+    toLog("plan40 got lost - stopping");
     mixer.setVelocity(0);
     mixer.setTurnrate(0);
   }
   else
-    toLog("Plan40 finished");
+    toLog("plan40 finished");
 }
 
 
