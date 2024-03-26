@@ -55,8 +55,6 @@ int main (int argc, char **argv)
     
     gpio.setPin(16, 1);
     // run the planned missions
-    mission0.run();
-    racetrack.run();
     
     //mission0.run();
     
@@ -72,9 +70,10 @@ int main (int argc, char **argv)
     // pik og patter
     //planCrossMission.run_StartToFirstCross();
     //planIRTEST.run(true,false);
-    axe.run();
-    planCrossMission.run_AxeToTunnel();
-    planGate.runOpen();
+    //axe.run();
+    //planCrossMission.run_AxeToRace();
+    //planGate.runOpen();
+    racetrack.run();
     // planGate.runClose();
 
     mixer.setVelocity(0.0);

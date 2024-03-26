@@ -45,6 +45,7 @@ public:
 
   void run_AxeToTunnel();
 
+  void run_AxeToRace();
   /**
    * terminate */
   void terminate();

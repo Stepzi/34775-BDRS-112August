@@ -44,7 +44,6 @@
 // create class object
 BPlanIRTEST planIRTEST;
 
-
 void BPlanIRTEST::setup()
 { // ensure there is default values in ini-file
   if (not ini["PlanIRTEST"].has("log"))

@@ -67,10 +67,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/local/Idefix/robobot/raubase
+CMAKE_SOURCE_DIR = /home/local/svn/robobot/raubase
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/local/Idefix/robobot/raubase/build
+CMAKE_BINARY_DIR = /home/local/svn/robobot/raubase/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -99,9 +99,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/local/Idefix/robobot/raubase/build/CMakeFiles /home/local/Idefix/robobot/raubase/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/local/svn/robobot/raubase/build/CMakeFiles /home/local/svn/robobot/raubase/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/local/Idefix/robobot/raubase/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/local/svn/robobot/raubase/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -141,6 +141,33 @@ raubase: cmake_check_build_system
 raubase/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/build
 .PHONY : raubase/fast
+
+src/baxe.o: src/baxe.cpp.o
+
+.PHONY : src/baxe.o
+
+# target to build an object file
+src/baxe.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/baxe.cpp.o
+.PHONY : src/baxe.cpp.o
+
+src/baxe.i: src/baxe.cpp.i
+
+.PHONY : src/baxe.i
+
+# target to preprocess a source file
+src/baxe.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/baxe.cpp.i
+.PHONY : src/baxe.cpp.i
+
+src/baxe.s: src/baxe.cpp.s
+
+.PHONY : src/baxe.s
+
+# target to generate assembly for a file
+src/baxe.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/baxe.cpp.s
+.PHONY : src/baxe.cpp.s
 
 src/bmission0.o: src/bmission0.cpp.o
 
@@ -303,6 +330,87 @@ src/bplan40.s: src/bplan40.cpp.s
 src/bplan40.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplan40.cpp.s
 .PHONY : src/bplan40.cpp.s
+
+src/bplanCrossMission.o: src/bplanCrossMission.cpp.o
+
+.PHONY : src/bplanCrossMission.o
+
+# target to build an object file
+src/bplanCrossMission.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanCrossMission.cpp.o
+.PHONY : src/bplanCrossMission.cpp.o
+
+src/bplanCrossMission.i: src/bplanCrossMission.cpp.i
+
+.PHONY : src/bplanCrossMission.i
+
+# target to preprocess a source file
+src/bplanCrossMission.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanCrossMission.cpp.i
+.PHONY : src/bplanCrossMission.cpp.i
+
+src/bplanCrossMission.s: src/bplanCrossMission.cpp.s
+
+.PHONY : src/bplanCrossMission.s
+
+# target to generate assembly for a file
+src/bplanCrossMission.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanCrossMission.cpp.s
+.PHONY : src/bplanCrossMission.cpp.s
+
+src/bplanGate.o: src/bplanGate.cpp.o
+
+.PHONY : src/bplanGate.o
+
+# target to build an object file
+src/bplanGate.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanGate.cpp.o
+.PHONY : src/bplanGate.cpp.o
+
+src/bplanGate.i: src/bplanGate.cpp.i
+
+.PHONY : src/bplanGate.i
+
+# target to preprocess a source file
+src/bplanGate.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanGate.cpp.i
+.PHONY : src/bplanGate.cpp.i
+
+src/bplanGate.s: src/bplanGate.cpp.s
+
+.PHONY : src/bplanGate.s
+
+# target to generate assembly for a file
+src/bplanGate.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanGate.cpp.s
+.PHONY : src/bplanGate.cpp.s
+
+src/bplanIRTEST.o: src/bplanIRTEST.cpp.o
+
+.PHONY : src/bplanIRTEST.o
+
+# target to build an object file
+src/bplanIRTEST.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanIRTEST.cpp.o
+.PHONY : src/bplanIRTEST.cpp.o
+
+src/bplanIRTEST.i: src/bplanIRTEST.cpp.i
+
+.PHONY : src/bplanIRTEST.i
+
+# target to preprocess a source file
+src/bplanIRTEST.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanIRTEST.cpp.i
+.PHONY : src/bplanIRTEST.cpp.i
+
+src/bplanIRTEST.s: src/bplanIRTEST.cpp.s
+
+.PHONY : src/bplanIRTEST.s
+
+# target to generate assembly for a file
+src/bplanIRTEST.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bplanIRTEST.cpp.s
+.PHONY : src/bplanIRTEST.cpp.s
 
 src/bracetrack.o: src/bracetrack.cpp.o
 
@@ -961,6 +1069,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... raubase"
+	@echo "... src/baxe.o"
+	@echo "... src/baxe.i"
+	@echo "... src/baxe.s"
 	@echo "... src/bmission0.o"
 	@echo "... src/bmission0.i"
 	@echo "... src/bmission0.s"
@@ -979,6 +1090,15 @@ help:
 	@echo "... src/bplan40.o"
 	@echo "... src/bplan40.i"
 	@echo "... src/bplan40.s"
+	@echo "... src/bplanCrossMission.o"
+	@echo "... src/bplanCrossMission.i"
+	@echo "... src/bplanCrossMission.s"
+	@echo "... src/bplanGate.o"
+	@echo "... src/bplanGate.i"
+	@echo "... src/bplanGate.s"
+	@echo "... src/bplanIRTEST.o"
+	@echo "... src/bplanIRTEST.i"
+	@echo "... src/bplanIRTEST.s"
 	@echo "... src/bracetrack.o"
 	@echo "... src/bracetrack.i"
 	@echo "... src/bracetrack.s"
