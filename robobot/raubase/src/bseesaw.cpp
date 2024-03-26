@@ -45,14 +45,20 @@
 bool leftEdge  = true;
 bool rightEdge = false;
 
-float normalSpeed        =  0.3;   //speed under normal conditions
-float lineWidth          =  0.02;  //width to determine if we are on the line
+float normalSpeed        =  0.3;    //speed under normal conditions
+float lineWidth          =  0.02;   //width to determine if we are on the line
 float lineGone           =  0.01;   //width to determine if the line was lost
-float lineOffset         =  0;     //offset for line edge detection
-float intersectionWidth  =  0.06;  //used to detect intersections
-float intersectionToEdge =  0.23;
-float edgeToSeesaw       =  0.84;   // distance from edge to tilting point
-float edgeWidth          =  0.098;  
+float lineOffset         =  0;      //offset for line edge detection
+float intersectionWidth  =  0.06;   //used to detect intersections
+
+//seesaw variables
+float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
+float edgeToSeesaw       =  0.84;   //seesaw - distance from the edge to the tilting point
+float edgeWidth          =  0.098;  //seesaw - distance to assume the robot went down the step
+
+//ramp variables
+float rampUpDistance     = 2;       //distance from getting back on line to the start of the turn on the plateu
+float rampUpToHole       = 0.3;     //distance from the start of the turn to the golf ball hole
 
 float speed              = 0;
 float maxSpeed           = 0.5;
@@ -97,7 +103,7 @@ void BSeesaw::run()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 1;
+  state = 9;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -145,18 +151,13 @@ void BSeesaw::run()
           }
           else
           {    
-            mixer.setVelocity(normalSpeed);                                                         
-            /*-if (pose.dist > 0.1)
-            {
-              mixer.setVelocity(normalSpeed);
-            }*/
+            mixer.setVelocity(normalSpeed);
           }
       break;
 
       case 3:
         if (pose.dist > intersectionToEdge)
         {
-          //toLog(const_cast<char*>((std::to_string(pose.dist)).c_str()));
           mixer.setEdgeMode(leftEdge, lineOffset);
           toLog("robot on the edge");
           mixer.setVelocity(0.02);
@@ -169,7 +170,7 @@ void BSeesaw::run()
         if (pose.dist > edgeWidth)
           {
             //toLog(const_cast<char*>((std::to_string(pose.dist)).c_str()));
-            toLog("coming to tilting point");
+            toLog("coming to the tilting point");
             mixer.setEdgeMode(leftEdge, lineOffset);
             mixer.setVelocity(0.1);
             pose.dist = 0;
@@ -211,7 +212,6 @@ void BSeesaw::run()
         {
           speed = speed + 0.005;
           mixer.setVelocity(0.5 + speed);
-          //toLog(speed);
         }
         else
         {
@@ -234,7 +234,7 @@ void BSeesaw::run()
       case 10:
         if(medge.width > lineWidth)
         {
-          mixer.setVelocity(0);          
+          mixer.setVelocity(0.03);          
           pose.turned = 0;
           state = 11;
         }
@@ -253,11 +253,117 @@ void BSeesaw::run()
       break;
 
       case 12:
-        if (pose.dist > 0.3)
+
+        if (medge.width > intersectionWidth)
+          {
+            toLog("found intersection - going straight");
+            pose.resetPose();
+            mixer.setVelocity(0.1);
+            state = 14;
+          }
+        else
+          {    
+            mixer.setVelocity(normalSpeed);
+          }
+      break;
+
+      case 14:
+        if(medge.width > lineWidth)
         {
-          finished = true;
+          mixer.setVelocity(0);          
+          pose.turned = 0;
+          state = 15;
         }
       break;
+
+      case 15:
+        mixer.setTurnrate(-0.5);
+        if (pose.turned < -1.3)
+        {
+          mixer.setEdgeMode(rightEdge, lineOffset);
+          toLog("back on the line");
+          mixer.setVelocity(0.1);
+          pose.dist = 0;
+          state = 16;
+        }
+      break;
+
+      case 16:
+        if (pose.dist > rampUpDistance)
+        {
+          pose.resetPose();
+          mixer.setVelocity(0.07);
+          pose.dist = 0;
+          state = 17;
+        }
+      break;
+
+      case 17:
+      {
+        finished = true;
+      }
+      break;
+
+/*
+      case 16:
+        if (medge.width > intersectionWidth)
+          {
+            toLog("found intersection");
+            mixer.setVelocity(0.05);
+            pose.dist = 0;
+            state = 17;
+          }
+        else
+          {    
+            mixer.setVelocity(normalSpeed);
+          }
+      break;
+
+      case 17:
+        if (pose.dist > 0.2)
+        {
+          state = 18; //coming to the ball
+        }
+      break;
+
+      case 18:
+        mixer.setTurnrate(0.5);
+        if (pose.turned < -1.3)
+        {
+          mixer.setEdgeMode(leftEdge, lineOffset);
+          toLog("back on the line");
+          mixer.setVelocity(0.5);
+          pose.dist = 0;
+          state = 12;
+        }
+      break;
+
+      case 18:
+        //servo.setServo(1, 1, 500, 200);
+
+        waitTime = t.getTimePassed(); 
+          if (waitTime > 3)
+          {
+            pose.turned = 0;
+            state = 19;
+          } 
+
+      break;
+
+      case 19:
+        mixer.setTurnrate(-0.5);
+        if (pose.turned < -1.3)
+        {
+          mixer.setEdgeMode(leftEdge, lineOffset);
+          toLog("back on the line");
+          mixer.setVelocity(0.5);
+          pose.dist = 0;
+          state = 12;
+        }
+      break;*/
+
+
+
 
       //test cases
 
