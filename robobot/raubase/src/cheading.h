@@ -55,6 +55,7 @@ public:
    * \param absHeading is desired value for pose.h and used if 'useTurnrate' is false.
    */
   void setRef(bool useTurnrate, float turnrate, float absHeading);
+  void setMaxTurnRate(float maxTurn);
   /**
    * get calculated turnrate */
   inline float getTurnrate() { return u; }

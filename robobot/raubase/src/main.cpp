@@ -37,7 +37,14 @@
 #include "bplan100.h"
 #include "bplan101.h"
 #include "bStairs.h"
+#include "bmission0.h"
+#include "bracetrack.h"
+#include "baxe.h"
+#include "cservo.h"
 
+#include "bplanCrossMission.h"
+#include "bplanIRTEST.h"
+#include "bplanGate.h"
 
 int main (int argc, char **argv)
 { // prepare all modules and start data flow
@@ -47,22 +54,44 @@ int main (int argc, char **argv)
   if (not service.theEnd)
   { // all set to go
     // turn on LED on port 16
+    servo.setServo(1, 1, -900, 200);
     gpio.setPin(16, 1);
     // run the planned missions
-    // plan20.run();
-    // plan21.run();
-    // plan40.run();
-    // plan100.run();
-    // plan101.run();
-    stairs.run();
+    
+  
+    //mission0.run();
+    
+    //plan20.run();
+    //plan21.run();
+    //plan40.run();
+    //planMission0.run();
+    //plan100.run();
+    //plan101.run();
+    //golfballtest.run();
+    // stairs.run();
     //
+    //mission0.run();
+    // pik og patter
+    //planCrossMission.run_StartToFirstCross();
+    //planIRTEST.run(true,false);
+    //axe.run();
+    //planCrossMission.run_AxeToRace();
+    //planCrossMission.run_AxeToTunnel();
+    //planGate.runOpen();
+    //racetrack.run();
+    //planCrossMission.run_RaceEndToTunnel();
+    planGate.runClose();
+
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
     // turn off led 16
+    
     gpio.setPin(16, 0);
+
   }
   // close all logfiles etc.
+  servo.setServo(1, 0);
   service.terminate();
   return service.theEnd;
 }

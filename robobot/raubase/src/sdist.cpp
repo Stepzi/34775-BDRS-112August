@@ -36,8 +36,8 @@ void SIrDist::setup()
   if (not ini.has("dist"))
   { // no data yet, so generate some default values
     ini["dist"]["rate_ms"] = "45";
-    ini["dist"]["ir13cm"] = "70000 70000"; // sharp sensor calibration
-    ini["dist"]["ir50cm"] = "20000 20000";
+    ini["dist"]["ir13cm"] = "47769 48678"; // sharp sensor calibration by Christian and Villiam 21/02/2024
+    ini["dist"]["ir50cm"] = "14820 14542"; //original val ir13cm: "70000 70000", ir50cm: "20000 20000"
     ini["dist"]["usCalib"] = "0.00126953125"; // 5.20m / 4096 (m per LSB)
     ini["dist"]["log"] = "true"; // save to logfile
     ini["dist"]["print"] = "false"; // print to console
