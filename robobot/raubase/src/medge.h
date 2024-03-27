@@ -63,6 +63,7 @@ public:
   // calbration
   int calibWhite[8];
   int calibBlack[8];
+  int calibWood[8];
   float sensorWidth;
   bool calibrationValid = true;
   // white value in per-mille (1/1000) (integer)

@@ -156,6 +156,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           pose.dist=0;   
           mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset );
           toLog("Ready to enter the roundabout from the start-side");
+          
           mixer.setVelocity(0);
           pose.resetPose();
           heading.setMaxTurnRate(1.0);

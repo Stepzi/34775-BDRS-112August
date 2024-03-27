@@ -140,7 +140,7 @@
           toLog("Start Open Gate");
           pose.dist = 0;
           pose.turned = 0;
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
           sleep(1); //DONT REMOVE!!!!!!
           heading.setMaxTurnRate(3);
@@ -162,7 +162,7 @@
         if(pose.dist > 0.30)
         {
           toLog("30 cm after crossing, i am on black floor now");
-          medge.updateCalibBlack(black,8);
+          medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
           pose.turned = 0;
           pose.dist = 0;
@@ -631,7 +631,7 @@
           toLog("Start Close Gate");
           pose.dist = 0;
           pose.turned = 0;
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
           sleep(1);//DONT REMOVE!!!!!!
           heading.setMaxTurnRate(3);
@@ -653,7 +653,7 @@
         if(pose.dist > 0.30)
         {
           toLog("30 cm after crossing, i am on black floor now");
-          medge.updateCalibBlack(black,8);
+          medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
           pose.turned = 0;
           pose.dist = 0;

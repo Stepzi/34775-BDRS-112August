@@ -41,6 +41,7 @@ add_executable(raubase
       src/baxe.cpp
       src/bplan101.cpp
       src/cedge.cpp
+      src/bStairs.cpp
       src/cheading.cpp
       src/cmixer.cpp
       src/cmotor.cpp

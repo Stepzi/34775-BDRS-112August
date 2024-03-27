@@ -197,7 +197,7 @@ void BRaceTrack::run()
           if(pose.dist > distToWood)
           {
           toLog("Change to Wood floor");
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
           state = 5;
           }

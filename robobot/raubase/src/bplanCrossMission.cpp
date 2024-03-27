@@ -349,6 +349,10 @@ void BPlanCrossMission::run_AxeToTunnel()
   float f_LineWidth_MinThreshold = 0.02;
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
+
+  // Untested But reads calibration values from medge module
+  
+  // black = medge.calibBlack;
   
   int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
@@ -357,7 +361,7 @@ void BPlanCrossMission::run_AxeToTunnel()
   int blackWhite = 350;
 
   float f_Line_LeftOffset = 0;
-  float gitf_Line_RightOffset = 0;
+  float f_Line_RightOffset = 0;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
@@ -376,13 +380,14 @@ void BPlanCrossMission::run_AxeToTunnel()
   {
     switch (state)
     {
+      
       //Case 1 - Starting with error handling if no line found
       case 1: // Start Position, assume we are on a line but verify
         pose.dist = 0;
         pose.turned = 0;
-        medge.updateCalibBlack(wood,8);
+        medge.updateCalibBlack(medge.calibWood,8);
         medge.updatewhiteThreshold(woodWhite);
-
+        usleep(1000);
         mixer.setDesiredHeading(0.8);
         state = 2;
         break;
@@ -401,7 +406,7 @@ void BPlanCrossMission::run_AxeToTunnel()
       case 3:
           mixer.setVelocity(0.2);
           heading.setMaxTurnRate(3);
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
           mixer.setEdgeMode(b_Line_HoldLeft,f_Line_LeftOffset);
           state = 4;
@@ -509,7 +514,7 @@ void BPlanCrossMission::run_AxeToRace()
   int blackWhite = 350;
 
   float f_Line_LeftOffset = 0;
-  float gitf_Line_RightOffset = 0;
+  float f_Line_RightOffset = 0;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
@@ -532,7 +537,7 @@ void BPlanCrossMission::run_AxeToRace()
       case 1: // Start Position, assume we are on a line but verify
         pose.dist = 0;
         pose.turned = 0;
-        medge.updateCalibBlack(wood,8);
+        medge.updateCalibBlack(medge.calibWood,8);
         medge.updatewhiteThreshold(woodWhite);
 
         mixer.setDesiredHeading(0.8);
@@ -553,7 +558,7 @@ void BPlanCrossMission::run_AxeToRace()
       case 3:
           mixer.setVelocity(0.2);
           heading.setMaxTurnRate(3);
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
           mixer.setEdgeMode(b_Line_HoldLeft,f_Line_LeftOffset);
           state = 4;
@@ -617,7 +622,7 @@ void BPlanCrossMission::run_AxeToRace()
         if(pose.dist > 0.30)
         {
           toLog("30 cm after crossing, i am on black floor now");
-          medge.updateCalibBlack(black,8);
+          medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
           pose.turned = 0;
           pose.dist = 0;
@@ -685,7 +690,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
   int blackWhite = 350;
 
   float f_Line_LeftOffset = 0;
-  float gitf_Line_RightOffset = 0;
+  float f_Line_RightOffset = 0;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
@@ -707,7 +712,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
 
       case 0:
           toLog("Start Race End to Tunnel");
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
           state = 1;  
       break;

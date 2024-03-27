@@ -36,6 +36,7 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
+#include "bStairs.h"
 #include "bmission0.h"
 #include "bracetrack.h"
 #include "baxe.h"
@@ -67,6 +68,7 @@ int main (int argc, char **argv)
     //plan100.run();
     //plan101.run();
     //golfballtest.run();
+    // stairs.run();
     //
     //mission0.run();
     // pik og patter
