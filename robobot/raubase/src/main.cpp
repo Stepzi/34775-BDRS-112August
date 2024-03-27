@@ -36,6 +36,7 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
+#include "bStairs.h"
 
 
 int main (int argc, char **argv)
@@ -48,11 +49,12 @@ int main (int argc, char **argv)
     // turn on LED on port 16
     gpio.setPin(16, 1);
     // run the planned missions
-    plan20.run();
-    plan21.run();
-    plan40.run();
-    plan100.run();
-    plan101.run();
+    // plan20.run();
+    // plan21.run();
+    // plan40.run();
+    // plan100.run();
+    // plan101.run();
+    stairs.run();
     //
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);

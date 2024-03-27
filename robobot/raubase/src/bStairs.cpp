@@ -64,7 +64,7 @@ void BStairs::setup()
     fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
   }
 
-  servo.setServo(1, 1, -500, 200);
+  servo.setServo(1, 1, -900, 200);
   
   setupDone = true;
 }
@@ -99,11 +99,12 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   float f_Line_RightOffset = 0;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
-  float f_Velocity_DriveForward = 0.25; 
+  float f_Velocity_DriveForward = 0.3; 
   float f_Velocity_DriveSlow = 0.15;
   float f_Velocity_DriveBack = -0.15;
   int servoDown = 300;
   int servoSpeed = 400;
+  int steps = 0;
   oldstate = state;
 
   //
@@ -117,7 +118,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         if(medge.edgeValid)
         {
           toLog("Started on a line");
-          state = 1;
+          state = 2;
         }
         else if(!medge.edgeValid)
         {
@@ -125,14 +126,14 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           lost = true; 
         }
         break;
-      case 1:
-          toLog("Start Driving - Start-side from Start intersection");
-          mixer.setEdgeMode(b_Line_HoldRight, 0 );
-          mixer.setVelocity(f_Velocity_DriveForward); 
-          pose.dist = 0.0;
-          pose.turned = 0.0;
-          state = 2;
-        break;
+      // case 1:
+      //     toLog("Start Driving - Start-side from Start intersection");
+      //     mixer.setEdgeMode(b_Line_HoldRight, 0 );
+      //     mixer.setVelocity(f_Velocity_DriveForward); 
+      //     pose.dist = 0.0;
+      //     pose.turned = 0.0;
+      //     state = 2;
+      //   break;
       case 2:
           if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
           {
@@ -168,13 +169,16 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           toLog("Servo Is Down, drive forward");
           mixer.setVelocity(f_Velocity_DriveSlow);
           pose.dist = 0;
-          state = 6;
+          state = 6; 
         }
         break;
       case 6:
-        if(pose.dist > 0.3 /*|| imu_data z axis*/)
-        {
-          toLog("Down First Step, drive Back");
+        std::cout << abs(imu.acc[2]) << std:endl;
+        if(pose.dist > 0.3 /*|| abs(imu.acc[2]) > 100*/)
+        { 
+          toLog("Down Step, drive Back");
+          
+          step++;
           mixer.setVelocity(f_Velocity_DriveBack);
           state = 7;
           t.clear();
@@ -182,11 +186,87 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         break;
       case 7:
         if(t.getTimePassed() > 1){
-          toLog("Backed up aginst first step");
+          toLog("Backed up against step");
           mixer.setVelocity(0.0);
+          if(step < 5){
+            state = 5;
+          }
+          else{
+            state = 8;
+          }
+        }
+        break;
+      case 8:
+        toLog("Down of staircase");
+        if(medge.edgeValid)
+        {
+          toLog("on valid edge, keep Line following");
+          state = 9;
+        }else{
+          toLog("not on valid edge, initiate turn");
+          pose.dist = 0;
+          pose.turned = 0;
+          mixer.setVelocity(f_Velocity_DriveSlow);
+          toLog("drive slowly forward");
+          state = 10;
+        }
+        break;
+      case 10:      
+        if(pose.dist > 0.1){
+          toLog("stop and turn left");
+          mixer.setVelocity(0);
+          pose.resetPose();
+          mixer.setDesiredHeading(1.57);
+          state = 11;
+        }
+        break;
+      case 11:
+        if(abs(pose.turned-(1.57)) < 0.1){
+            toLog("drive slowly backward");
+            pose.dist = 0;
+            pose.turned = 0;
+            mixer.setVelocity(-f_Velocity_DriveSlow);
+            t.clear();
+            state = 12;
+        }
+        break;
+
+      case 12:
+        if(abs(pose.dist) < 0.5 || (t.getTimePassed() > 1)){
+          toLog("against the wall, turning a bit right");
+          mixer.setVelocity(f_Velocity_DriveSlow);
+          pose.resetPose();
+          mixer.setDesiredHeading(-0.2);            
+          state = 13;
+        }
+        break;
+
+      case 13:
+      // can I call edge valid outside edge follow mode?
+        if(medge.edgeValid){
+          state = 9;
+        }
+        if(pose.dist > 0.5 && (!medge.edgeValid)){
+          lost = true;
+        }
+        break;
+
+      case 9:
+        toLog("on edge, drive slowly forward");        
+        pose.dist = 0;
+        pose.turned = 0;
+        mixer.setEdgeMode(b_Line_HoldRight, 0);
+        state = 14;
+        break;
+
+      case 14:
+        toLog("FINISHED: detected first intersection after staircase");      
+        if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
           finished = true;
         }
         break;
+
+
       default:
         toLog("Unknown state");
         lost = true;
