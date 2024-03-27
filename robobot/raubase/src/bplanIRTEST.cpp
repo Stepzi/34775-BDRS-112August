@@ -235,6 +235,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 21 - If robot is seen, clear time and wait until case 6
       case 21: 
         // toLog(std::to_string(dist.dist[0]).c_str()); print out side sensor
+        toLog(std::to_string(dist.dist[1]).c_str());
         if(dist.dist[1] < 0.35){ // dist.dist should be 1 !!
           toLog("Robot seen!");
           t.clear();
@@ -327,7 +328,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         {
           pose.resetPose();
           mixer.setVelocity(0); //TEST THIS!!!!!
-          mixer.setDesiredHeading(1.5);
+          mixer.setDesiredHeading(1.6);
           state = 32;
         } 
       break;
@@ -335,7 +336,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 32 - After turning some angle, ready for turning around on the roundabout. 
       case 32:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
-        if(abs(pose.turned) > 1.48)
+        if(abs(pose.turned) > 1.58)
         {
           mixer.setDesiredHeading(0);
           pose.turned = 0;
@@ -377,7 +378,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if(abs(pose.dist) > 0.08)
         {
           mixer.setVelocity(0);
-          state = 41;
+            state = 41;
         } 
       break;
 

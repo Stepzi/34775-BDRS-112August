@@ -68,13 +68,15 @@ int main (int argc, char **argv)
     //
 
     // pik og patter
-    //planCrossMission.run_StartToFirstCross();
-    //planIRTEST.run(true,false);
-    //axe.run();
+    planCrossMission.run_StartToFirstCross();
+    planIRTEST.run(true,false);
+    axe.run();
     //planCrossMission.run_AxeToRace();
-    //planGate.runOpen();
+    planCrossMission.run_AxeToTunnel();
+    planGate.runOpen();
     racetrack.run();
-    // planGate.runClose();
+    planCrossMission.run_RaceEndToTunnel();
+    planGate.runClose();
 
     mixer.setVelocity(0.0);
     mixer.setTurnrate(0.0);

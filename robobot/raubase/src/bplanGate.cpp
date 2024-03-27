@@ -96,9 +96,9 @@
     //float f_LineWidth_NoLine = 0.01;
     float f_LineWidth_Crossing = 0.07;
 
-    //float f_Line_LeftOffset = 0;
+    float f_Line_LeftOffset = 0;
     float f_Line_RightOffset = 0;
-    //bool b_Line_HoldLeft = true;
+    bool b_Line_HoldLeft = true;
     bool b_Line_HoldRight = false;
 
 
@@ -164,18 +164,19 @@
        toLog(std::to_string(dist.dist[1]).c_str());
           if(dist.dist[1] < 0.2)
           {
+              heading.setMaxTurnRate(1);
               mixer.setVelocity(0);
               pose.dist = 0.0;
               pose.turned = 0.0;
-              heading.setMaxTurnRate(1);
-              mixer.setDesiredHeading(-1.25);
+              pose.resetPose();
+              mixer.setDesiredHeading(1.6);
               state = 3;
           }
       break;
 
       case 3:
         toLog(std::to_string(pose.turned).c_str());
-          if(abs(pose.turned) > 1.5-0.02){
+          if(abs(pose.turned) > 1.6-0.02){
               pose.dist = 0;
               pose.turned = 0;
               mixer.setVelocity(0.15);
@@ -184,6 +185,7 @@
       break;
 
       case 4:
+        toLog(std::to_string(dist.dist[0]).c_str());
           if(dist.dist[0] > 0.5){
               pose.resetPose();
               mixer.setVelocity(0.15);
@@ -192,10 +194,11 @@
       break; 
 
       case 5:
-          if(pose.dist > 0.2){
+          if(pose.dist > 0.3){
               pose.resetPose();
+              pose.turned = 0;
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(-1.5);
+              mixer.setDesiredHeading(-1.6);
               state = 6;
           }
       break; 
@@ -211,9 +214,11 @@
       break; 
 
       case 7:
-          if(pose.dist > 0.5){
+          if(pose.dist > 0.7){
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(1.6);
+              pose.resetPose();
+              pose.turned = 0;
+              mixer.setDesiredHeading(-1.6);
               state = 8;
           }
       break; 
@@ -227,16 +232,17 @@
       break; 
 
       case 9:
-          if(dist.dist[1] < 0.2){
+      toLog(std::to_string(dist.dist[1]).c_str());
+          if(dist.dist[1] < 0.1){
               pose.resetPose();
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(1.6);
+              mixer.setDesiredHeading(-1.45);
               state = 10;
           }
       break; 
 
       case 10:
-          if(abs(pose.turned) > 1.60-0.02){
+          if(abs(pose.turned) > 1.45-0.02){
               pose.resetPose();
               mixer.setVelocity(0.15);
               state = 11;
@@ -244,7 +250,7 @@
       break; 
 
       case 11:
-        if(dist.dist[1] < 0.15){
+        if(dist.dist[1] < 0.11){
               pose.resetPose();
               mixer.setVelocity(0.6);
               state = 12;
@@ -252,7 +258,7 @@
       break;
 
       case 12:
-          if(pose.dist > 0.45){
+          if(pose.dist > 0.55){
               t.clear();
               pose.turned = 0;
               pose.resetPose();
@@ -266,7 +272,7 @@
           //toLog(std::to_string(t.getTimePassed()).c_str());
           if(t.getTimePassed() > 1)
           {
-            mixer.setDesiredHeading(-1.6);
+            mixer.setDesiredHeading(1.6);
             state = 14;
           }
         break;
@@ -283,22 +289,33 @@
           if(pose.dist > 0.7){
               pose.resetPose();
               mixer.setVelocity(-0.1);
-              state = 16;
+              state = 151;
           }
       break; 
 
-      case 16:
-        if(medge.width > f_LineWidth_Crossing) 
+      case 151:
+      if(medge.width > f_LineWidth_Crossing) 
+            { 
+              pose.resetPose();
+              mixer.setVelocity(0.1);
+              state = 152;  
+            }
+      break;
+
+      case 152:
+        if(pose.dist > 0.1) 
             { 
               pose.resetPose();
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(-1.4);
+              mixer.setDesiredHeading(1.6);
               state = 17;  
             }
       break;
 
+      
+
       case 17:
-        if(abs(pose.turned) > 1.4 - 0.02)
+        if(abs(pose.turned) > 1.6 - 0.02)
             { 
               mixer.setVelocity(0.2);
               state = 18;
@@ -310,7 +327,7 @@
             { 
               heading.setMaxTurnRate(3);
               mixer.setVelocity(0.2);
-              mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
+              mixer.setEdgeMode(b_Line_HoldLeft,f_Line_LeftOffset);
               state = 19;
             }
       break;
@@ -318,22 +335,23 @@
       case 19:
         if(dist.dist[1] < 0.15){
               pose.resetPose();
+              mixer.setVelocity(0.6);
               state = 20;
           }
       break;
 
       case 20:
-        if(abs(pose.dist) > 0.4)
+        if(abs(pose.dist) > 0.55)
             { 
               mixer.setVelocity(0);
               heading.setMaxTurnRate(1);
-              mixer.setDesiredHeading(-1.6);
+              mixer.setDesiredHeading(1.6);
               state = 21;
             }
       break;
 
       case 21:
-        if(abs(pose.turned) > 1.8 - 0.02)
+        if(abs(pose.turned) > 1.6 - 0.02)
             { 
               pose.dist = 0;
               mixer.setVelocity(0.1);
@@ -404,6 +422,8 @@
       toLog("PlanGate finished");
   }
 
+
+
   void BPlanGate::runClose()
   {
     if (not setupDone)
@@ -415,7 +435,7 @@
     bool lost = false;
     
 
-    state = 1;
+    state = 0;
     oldstate = state;
 
 
@@ -427,11 +447,17 @@
     //float f_LineWidth_NoLine = 0.01;
     float f_LineWidth_Crossing = 0.07;
 
-    //float f_Line_LeftOffset = 0;
+    float f_Line_LeftOffset = 0;
     float f_Line_RightOffset = 0;
-    //bool b_Line_HoldLeft = true;
+    bool b_Line_HoldLeft = true;
     bool b_Line_HoldRight = false;
 
+
+    int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+    int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+    int woodWhite = 550;
+    int blackWhite = 250;
     //Hardcoded time data
     //float f_Time_Timeout = 10.0;
 
@@ -453,7 +479,7 @@
         /********************************************************************/
         //Case 1 - first crossing on the track and forward
 
-      case 1:
+     /* case 1:
           pose.resetPose();
           mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
           mixer.setVelocity(0.15);
@@ -468,57 +494,100 @@
             mixer.setVelocity(0.15); 
             state = 3;  
           }
+      break;*/
+      case 0:
+          toLog("Start Open Gate");
+          pose.dist = 0;
+          pose.turned = 0;
+          medge.updateCalibBlack(wood,8);
+          medge.updatewhiteThreshold(woodWhite);
+          heading.setMaxTurnRate(3);
+          mixer.setEdgeMode(b_Line_HoldRight,-0.03);
+          mixer.setVelocity(0.15);
+          state = 1;  
+      break;
+
+      case 1:
+          if(medge.width > 0.09){
+             toLog("Found crossing, change line sensor thresholds");
+            pose.dist = 0;
+            pose.turned = 0;
+            state = 2;
+          }
+      break;
+
+      case 2:
+        if(pose.dist > 0.30)
+        {
+          toLog("30 cm after crossing, i am on black floor now");
+          medge.updateCalibBlack(black,8);
+          medge.updatewhiteThreshold(blackWhite);
+          pose.turned = 0;
+          pose.dist = 0;
+          state = 3;
+        }
       break;
 
       case 3:
-          if(pose.dist > 0.25){
+          if(dist.dist[0] < 0.18){
+            heading.setMaxTurnRate(1);
             pose.resetPose();
-            mixer.setVelocity(0);
-            mixer.setDesiredHeading(1.6);
+            mixer.setVelocity(-0.1);
             state = 4;
           }
       break;
 
       case 4:
+          if(abs(pose.dist) > 0.1){
+              pose.resetPose();
+              mixer.setVelocity(0);
+              mixer.setDesiredHeading(1.6);
+              state = 5;
+          }
+      break;
+
+      case 5:
           if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
               mixer.setVelocity(0.15);
-              state = 5;
-          }
-      break; 
-
-      case 5:
-          if(pose.dist > 0.4){
-            pose.resetPose();
-            mixer.setVelocity(0);
-            mixer.setDesiredHeading(-1.6);
-            state = 6;
+              state = 6;
           }
       break; 
 
       case 6:
-          if(abs(pose.turned) > 1.6-0.02){
-              pose.resetPose();
-              mixer.setVelocity(0.15);
-              state = 7;
+          if(pose.dist > 0.5){
+            pose.resetPose();
+            mixer.setVelocity(0);
+            mixer.setDesiredHeading(-1.6);
+            state = 7;
           }
       break; 
 
       case 7:
-        if(dist.dist[0] < 0.3){
-          pose.resetPose();
-          mixer.setVelocity(0.15);
-          state = 8;
-        }
+          if(abs(pose.turned) > 1.6-0.02){
+              pose.resetPose();
+              pose.dist = 0;
+              mixer.setVelocity(0.15);
+              state = 8;
+          }
       break; 
 
       case 8:
+        if((dist.dist[1] < 0.3) || (pose.dist > 1.3))
+        {
+          pose.resetPose();
+          mixer.setVelocity(0);
+          //state = 9;
+        }
+      break; 
+
+      /*case 8:
           if(pose.dist > 0.9){
             pose.resetPose();
             mixer.setDesiredHeading(-1.6);
             state = 9;
           }
-      break; 
+      break;*/ 
 
       case 9:
           if(abs(pose.turned) > 1.6-0.02){
@@ -531,21 +600,21 @@
       case 10: // here now
           if(medge.width > f_LineWidth_Crossing-0.02) { 
             mixer.setVelocity(0);
-            mixer.setDesiredHeading(0.8);
+            mixer.setDesiredHeading(1.6);
             finished = true;
           }
       break; 
 
       case 11:
-        if(dist.dist[1] < 0.15){
+        if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
-              mixer.setVelocity(0.6);
+              mixer.setVelocity(-0.01);
               state = 12;
           }
       break;
 
       case 12:
-          if(pose.dist > 0.45){
+          if(abs(pose.dist) > 0.2){
               t.clear();
               pose.turned = 0;
               pose.resetPose();
@@ -559,28 +628,53 @@
           //toLog(std::to_string(t.getTimePassed()).c_str());
           if(t.getTimePassed() > 1)
           {
-            mixer.setDesiredHeading(1.2);
+            mixer.setVelocity(0.1);
             state = 14;
           }
         break;
 
       case 14:
-          if(abs(pose.turned) > 1.2-0.02){
+          if(abs(pose.dist) > 0.1){
               pose.resetPose();
-              mixer.setVelocity(0.1);
+              mixer.setDesiredHeading(-1.6);
               state = 15;
           }
       break; 
 
       case 15:
-          if(pose.dist > 0.7){
+          if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
-              mixer.setVelocity(-0.1);
+              mixer.setVelocity(0.1);
               state = 16;
           }
       break; 
 
       case 16:
+        toLog(std::to_string(dist.dist[0]).c_str());
+          if(dist.dist[0] > 0.5){
+              pose.resetPose();
+              mixer.setVelocity(0.15);
+              state = 17;
+          }
+      break; 
+
+      case 17:
+          if(pose.dist > 0.3){
+              pose.resetPose();
+              pose.turned = 0;
+              mixer.setVelocity(0);
+              mixer.setDesiredHeading(-1.6);
+              //state = 6;
+          }
+      break; 
+
+
+
+
+
+
+
+      /*case 16:
         if(medge.width > f_LineWidth_Crossing) 
             { 
               pose.resetPose();
@@ -597,7 +691,7 @@
               state = 18;
             }
       break;
-
+*/
       case 18:
         if(abs(pose.dist) > 0.2)
             { 
