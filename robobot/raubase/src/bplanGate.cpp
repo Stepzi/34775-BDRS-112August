@@ -102,10 +102,10 @@
     bool b_Line_HoldRight = false;
 
 
-    int wood[8]  = {199, 249, 261, 264, 300, 317, 302, 254};
+    int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
     int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-    int woodWhite = 500;
+    int woodWhite = 600;
     int blackWhite = 400;
     //Hardcoded time data
     //float f_Time_Timeout = 10.0;
@@ -142,6 +142,7 @@
           pose.turned = 0;
           medge.updateCalibBlack(wood,8);
           medge.updatewhiteThreshold(woodWhite);
+          sleep(1); //DONT REMOVE!!!!!!
           heading.setMaxTurnRate(3);
           mixer.setEdgeMode(b_Line_HoldRight,-0.02);
           mixer.setVelocity(0.3);
@@ -242,7 +243,7 @@
 
       case 9:
       toLog(std::to_string(dist.dist[1]).c_str());
-          if(dist.dist[1] < 0.1){
+          if(dist.dist[1] < 0.08){
               pose.resetPose();
               mixer.setVelocity(0);
               mixer.setDesiredHeading(1.75);
@@ -458,7 +459,7 @@
             { 
               heading.setMaxTurnRate(3);
               mixer.setVelocity(0.2);
-              mixer.setEdgeMode(b_Line_HoldLeft,f_Line_LeftOffset);
+              mixer.setEdgeMode(b_Line_HoldLeft,0.02);
               state = 23;
             }
       break;
@@ -514,7 +515,7 @@
               pose.dist = 0;
               heading.setMaxTurnRate(3);
               mixer.setVelocity(0.2);
-              mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
+              mixer.setEdgeMode(b_Line_HoldRight,-0.02);
               state = 29;
             }
       break;
@@ -584,10 +585,10 @@
     bool b_Line_HoldRight = false;
 
 
-    int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+    int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
     int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-    int woodWhite = 550;
+    int woodWhite = 600;
     int blackWhite = 250;
     //Hardcoded time data
     //float f_Time_Timeout = 10.0;
@@ -632,6 +633,7 @@
           pose.turned = 0;
           medge.updateCalibBlack(wood,8);
           medge.updatewhiteThreshold(woodWhite);
+          sleep(1);//DONT REMOVE!!!!!!
           heading.setMaxTurnRate(3);
           mixer.setEdgeMode(b_Line_HoldRight,-0.03);
           mixer.setVelocity(0.15);

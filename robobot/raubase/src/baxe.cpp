@@ -98,6 +98,8 @@ void BAxe::run()
   const int MSL = 100;
   char s[MSL];
 
+  float speed = 0.0;
+
   std::string distSens1;
   std::string pose1; 
   std::string gs0;
@@ -270,8 +272,20 @@ void BAxe::run()
         if (numberOfSamples >= 10)
         {
           toLog ("axe is gone");
-          mixer.setVelocity(0.4);
+          state = 43;
+        }
+      break;
+
+      case 43:
+        if(speed < 0.5) //RAMP UP
+        {
+          speed = speed + 0.01;
+          mixer.setVelocity(speed);
+        }
+        else
+        {
           state = 5;
+          speed = 0.0;
         }
       break;
 

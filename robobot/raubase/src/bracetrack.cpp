@@ -96,10 +96,10 @@ void BRaceTrack::run()
   float acceleration = 0.01;
   int numberOfSamplesLineLost = 0;
 
-  int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-  int woodWhite = 500;
+  int woodWhite = 600;
   int blackWhite = 250;
 
 

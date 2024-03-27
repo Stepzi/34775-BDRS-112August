@@ -350,10 +350,10 @@ void BPlanCrossMission::run_AxeToTunnel()
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
   
-  int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-  int woodWhite = 550;
+  int woodWhite = 600;
   int blackWhite = 350;
 
   float f_Line_LeftOffset = 0;
@@ -502,10 +502,10 @@ void BPlanCrossMission::run_AxeToRace()
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
   
-  int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-  int woodWhite = 550;
+  int woodWhite = 600;
   int blackWhite = 350;
 
   float f_Line_LeftOffset = 0;
@@ -678,10 +678,10 @@ void BPlanCrossMission::run_RaceEndToTunnel()
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
   
-  int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-  int woodWhite = 550;
+  int woodWhite = 600;
   int blackWhite = 350;
 
   float f_Line_LeftOffset = 0;
