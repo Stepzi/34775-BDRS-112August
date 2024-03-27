@@ -349,9 +349,15 @@ void BPlanCrossMission::run_AxeToTunnel()
   float f_LineWidth_MinThreshold = 0.02;
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
+
+  // Untested But reads calibration values from medge module
+  // wood = medge.calibWood;
+  // black = medge.calibBlack;
   
   int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+
 
   int woodWhite = 550;
   int blackWhite = 350;
