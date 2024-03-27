@@ -183,7 +183,7 @@ void bgolfballtest::run()
       case 10:
       {
          toLog("Looking for golfball");
-        if(golfball.findGolfball(center, nullptr)){
+        if(golfball.findGolfballHough(center, nullptr)){
             char s[MSL];
             // next need to modify the reference...since my C++ knowledge are shit I guess
             // that we can just return the center as a whole (as in the function to return std::vector)

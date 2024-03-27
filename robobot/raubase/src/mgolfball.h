@@ -47,6 +47,14 @@ public:
    * \param pos is a reference to the x,y postionn of the closest golfball
    * \returns the x,y position in pixel of the closes golf ball. */
   bool findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr);
+
+   /**
+   * Find Golfball code
+   * \param sourcePth is a pointer to a potential source image, if
+   * this pointer is a nullptr (default), then a frame is taken from camera.
+   * \param pos is a reference to the x,y postionn of the closest golfball
+   * \returns the x,y position in pixel of the closes golf ball. */
+  bool findGolfballHough(std::vector<int>& pos, cv::Mat *sourcePtr);
  
 
 protected:

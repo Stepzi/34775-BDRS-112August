@@ -52,12 +52,36 @@ void Mgolfball::setup()
     ini["golfball"]["save"] = "false";
     ini["golfball"]["log"] = "true";
     ini["golfball"]["print"] = "true";
+    ini["golfball"]["hough_minDist"] = "100";
+    ini["golfball"]["hough_p1"] = "200";
+    ini["golfball"]["hough_p2"] = "100";
+    ini["golfball"]["hough_minRad"] = "0";
+    ini["golfball"]["hough_maxRad"] = "0";
+    ini["golfball"]["color_lb"] = "10 100 100";
+    ini["golfball"]["color_ub"] = "20 255 255";
   }
   // get values from ini-file
   fs::create_directory(ini["golfball"]["imagepath"]);
   //
   debugSave = ini["golfball"]["save"] == "true";
   toConsole = ini["golfball"]["print"] == "true";
+  int hough_minDist = strtol(ini["golfball"]["hough_minDist"].c_str(), nullptr, 10);
+  int hough_p1 = strtol(ini["golfball"]["hough_p1"].c_str(), nullptr, 10);
+  int hough_p2 = strtol(ini["golfball"]["hough_p2"].c_str(), nullptr, 10);
+  int hough_minRad = strtol(ini["golfball"]["hough_minRad"].c_str(), nullptr, 10);
+  int hough_maxRad = strtol(ini["golfball"]["hough_maxRad"].c_str(), nullptr, 10);
+
+  const char * p1 = ini["golfball"]["color_lb"].c_str();
+  int c_lb1 = strtol(p1, (char**)&p1);
+  int c_lb2 = strtol(p1, (char**)&p1);
+  int c_lb3 = strtol(p1, (char**)&p1);
+
+  const char * p1 = ini["golfball"]["color_ub"].c_str();
+  int c_ub1 = strtol(p1, (char**)&p1);
+  int c_ub2 = strtol(p1, (char**)&p1);
+  int c_ub3 = strtol(p1, (char**)&p1);
+
+
   //
   if (ini["golfball"]["log"] == "true")
   { // open logfile
@@ -185,6 +209,80 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, cv::Mat *sourcePtr)
     return true;
   }
   return false;
+}
+
+bool Mgolfball::findGolfballHough(std::vector<int>& pos, cv::Mat *sourcePtr)
+{ // taken from https://docs.opencv.org
+
+  // Get frame 
+  cv::Mat frame;
+  if (sourcePtr == nullptr)
+  {
+    frame = cam.getFrameRaw();
+    imgTime = cam.imgTime;
+  }
+  else
+  {
+    frame = *sourcePtr;
+  }
+  //
+  if (frame.empty())
+  {
+    printf("MVision::findGolfball: Failed to get an image\n");
+    return 0;
+  }
+  cv::Mat img;
+  if (debugSave)
+    frame.copyTo(img);
+  //=============================================
+
+  // filter
+  // blur
+  // convert colors
+  // apply color filter
+  // detect contours
+  // count == no. of detected golfball candidates
+  // set bool to true if no of contours greater than 0
+  // choose closest
+  
+  cv::Mat blurred;
+  cv::GaussianBlur(frame, blurred, cv::Size(11, 11), 0);
+  cv::Mat mask;
+  cv::cvtColor(blurred, mask, cv::COLOR_BGR2HSV);
+  cv::inRange(mask, cv::Scalar(c_lb1, c_lb2, c_lb3), cv::Scalar(c_ub1, c_ub2, c_ub3), mask);
+  // cv::erode(mask, mask, Mat, 2);
+  // cv::dilate(mask, mask, Mat, 2);
+  
+    
+  vector<cv::Vec3f> circles;
+  cv::HoughCircles( mask, circles, CV_HOUGH_GRADIENT, 1, hough_minDist, hough_p1, hough_p2, hough_minRad, hough_maxRad );
+
+  if(circles.size() > 0){
+    pos[0] = cv::cvRound(circles[0][0]);
+    pos[1] = cv::cvRound(circles[0][1]);
+
+    for( size_t i = 0; i < circles.size(); i++ )
+    {
+      if(debugSave){
+        cv::Point cv::center(cv::cvRound(circles[i][0]), cv::cvRound(circles[i][1]));
+        int radius = cv::cvRound(circles[i][2]);
+        // circle center
+        cv::circle( img, center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
+        // circle outline
+        cv::circle( img, center, radius, cv::Scalar(0,0,255), 3, 8, 0 );
+      }
+    }
+    return true;
+  }else{
+    return false;
+  }
+    
+  if (debugSave){ 
+    // snprintf(s, MSL, "center: (%d, %d), radius: %d", center[0], centert[1], radius);
+    // toLog(s);
+    saveImageTimestamped(img, imgTime);
+    saveImageTimestamped(mask, imgTime+1);
+  }   
 }
 
 void Mgolfball::saveImageInPath(cv::Mat& img, string name)
