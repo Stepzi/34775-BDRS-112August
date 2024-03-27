@@ -37,7 +37,7 @@
 #include "cedge.h"
 #include "cmixer.h"
 #include "sdist.h"
-
+#include "simu.h"
 #include "bmission0.h"
 
 // create class object
@@ -85,17 +85,42 @@ void BMission0::run()
   float speed = 0;
   float rampSpeed = 0.6;
   int numOfDistMeas = 0;
-  state = 1;
+  state = 0;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
+
+  std::string gyro_msg;
+  std::string acc_msg;
+  UTime t2("now");
   //
   toLog("mission0 started");
+  
   //
   while (not finished and not lost and not service.stop)
   {
     switch (state)
     {
+      case 0: 
+      
+      if(t2.getTimePassed() > 0.2){
+        gyro_msg = std::to_string(imu.gyro[0]) + "," + std::to_string(imu.gyro[1]) + "," + std::to_string(imu.gyro[2]) + ",";
+        acc_msg = std::to_string(imu.acc[0]) + "," + std::to_string(imu.acc[1]) + "," + std::to_string(imu.acc[2]);
+        toLog((gyro_msg + " " + acc_msg).c_str());
+        t2.now();
+        /*  
+        MPU6050 GetRawData(&gyroRaw , &accelRaw ) ;   
+        MPU6050 ScaleData(&gyroScal , &accelScal, &gyroRaw, &accelRaw);
+        //ComplementaryFilter
+        long squaresum=( long )accelScal.y∗accelScal.y+(long)accelScal.z∗accelScal.z;
+        pitch += ((float)gyroScal.x) ∗ Ts;
+        float pitchAcc = atan(accelScal.x/sqrt(squaresum))∗(180/3.1416); // rad to deg
+        pitch = alpha∗pitch+(1.0f−alpha)∗pitchAcc;
+        */
+      }
+      
+      break;
+
       case 1: // Start Position, assume we are on a line but verify.
         if(medge.edgeValid && (medge.width > 0.02)) //We should be on a line 
         {
