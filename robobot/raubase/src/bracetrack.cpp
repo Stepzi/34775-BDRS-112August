@@ -96,14 +96,15 @@ void BRaceTrack::run()
   float acceleration = 0.01;
   int numberOfSamplesLineLost = 0;
 
-  int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-  int woodWhite = 500;
-  int blackWhite = 250;
+  int woodWhite = 600;
+  int blackWhite = 400;
 
-
-
+  medge.updateCalibBlack(black,8);
+  medge.updatewhiteThreshold(blackWhite);
+  usleep(1000);
   state = 0;//TESTING
   pose.dist = maxDist;//+1.0;//TESTING
   oldstate = state; 
@@ -121,18 +122,37 @@ void BRaceTrack::run()
           pose.dist = 0.0;
           toLog("Go to end of racetrack.");
           cedge.changePID(8.0, 30.0, 0.3, 0.3, 0.0);
-          mixer.setEdgeMode(true, 0.00);
-          mixer.setVelocity(0.2);
+          mixer.setEdgeMode(true, 0.01);
+          mixer.setVelocity(0.3);
+          numberOfSamplesLineLost = 0;
           state = 1;
         }
-        else{
-          toLog("Expected to start on a line. Did not find the Line");
-          lost = true;
+        else if(!medge.edgeValid && medge.width < 0.02){
+          numberOfSamplesLineLost ++;
+          if(numberOfSamplesLineLost > 10){
+            numberOfSamplesLineLost = 0;
+            toLog("Expected to start on a line. Did not find the Line");
+            lost = true;
+          }
         }
         break;
       case 1:
-        if(!medge.edgeValid && pose.dist > 0.5)
-        {
+
+        if(!medge.edgeValid && medge.width < 0.02){
+          numberOfSamplesLineLost += 1;
+          if(numberOfSamplesLineLost >= 5){
+            numberOfSamplesLineLost = 0;
+            state = 99;
+          }
+        }
+        else{
+          numberOfSamplesLineLost = 0;
+        }
+      break;
+
+
+
+      case 99:
           toLog("Assume end of raceTrack is reached");
           pose.resetPose();
           heading.setMaxTurnRate(1);
@@ -140,15 +160,15 @@ void BRaceTrack::run()
           mixer.setDesiredHeading(3.14); //SET TO F** 0 WHEN STARTING FROM START 
 
           state = 2;
-        }
-      break;    
+      break;  
+
       case 2:
           //toLog(std::to_string(pose.turned).c_str());
           if(abs(pose.turned) > 3.0)
           {
             heading.setMaxTurnRate(3);
             mixer.setVelocity(0.3);
-            mixer.setEdgeMode(false /* lest */,  -0.02 /* offset */);
+            mixer.setEdgeMode(false /* lest */,  -0.01 /* offset */);
             state = 3;
           }
       break;
@@ -158,7 +178,7 @@ void BRaceTrack::run()
         {
           toLog("Started on Line");
           cedge.changePID(8.0, 5.0, 0.6, 0.15, 0.0);
-          mixer.setEdgeMode(false,0.00);
+          mixer.setEdgeMode(false,-0.01);
           mixer.setVelocity(0.0);
           pose.dist = 0;
           state = 4;
@@ -197,7 +217,7 @@ void BRaceTrack::run()
           if(pose.dist > distToWood)
           {
           toLog("Change to Wood floor");
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
           state = 5;
           }

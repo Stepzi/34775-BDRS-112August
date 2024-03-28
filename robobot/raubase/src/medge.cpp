@@ -41,7 +41,7 @@ void MEdge::setup()
   if (not ini.has("edge") or not ini["edge"].has("calibWhite"))
   { // no data yet, so generate some default values
     ini["edge"]["calibWhite"] = "1000 1000 1000 1000 1000 1000 1000 1000"; // A/D value
-    ini["edge"]["calibWWood"] = "500 500 500 500 500 500 500 500"; // A/D value
+    ini["edge"]["calibWood"] = "500 500 500 500 500 500 500 500"; // A/D value
     ini["edge"]["calibBlack"] = "0 0 0 0 0 0 0 0"; // A/D value
     ini["edge"]["whiteThreshold"] = "700"; // of 1000
     ini["edge"]["sensorWidth"] = "0.12"; // m
@@ -61,10 +61,10 @@ void MEdge::setup()
     calibrationValid = (calibWhite[i] - calibBlack[i]) > 10;
   }
   // wood calibration value
-  p1 = ini["edge"]["calibWWood"].c_str();
+  p1 = ini["edge"]["calibWood"].c_str();
   for (int i = 0; i < 8; i++)
   {
-    calibWWood[i] = strtol(p1, (char**)&p1,10);
+    calibWood[i] = strtol(p1, (char**)&p1,10);
   }
   if (not calibrationValid)
   {

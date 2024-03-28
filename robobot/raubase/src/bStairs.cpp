@@ -36,6 +36,7 @@
 #include "medge.h"
 #include "cedge.h"
 #include "cmixer.h"
+#include "simu.h"
 
 #include "bStairs.h"
 

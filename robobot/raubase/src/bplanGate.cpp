@@ -102,10 +102,10 @@
     bool b_Line_HoldRight = false;
 
 
-    int wood[8]  = {199, 249, 261, 264, 300, 317, 302, 254};
+    int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
     int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-    int woodWhite = 500;
+    int woodWhite = 600;
     int blackWhite = 400;
     //Hardcoded time data
     //float f_Time_Timeout = 10.0;
@@ -140,8 +140,9 @@
           toLog("Start Open Gate");
           pose.dist = 0;
           pose.turned = 0;
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
+          sleep(1); //DONT REMOVE!!!!!!
           heading.setMaxTurnRate(3);
           mixer.setEdgeMode(b_Line_HoldRight,-0.02);
           mixer.setVelocity(0.3);
@@ -161,7 +162,7 @@
         if(pose.dist > 0.30)
         {
           toLog("30 cm after crossing, i am on black floor now");
-          medge.updateCalibBlack(black,8);
+          medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
           pose.turned = 0;
           pose.dist = 0;
@@ -195,7 +196,7 @@
 
       case 4:
         toLog(std::to_string(dist.dist[0]).c_str());
-          if(dist.dist[0] > 0.5){
+          if(dist.dist[0] > 0.3){
               pose.resetPose();
               mixer.setVelocity(0.3);
               state = 5;
@@ -242,7 +243,7 @@
 
       case 9:
       toLog(std::to_string(dist.dist[1]).c_str());
-          if(dist.dist[1] < 0.1){
+          if(dist.dist[1] < 0.08){
               pose.resetPose();
               mixer.setVelocity(0);
               mixer.setDesiredHeading(1.75);
@@ -448,7 +449,7 @@
             { 
               pose.dist = 0;
               pose.resetPose();
-              mixer.setVelocity(0.2);
+              mixer.setVelocity(0.3);
               state = 22;
             }
       break;
@@ -457,8 +458,8 @@
         if(abs(pose.dist) > 0.15)
             { 
               heading.setMaxTurnRate(3);
-              mixer.setVelocity(0.2);
-              mixer.setEdgeMode(b_Line_HoldLeft,f_Line_LeftOffset);
+              mixer.setVelocity(0.3);
+              mixer.setEdgeMode(b_Line_HoldLeft,0.01);
               state = 23;
             }
       break;
@@ -485,7 +486,7 @@
         if(abs(pose.turned) > 1.6 - 0.02)
             { 
               pose.dist = 0;
-              mixer.setVelocity(0.1);
+              mixer.setVelocity(0.2);
               state = 26;
             }
       break;
@@ -493,35 +494,43 @@
       case 26:
         if(abs(pose.dist) > 0.4)
             { 
-              mixer.setVelocity(-0.1);
+              mixer.setVelocity(-0.2);
               state = 27;
             }
       break;
-
       case 27:
         if(medge.width > f_LineWidth_Crossing)
+        {
+          mixer.setVelocity(0.2);
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 28;
+        }
+      break;
+      case 28:
+        if(abs(pose.dist) > 0.05)
             { 
               pose.resetPose();
               mixer.setVelocity(0);
               mixer.setDesiredHeading(-1.3);
-              state = 28;
-            }
-      break;
-
-      case 28:
-        if(abs(pose.turned) > 1.3 - 0.02)
-            { 
-              pose.dist = 0;
-              heading.setMaxTurnRate(3);
-              mixer.setVelocity(0.2);
-              mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
               state = 29;
             }
       break;
 
       case 29:
-      toLog(std::to_string(dist.dist[0]).c_str());
-        if((abs(pose.dist)) > 1.3 )
+        if(abs(pose.turned) > 1.3 - 0.02)
+            { 
+              pose.dist = 0;
+              heading.setMaxTurnRate(3);
+              mixer.setVelocity(0.3);
+              mixer.setEdgeMode(b_Line_HoldRight,-0.01);
+              state = 30;
+            }
+      break;
+
+      case 30:
+      // toLog(std::to_string(dist.dist[0]).c_str());
+        if((abs(pose.dist)) > 0.8 )
             { 
               mixer.setVelocity(0);
               finished = true;
@@ -566,7 +575,7 @@
     bool lost = false;
     
 
-    state = 0;
+    state = 2; /*LEFT OFF AT CROSSING FROM CROSS MISSION */
     oldstate = state;
 
 
@@ -578,17 +587,17 @@
     //float f_LineWidth_NoLine = 0.01;
     float f_LineWidth_Crossing = 0.07;
 
-    float f_Line_LeftOffset = 0;
+    float f_Line_LeftOffset = 0.02;
     float f_Line_RightOffset = 0;
     bool b_Line_HoldLeft = true;
     bool b_Line_HoldRight = false;
 
 
-    int wood[8]  = {352, 436, 468, 461, 503, 499, 460, 391};
+    int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
     int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-    int woodWhite = 550;
-    int blackWhite = 250;
+    int woodWhite = 600;
+    int blackWhite = 400;
     //Hardcoded time data
     //float f_Time_Timeout = 10.0;
 
@@ -630,10 +639,11 @@
           toLog("Start Close Gate");
           pose.dist = 0;
           pose.turned = 0;
-          medge.updateCalibBlack(wood,8);
+          medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
+          usleep(1000);//DONT REMOVE!!!!!!
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight,-0.03);
+          mixer.setEdgeMode(b_Line_HoldRight,-0.02);
           mixer.setVelocity(0.15);
           state = 1;  
       break;
@@ -653,6 +663,8 @@
           toLog("30 cm after crossing, i am on black floor now");
           medge.updateCalibBlack(black,8);
           medge.updatewhiteThreshold(blackWhite);
+          heading.setMaxTurnRate(1);
+          mixer.setVelocity(0.25);
           pose.turned = 0;
           pose.dist = 0;
           state = 3;
@@ -681,13 +693,13 @@
       case 5:
           if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
-              mixer.setVelocity(0.15);
+              mixer.setVelocity(0.25);
               state = 6;
           }
       break; 
 
       case 6:
-          if(pose.dist > 0.5){
+          if(pose.dist > 0.45){
             pose.resetPose();
             mixer.setVelocity(0);
             mixer.setDesiredHeading(-1.6);
@@ -699,20 +711,34 @@
           if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
               pose.dist = 0;
-              mixer.setVelocity(0.15);
+              mixer.setDesiredHeading(-0.1);
+              mixer.setVelocity(0.25);
               state = 8;
           }
       break; 
 
       case 8:
-        if((dist.dist[1] < 0.3) || (pose.dist > 1.3))
+        if((dist.dist[1] < 0.3))
         {
+          toLog("Found Door with IR sensor");
+          
           pose.resetPose();
+          state = 50;
+        }
+        else if((pose.dist > 1.0  )){
+          toLog("Did not see door, assume I am at the right place to close.");
+          state = 50;
+        }
+      break;
+
+      case 50:
+        if(pose.dist > 0.60)
+        {
           mixer.setVelocity(0);
           mixer.setDesiredHeading(-1.6);
           state = 9;
         }
-      break; 
+      break;
 // Fix door detection !!!! 
             /*case 19:
         if(dist.dist[1] < 0.3)
@@ -741,30 +767,44 @@
 
       case 9:
           if(abs(pose.turned) > 1.6-0.02){
+            toLog("Turned towards Door");
               pose.resetPose();
               mixer.setVelocity(0.3);
-              state = 10;
+              state = 187;
           }
       break; 
 
-      case 10: // here now
-          if(medge.width > f_LineWidth_Crossing-0.02) { 
+      case 187: // here now
+        toLog(std::to_string(medge.width).c_str());
+          if(pose.dist > 0.3 && (medge.width > f_LineWidth_Crossing-0.02))
+          { 
+            toLog("Found Line infront of door");
+            pose.resetPose();
+            mixer.setVelocity(0.2);
+            state = 10;
+          }
+      break; 
+
+     case 10: // here now
+          if(abs(pose.dist) > 0.05) { 
+            pose.resetPose();
             mixer.setVelocity(0);
             mixer.setDesiredHeading(1.6);
             state = 11;
           }
-      break; 
+      break;
 
       case 11:
         if(abs(pose.turned) > 1.6-0.02){
+              toLog("Drive Backwards into door");
               pose.resetPose();
-              mixer.setVelocity(-0.01);
+              mixer.setVelocity(-0.2);
               state = 12;
           }
       break;
 
       case 12:
-          if(abs(pose.dist) > 0.2){
+          if(abs(pose.dist) > 0.3){
               t.clear();
               pose.turned = 0;
               pose.resetPose();
@@ -778,14 +818,20 @@
         //toLog(std::to_string(t.getTimePassed()).c_str());
         if(t.getTimePassed() > 1)
         {
-          mixer.setVelocity(0.1);
+          toLog("Drive forward and follow Line");
+          pose.resetPose();
+          heading.setMaxTurnRate(3);
+          mixer.setEdgeMode(b_Line_HoldRight,-0.02);
+          mixer.setVelocity(0.2);
           state = 14;
         }
       break;
 
       case 14:
-          if(abs(pose.dist) > 0.1){
+          if(abs(pose.dist) > 0.25){
               pose.resetPose();
+              mixer.setVelocity(0.0);
+              heading.setMaxTurnRate(1);
               mixer.setDesiredHeading(-1.6);
               state = 15;
           }
@@ -794,22 +840,40 @@
       case 15:
           if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
-              mixer.setVelocity(0.1);
-              state = 16;
+              mixer.setVelocity(0.2);
+              state = 188;
           }
       break; 
+      case 188:
+        if (pose.dist > 0.45)
+        {
+          pose.resetPose();
+          mixer.setVelocity(0.0);
+          mixer.setDesiredHeading(-1.6);
+          state = 189;
+        }
+      break;        
+
+      case 189:
+        if(abs(pose.turned) > 1.6-0.02){
+          pose.resetPose();
+          mixer.setVelocity(0.3);
+          state = 16;
+        }
+      break;
 
       case 16:
         toLog(std::to_string(dist.dist[0]).c_str());
-          if(dist.dist[0] > 0.5){
+          if(dist.dist[0] > 0.3){
+              toLog("Found side of tunnel - Christian make some wall following you are good at math.");
               pose.resetPose();
-              mixer.setVelocity(0.15);
+              mixer.setVelocity(0.2);
               state = 17;
           }
       break; 
 
       case 17:
-          if(pose.dist > 0.3){
+          if(pose.dist > 1.20){
               pose.resetPose();
               pose.turned = 0;
               mixer.setVelocity(0);
@@ -823,26 +887,63 @@
           if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
               mixer.setVelocity(0.25);
-              //state = 19;
+              state = 19;
           }
       break; 
 
       case 19:
-        if(dist.dist[1] < 0.3)
+        if(medge.width > 0.08)
         {
-          //If front sensor sees door
-          pose.dist = 0;
-          state = 200;
-        }
-        else if (abs(pose.dist) > 1.3)
-        {
-          //If front sensor didn't see the door
           pose.resetPose();
-          mixer.setVelocity(0);
-          mixer.setDesiredHeading(-1.6);
-          state = 201;
+          mixer.setVelocity(0.2);
+          state = 20;
         }
-      break; 
+      break;
+
+    case 20:
+      if(abs(pose.dist) > 0.05){
+        pose.resetPose();
+        mixer.setDesiredHeading(1.6);
+        mixer.setVelocity(0.0);
+        state = 21;
+      }
+    break;
+
+    case 21:
+      if(abs(pose.turned) > 1.6-0.02){
+        pose.resetPose();  
+        mixer.setVelocity(-0.2);
+        state = 22;
+      }
+    break;
+
+    case 22:
+      if(abs(pose.dist) > 0.2){
+        toLog("Door should be closed");
+        pose.resetPose();
+        heading.setMaxTurnRate(3);
+        mixer.setVelocity(0.0);
+        mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
+        finished = true;
+      }
+    break;
+    
+      // case 19:
+      //   if(dist.dist[1] < 0.3)
+      //   {
+      //     //If front sensor sees door
+      //     pose.dist = 0;
+      //     state = 200;
+      //   }
+      //   else if (abs(pose.dist) > 1.3)
+      //   {
+      //     //If front sensor didn't see the door
+      //     pose.resetPose();
+      //     mixer.setVelocity(0);
+      //     mixer.setDesiredHeading(-1.6);
+      //     state = 201;
+      //   }
+      // break; 
 
       case 200:
         if(pose.dist > 0.3){
@@ -890,59 +991,59 @@
           }
       break;*/
 
-      case 20:
-        if(abs(pose.dist) > 0.5)
-            { 
-              mixer.setVelocity(0);
-              mixer.setDesiredHeading(1.6);
-              state = 21;
-            }
-      break;
+      // case 20:
+      //   if(abs(pose.dist) > 0.5)
+      //       { 
+      //         mixer.setVelocity(0);
+      //         mixer.setDesiredHeading(1.6);
+      //         state = 21;
+      //       }
+      // break;
 
-      case 21:
-        if(abs(pose.turned) > 1.6 - 0.02)
-            { 
-              pose.dist = 0;
-              mixer.setVelocity(0.1);
-              state = 22;
-            }
-      break;
+      // case 21:
+      //   if(abs(pose.turned) > 1.6 - 0.02)
+      //       { 
+      //         pose.dist = 0;
+      //         mixer.setVelocity(0.1);
+      //         state = 22;
+      //       }
+      // break;
 
-      case 22:
-        if(abs(pose.dist) > 0.4)
-            { 
-              mixer.setVelocity(-0.1);
-              state = 23;
-            }
-      break;
+      // case 22:
+      //   if(abs(pose.dist) > 0.4)
+      //       { 
+      //         mixer.setVelocity(-0.1);
+      //         state = 23;
+      //       }
+      // break;
 
-      case 23:
-        if(medge.width > f_LineWidth_Crossing)
-            { 
-              pose.resetPose();
-              mixer.setVelocity(0);
-              mixer.setDesiredHeading(-1.3);
-              state = 24;
-            }
-      break;
+      // case 23:
+      //   if(medge.width > f_LineWidth_Crossing)
+      //       { 
+      //         pose.resetPose();
+      //         mixer.setVelocity(0);
+      //         mixer.setDesiredHeading(-1.3);
+      //         state = 24;
+      //       }
+      // break;
 
-      case 24:
-        if(abs(pose.turned) > 1.3 - 0.02)
-            { 
-              pose.dist = 0;
-              mixer.setVelocity(0.2);
-              mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
-              state = 25;
-            }
-      break;
+      // case 24:
+      //   if(abs(pose.turned) > 1.3 - 0.02)
+      //       { 
+      //         pose.dist = 0;
+      //         mixer.setVelocity(0.2);
+      //         mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
+      //         state = 25;
+      //       }
+      // break;
 
-      case 25:
-        if(abs(pose.dist) > 0.5)
-            { 
-              mixer.setVelocity(0);
-              finished = true;
-            }
-      break;
+      // case 25:
+      //   if(abs(pose.dist) > 0.5)
+      //       { 
+      //         mixer.setVelocity(0);
+      //         finished = true;
+      //       }
+      // break;
 
         default:
           toLog("Default Mission 0");

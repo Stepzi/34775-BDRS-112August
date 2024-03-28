@@ -102,8 +102,8 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   //float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.07;
 
-  float f_Line_LeftOffset = 0;
-  float f_Line_RightOffset = 0;
+  float f_Line_LeftOffset = 0.02;
+  float f_Line_RightOffset = -0.02;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
@@ -256,7 +256,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           pose.dist = 0;
           pose.turned = 0;
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight,-0.02); 
+          mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset); 
           mixer.setVelocity(0.3);
           state = 94;
         }
@@ -282,26 +282,34 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 96:
           if(pose.dist > 0.1  && medge.width > 0.06){
             pose.resetPose();
-            mixer.setVelocity(0.0);
-            mixer.setDesiredHeading(1.57);
+            mixer.setVelocity(0.3);
             state = 97;
           }
 
       break;
 
       case 97:
+        if(pose.dist > 0.05){
+        pose.resetPose();
+        mixer.setVelocity(0.0);
+        mixer.setDesiredHeading(1.57);
+        state = 98;
+        }
+        break;
+      
+      case 98:
         if (abs(pose.turned) > 1.57 - 0.02)
         {
           pose.dist = 0;
           pose.turned = 0;
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight,-0.02);
+          mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
           mixer.setVelocity(0.15);
-          state = 98;
+          state = 99;
         }        
-
       break;
-      case 98:
+
+      case 99:
         if(pose.dist > 0.25)
         {
           heading.setMaxTurnRate(3);
@@ -317,7 +325,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if(pose.dist > 0.55)
         {
           mixer.setVelocity(0.35);
-          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+          mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
           state = 24;
         }
 
@@ -513,7 +521,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         {
           mixer.setVelocity(0.2);
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+          mixer.setEdgeMode(b_Line_HoldRight, -0.02 );
           state = 46;
         }
       break;
@@ -562,8 +570,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
        if(medge.width > f_LineWidth_Crossing) 
         { 
           pose.resetPose();
-          mixer.setDesiredHeading(0);
-          mixer.setVelocity(0.2);
+          mixer.setVelocity(0.3);
           state = 62;
         }
       break;
@@ -571,7 +578,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 62:
         if(pose.dist > 0.1)
         {
-          mixer.setEdgeMode(b_Line_HoldRight, -0.05 );
+          mixer.setEdgeMode(b_Line_HoldRight, -0.02 );
           state = 63;
         } 
       break;
@@ -587,7 +594,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
 
 
 
-      case 99: // IR dist case 
+      case 999: // IR dist case 
         float irDist0;
         float irDist1;
 
