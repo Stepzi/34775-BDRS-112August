@@ -96,10 +96,10 @@ void BRaceTrack::run()
   float acceleration = 0.01;
   int numberOfSamplesLineLost = 0;
 
-  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+  int wood[8]  = {288, 349, 358, 348, 400, 417, 386, 318};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
-  int woodWhite = 600;
+  int woodWhite = 550;
   int blackWhite = 400;
 
   medge.updateCalibBlack(black,8);
@@ -180,6 +180,11 @@ void BRaceTrack::run()
           cedge.changePID(8.0, 5.0, 0.6, 0.15, 0.0);
           mixer.setEdgeMode(false,-0.01);
           mixer.setVelocity(0.0);
+          
+          //Tilføjet af Christian - hvis den mister linjen bliver speed ikke 
+          //sat til 0 igen, som den ellers gør i case 6
+          speed = 0;
+
           pose.dist = 0;
           state = 4;
         }

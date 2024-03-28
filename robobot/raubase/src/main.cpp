@@ -77,16 +77,18 @@ int main (int argc, char **argv)
     // stairs.run();
     //
     //mission0.run();
+
     // pik og patter
-planCrossMission.run_StartToFirstCross();
-planIRTEST.run(true,false);
-axe.run();
-planCrossMission.run_AxeToTunnel();
-planGate.runOpen();
-racetrack.run();
+  /*planCrossMission.run_StartToFirstCross();
+  planIRTEST.run(true,false);
+  axe.run();
+  planCrossMission.run_AxeToTunnel();
+  planGate.runOpen();*/
+  racetrack.run();
   planCrossMission.run_RaceEndToTunnel();
   planGate.runClose();
   planCrossMission.run_TunnelToGoal();
+  planCrossMission.run_GoalToFirstCross();
   mixer.setVelocity(0.0);
   mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
