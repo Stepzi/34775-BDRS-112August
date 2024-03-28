@@ -41,6 +41,7 @@ void MEdge::setup()
   if (not ini.has("edge") or not ini["edge"].has("calibWhite"))
   { // no data yet, so generate some default values
     ini["edge"]["calibWhite"] = "1000 1000 1000 1000 1000 1000 1000 1000"; // A/D value
+    ini["edge"]["calibWood"] = "500 500 500 500 500 500 500 500"; // A/D value
     ini["edge"]["calibBlack"] = "0 0 0 0 0 0 0 0"; // A/D value
     ini["edge"]["whiteThreshold"] = "700"; // of 1000
     ini["edge"]["sensorWidth"] = "0.12"; // m
@@ -58,6 +59,12 @@ void MEdge::setup()
   {
     calibBlack[i] = strtol(p1, (char**)&p1,10);
     calibrationValid = (calibWhite[i] - calibBlack[i]) > 10;
+  }
+  // wood calibration value
+  p1 = ini["edge"]["calibWood"].c_str();
+  for (int i = 0; i < 8; i++)
+  {
+    calibWood[i] = strtol(p1, (char**)&p1,10);
   }
   if (not calibrationValid)
   {
@@ -210,6 +217,18 @@ void MEdge::findEdge()
   width = leftEdge - rightEdge;
   // finished - log/print as needed
   toLog();
+}
+
+void MEdge::updatewhiteThreshold(int newThreshold){
+  whiteThresholdPm = newThreshold;
+}
+
+void MEdge::updateCalibBlack(int newCalibBlack[], int size){
+  for(int i = 0; i < size; i++){
+    // (int)(sizeof(calibBlack) / sizeof(int))
+    calibBlack[i] = newCalibBlack[i];
+  }
+
 }
 
 void MEdge::run()

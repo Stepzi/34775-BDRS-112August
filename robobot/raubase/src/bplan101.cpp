@@ -99,29 +99,45 @@ void BPlan101::run()
     { // Test ArUco plan
       case 10:
       { // brackets to allow local variables
-        toLog("get ArUco");
-        UTime t("now");
-        int n = aruco.findAruco(0.1);
-        printf("# plan101: find ArUco took %g sec\n", t.getTimePassed());
+
+        int n = aruco.IDs.size();
+        
+        // save as local copy
+        std::vector<cv::Vec3d> pos_m = aruco.pos_m;
+        std::vector<cv::Vec3d> rot_m = aruco.rot_m;
+        std::vector<int> IDs = aruco.IDs;
+        UTime fixTime = aruco.fixTime;
+
+        const int MSL = 200;
+        char s[MSL];
+        snprintf(s, MSL, "# Last Aruco codes found: %lu.%04lu",fixTime.getSec(),fixTime.getMicrosec()/100);
+        toLog(s);
+
         for (int i = 0; i < n; i++)
-        { // convert to robot coordinates
-          cv::Vec3d pos = cam.getPositionInRobotCoordinates(aruco.arTranslate[i]);
-          // rotation
-          cv::Vec3f re = cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true);
+        { 
           if (logfile != nullptr or toConsole)
           {
             const int MSL = 200;
             char s[MSL];
-            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, aruco.arCode[i], pos[0], pos[1], pos[2]);
+            snprintf(s, MSL, "# ArUco (%d, %d) in robot coordinates (x,y,z) = (%g %g %g)", i, IDs[i], pos_m[i][0], pos_m[i][1], pos_m[i][2]);
             toLog(s);
-            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", re[0], re[1], re[2]);
+            snprintf(s, MSL, "# Aruco angles in robot coordinates (roll = %.1f deg, pitch = %.1f deg, yaw = %.1f deg)", rot_m[i][0], rot_m[i][1], rot_m[i][2]);
             toLog(s);
           }
         }
+        if (n == 0 and (logfile != nullptr or toConsole))        {
+
+          const int MSL = 200;
+          char s[MSL];
+          snprintf(s, MSL, "# No Aruco code found yet");
+          toLog(s);
+
+          
+        }
         count++;
         // repeat 4 times (to get some statistics)
-        if (count > 3)
-          finished = true;
+        // if (count > 3)
+        //   finished = true;
         break;
       }
       default:
@@ -137,7 +153,7 @@ void BPlan101::run()
       t.now();
     }
     // wait a bit to offload CPU
-    usleep(2000);
+    usleep(1000000); //Sleep increased
   }
   if (lost)
   { // there may be better options, but for now - stop

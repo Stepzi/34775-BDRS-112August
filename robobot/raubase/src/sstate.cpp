@@ -112,7 +112,10 @@ bool SState::decode(const char* msg, UTime & msgTime)
     }
     batteryVoltage = strtof(p1, (char**)&p1); // y
     controlState = strtol(p1, (char**)&p1, 10); // control state 0=no control, 2=user mission
+    //
     type = strtol(p1, (char**)&p1, 10); // hardware type
+    ini["teensy"]["hardware"] = to_string(type);
+    //
     load = strtol(p1, (char**)&p1, 10); // Teensy load in %
     motorEnabled[0] = strtol(p1, (char**)&p1, 10); // motor 1
     motorEnabled[1] = strtol(p1, (char**)&p1, 10); // motor 2

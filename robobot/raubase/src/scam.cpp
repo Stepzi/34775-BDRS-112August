@@ -117,45 +117,45 @@ void UCam::setup()
     // prepare to open camera
     int apiID = cv::CAP_V4L2;  //cv::CAP_ANY;  // 0 = autodetect default API
     // open selected camera using selected API
-    cam.open(device, apiID);
+    cap.open(device, apiID);
     // check if we succeeded
     //
-    if (not cam.isOpened())
+    if (not cap.isOpened())
     {
       printf("# UCam - camera could not open\n");
     }
     else
     {
       uint32_t fourcc = cv::VideoWriter::fourcc('M','J','P','G');
-      cam.set(cv::CAP_PROP_FOURCC, fourcc);
+      cap.set(cv::CAP_PROP_FOURCC, fourcc);
       // possible resolutions in JPEG coding
       // (rows x columns) 320x640 or 720x1280
       int w = strtol(ini["camera"]["width"].c_str(), nullptr, 0);
       int h = strtol(ini["camera"]["height"].c_str(), nullptr, 0);
       toLog("Width", ini["camera"]["width"].c_str());
       toLog("Width", ini["camera"]["height"].c_str());
-      cam.set(cv::CAP_PROP_FRAME_HEIGHT, h);
-      cam.set(cv::CAP_PROP_FRAME_WIDTH, w);
+      cap.set(cv::CAP_PROP_FRAME_HEIGHT, h);
+      cap.set(cv::CAP_PROP_FRAME_WIDTH, w);
       int fps = strtol(ini["camera"]["fps"].c_str(), nullptr, 0);
-      cam.set(cv::CAP_PROP_FPS, fps);
+      cap.set(cv::CAP_PROP_FPS, fps);
       union FourChar
       {
         uint32_t cc4;
         char ccc[4];
       } fmt;
-      fmt.cc4 = cam.get(cv::CAP_PROP_FOURCC);
+      fmt.cc4 = cap.get(cv::CAP_PROP_FOURCC);
       const int MSL = 200;
       char s[MSL];
       snprintf(s, MSL, "# Video device %d: width=%g, height=%g, format=%c%c%c%c, FPS=%g",
              device,
-             cam.get(cv::CAP_PROP_FRAME_WIDTH),
-             cam.get(cv::CAP_PROP_FRAME_HEIGHT),
+             cap.get(cv::CAP_PROP_FRAME_WIDTH),
+             cap.get(cv::CAP_PROP_FRAME_HEIGHT),
              fmt.ccc[0], fmt.ccc[1], fmt.ccc[2], fmt.ccc[3],
-             cam.get(cv::CAP_PROP_FPS));
+             cap.get(cv::CAP_PROP_FPS));
       printf("%s\n", s);
       toLog(s);
     }
-    if (cam.isOpened())
+    if (cap.isOpened())
       // start capturing images
       th1 = new std::thread(runObj, this);
   }
@@ -188,10 +188,10 @@ void UCam::run()
   { // wait for reply
     if (getNewFrame and not gotFrame and frameCnt > 10)
     {
-      cam.read(frame);
+      cap.read(frame);
       if (not frame.empty())
       {
-        printf("# UCam::run: read frame %d/%d\n", gotFrameCnt, frameCnt);
+        //printf("# UCam::run: read frame %d/%d\n", gotFrameCnt, frameCnt);
         gotFrameCnt++;
         imgTime.now();
         getNewFrame = false;
@@ -200,21 +200,19 @@ void UCam::run()
     }
     else
     { // just mark as used to keep the buffer empty
-      cam.grab();
+      cap.grab();
     }
     frameCnt++;
-//    if (frameCnt % 100 == 3)
-//      printf("# cam got frame %d/%d\n", gotFrameCnt, frameCnt);
   }
   th1 = nullptr;
-  cam.release();
+  cap.release();
   printf("# UCam::run: camera released\n");
 }
 
 
 cv::Mat UCam::getFrameRaw()
 { // request new frame
-  if (not cam.isOpened())
+  if (not cap.isOpened())
   {
     printf("# camera not open\n");
     return frame;
@@ -240,7 +238,7 @@ cv::Mat UCam::getFrameRaw()
 
 bool UCam::saveImage()
 {
-  if (not cam.isOpened())
+  if (not cap.isOpened())
   {
     printf("# camera not open\n");
     return false;
@@ -352,6 +350,15 @@ bool UCam::calibrate()
       // Displaying the detected corner points on the checker board
       cv::drawChessboardCorners(frame, cv::Size(CHECKERBOARD[0],CHECKERBOARD[1]), corner_pts,success);
 
+      const int MSL = 500;
+      char sfn[MSL];
+      const char * sfn_ptr = sfn;
+      char s[MSL];
+      // Save draw chessboard corners
+      snprintf(s, MSL, "%s/img_chessboardCorners_%s_%d.jpg", ini["camera"]["imagepath"].c_str(), sfn_ptr,i);
+      // save
+      cv::imwrite(s, frame);
+
       objpoints.push_back(objp);
       imgpoints.push_back(corner_pts);
       printf("# %2d succes    %s\n", j++, images[i].c_str());
@@ -376,6 +383,7 @@ bool UCam::calibrate()
       * and corresponding pixel coordinates of the
       * detected corners (imgpoints)
       */
+    //std::cout << objpoints[0] << endl;
     cv::calibrateCamera(objpoints, imgpoints,cv::Size(gray.rows,gray.cols),cameraMatrix,distCoeffs,rvecs,tvecs);
     // show results
     for (int i = 0; i < cameraMatrix.rows; i++)

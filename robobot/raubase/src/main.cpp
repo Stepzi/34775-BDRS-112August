@@ -36,8 +36,23 @@
 #include "bplan40.h"
 #include "bplan100.h"
 #include "bplan101.h"
-//#include "bmission0.h"
+#include "bStairs.h"
+#include "bmission0.h"
+#include "bracetrack.h"
+#include "baxe.h"
+#include "cservo.h"
 #include "bseesaw.h"
+#include "bplanCrossMission.h"
+#include "bplanIRTEST.h"
+#include "bplanGate.h"
+
+int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+int woodWhite = 600;
+int blackWhite = 400;
+//#include "bmission0.h"
+
 
 
 int main (int argc, char **argv)
@@ -48,6 +63,7 @@ int main (int argc, char **argv)
   if (not service.theEnd)
   { // all set to go
     // turn on LED on port 16
+    servo.setServo(1, 1, -900, 200);
     gpio.setPin(16, 1);
     // run the planned missions
     //mission0.run();
@@ -57,15 +73,33 @@ int main (int argc, char **argv)
     //plan40.run();
     //planMission0.run();
     //plan100.run();
-    // plan101.run();
+    //plan101.run();
+    //golfballtest.run();
+    // stairs.run();
     //
-    mixer.setVelocity(0.0);
-    mixer.setTurnrate(0.0);
+    //mission0.run();
+
+    // pik og patter
+  /*planCrossMission.run_StartToFirstCross();
+  planIRTEST.run(true,false);
+  axe.run();
+  planCrossMission.run_AxeToTunnel();
+  planGate.runOpen();*/
+  racetrack.run();
+  planCrossMission.run_RaceEndToTunnel();
+  planGate.runClose();
+  planCrossMission.run_TunnelToGoal();
+  planCrossMission.run_GoalToFirstCross();
+  mixer.setVelocity(0.0);
+  mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
     // turn off led 16
+    
     gpio.setPin(16, 0);
+
   }
   // close all logfiles etc.
+  servo.setServo(1, 0);
   service.terminate();
   return service.theEnd;
 }
