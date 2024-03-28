@@ -48,6 +48,8 @@ public:
   void run_AxeToRace();
 
   void run_RaceEndToTunnel();
+
+  void run_TunnelToGoal();
   /**
    * terminate */
   void terminate();

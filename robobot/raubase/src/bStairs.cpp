@@ -36,6 +36,7 @@
 #include "medge.h"
 #include "cedge.h"
 #include "cmixer.h"
+#include "simu.h"
 
 #include "bStairs.h"
 
@@ -173,12 +174,12 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         }
         break;
       case 6:
-        std::cout << abs(imu.acc[2]) << std:endl;
+        std::cout << abs(imu.acc[2]) << std::endl;
         if(pose.dist > 0.3 /*|| abs(imu.acc[2]) > 100*/)
         { 
           toLog("Down Step, drive Back");
           
-          step++;
+          steps++;
           mixer.setVelocity(f_Velocity_DriveBack);
           state = 7;
           t.clear();
@@ -188,7 +189,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         if(t.getTimePassed() > 1){
           toLog("Backed up against step");
           mixer.setVelocity(0.0);
-          if(step < 5){
+          if(steps < 5){
             state = 5;
           }
           else{
@@ -261,7 +262,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
 
       case 14:
         toLog("FINISHED: detected first intersection after staircase");      
-        if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
+        if(medge.edgeValid && (medge.width > f_LineWidth_Crossing)){
           finished = true;
         }
         break;

@@ -46,6 +46,12 @@
 #include "bplanIRTEST.h"
 #include "bplanGate.h"
 
+int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+int woodWhite = 600;
+int blackWhite = 400;
+
 int main (int argc, char **argv)
 { // prepare all modules and start data flow
   // but also handle command-line options
@@ -72,18 +78,17 @@ int main (int argc, char **argv)
     //
     //mission0.run();
     // pik og patter
-    //planCrossMission.run_StartToFirstCross();
-    //planIRTEST.run(true,false);
-    //axe.run();
-    //planCrossMission.run_AxeToRace();
-    //planCrossMission.run_AxeToTunnel();
-    //planGate.runOpen();
-    //racetrack.run();
-    //planCrossMission.run_RaceEndToTunnel();
-    planGate.runClose();
-
-    mixer.setVelocity(0.0);
-    mixer.setTurnrate(0.0);
+planCrossMission.run_StartToFirstCross();
+planIRTEST.run(true,false);
+axe.run();
+planCrossMission.run_AxeToTunnel();
+planGate.runOpen();
+racetrack.run();
+  planCrossMission.run_RaceEndToTunnel();
+  planGate.runClose();
+  planCrossMission.run_TunnelToGoal();
+  mixer.setVelocity(0.0);
+  mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
     // turn off led 16
     

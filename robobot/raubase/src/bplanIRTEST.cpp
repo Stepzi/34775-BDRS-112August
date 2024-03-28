@@ -102,8 +102,8 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   //float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.07;
 
-  float f_Line_LeftOffset = 0;
-  float f_Line_RightOffset = 0;
+  float f_Line_LeftOffset = 0.02;
+  float f_Line_RightOffset = -0.02;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
@@ -156,7 +156,6 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           pose.dist=0;   
           mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset );
           toLog("Ready to enter the roundabout from the start-side");
-          
           mixer.setVelocity(0);
           pose.resetPose();
           heading.setMaxTurnRate(1.0);
@@ -257,7 +256,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           pose.dist = 0;
           pose.turned = 0;
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight,-0.02); 
+          mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset); 
           mixer.setVelocity(0.3);
           state = 94;
         }
@@ -304,7 +303,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           pose.dist = 0;
           pose.turned = 0;
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight,-0.03);
+          mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
           mixer.setVelocity(0.15);
           state = 99;
         }        
@@ -315,7 +314,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         {
           heading.setMaxTurnRate(3);
           mixer.setVelocity(0.30);
-          mixer.setEdgeMode(b_Line_HoldLeft, 0.01 );
+          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset );
           pose.dist = 0;
           state = 23;
         }
@@ -326,7 +325,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if(pose.dist > 0.55)
         {
           mixer.setVelocity(0.35);
-          mixer.setEdgeMode(b_Line_HoldRight, f_Line_RightOffset );
+          mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
           state = 24;
         }
 

@@ -91,7 +91,7 @@ void BPlanCrossMission::run_StartToFirstCross()
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.09;
 
-  float f_Line_LeftOffset = 0.03;
+  float f_Line_LeftOffset = 0.02;
   //float f_Line_RightOffset = -0.03;
   bool b_Line_HoldLeft = true;
   //bool b_Line_HoldRight = false;
@@ -396,7 +396,7 @@ void BPlanCrossMission::run_AxeToTunnel()
       case 2:
         if(pose.turned > 0.78) 
         { 
-          mixer.setVelocity(0.2);
+          mixer.setVelocity(0.3);
           mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
           pose.dist = 0;
           state = 3;
@@ -404,7 +404,7 @@ void BPlanCrossMission::run_AxeToTunnel()
       break;
 
       case 3:
-          mixer.setVelocity(0.2);
+          mixer.setVelocity(0.3);
           heading.setMaxTurnRate(3);
           medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
@@ -427,7 +427,7 @@ void BPlanCrossMission::run_AxeToTunnel()
         if(abs(pose.turned) > 1.2-0.02) //We should be on a line 
         {
           pose.dist = 0;
-          mixer.setVelocity(0.1);
+          mixer.setVelocity(0.3);
           heading.setMaxTurnRate(3);
           mixer.setEdgeMode(b_Line_HoldRight, f_Line_LeftOffset);
           state = 6;
@@ -435,7 +435,7 @@ void BPlanCrossMission::run_AxeToTunnel()
       break;
 
       case 6:
-        if(abs(pose.dist) > 0.7) //We should be on a line 
+        if(abs(pose.dist) > 0.3) //We should be on a line 
         {
           mixer.setVelocity(0);
           pose.resetPose();
@@ -673,7 +673,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
   UTime t("now");
   bool finished = false;
   bool lost = false;
-  state = 1;
+  state = 0;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -681,7 +681,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
   //Hardcoded Line data
   float f_LineWidth_MinThreshold = 0.02;
   float f_LineWidth_NoLine = 0.01;
-  float f_LineWidth_Crossing = 0.09;
+  float f_LineWidth_Crossing = 0.07;
   
   int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
@@ -701,7 +701,6 @@ void BPlanCrossMission::run_RaceEndToTunnel()
   float f_Velocity_DriveForward = 0.3; 
   float f_Velocity_DriveBackwards = -0.15; 
   float f_Distance_FirstCrossMissed = 10;
- 
   //
   toLog("Plan go back to tunnel - started");
   //
@@ -714,6 +713,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
           toLog("Start Race End to Tunnel");
           medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);
+          sleep(1);
           state = 1;  
       break;
       //Case 1 - Starting with error handling if no line found
@@ -732,7 +732,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
         { 
           mixer.setVelocity(0.2);
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
+          mixer.setEdgeMode(b_Line_HoldRight, -0.02);
           pose.dist = 0;
           state = 3;
         }
@@ -741,7 +741,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
       case 3:
         if(pose.dist > 0.5) //We should be on a line 
         {
-          mixer.setVelocity(0.4);
+          mixer.setVelocity(0.35);
           state = 4;
         }
       break;
@@ -749,6 +749,8 @@ void BPlanCrossMission::run_RaceEndToTunnel()
       case 4:
         if(medge.width > f_LineWidth_Crossing) //We should be on a line 
         {
+          pose.dist = 0; //DONT REMOVE, DIST USED FROM STATE 2 IN CLOSE GATE
+          pose.turned = 0;
           finished = true;
         }
       break;
@@ -758,6 +760,160 @@ void BPlanCrossMission::run_RaceEndToTunnel()
         lost = true;
       break;
     }
+    if (state != oldstate)
+    { // C-type string print
+      snprintf(s, MSL, "State change from %d to %d", oldstate, state);
+      toLog(s);
+      oldstate = state;
+      t.now();
+    }
+    // wait a bit to offload CPU (4000 = 4ms)
+    usleep(4000);
+  }
+  if (lost)
+  { // there may be better options, but for now - stop
+    toLog("PlanCrossMission got lost - stopping");
+    mixer.setVelocity(0);
+    mixer.setTurnrate(0);
+  }
+  else
+    toLog("PlanCrossMission finished");
+}
+
+
+
+void BPlanCrossMission::run_TunnelToGoal()
+{
+  if (not setupDone)
+    setup();
+  if (ini["PlanCrossMission"]["run"] == "false")
+    return;
+  UTime t("now");
+  bool finished = false;
+  bool lost = false;
+  state = 0;
+  oldstate = state;
+  const int MSL = 100;
+  char s[MSL];
+  
+  //Hardcoded Line data
+  float f_LineWidth_MinThreshold = 0.02;
+  float f_LineWidth_NoLine = 0.01;
+  float f_LineWidth_Crossing = 0.07;
+  
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+  int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+  int woodWhite = 600;
+  int blackWhite = 350;
+
+  float f_Line_LeftOffset = 0.02;
+  float f_Line_RightOffset = 0;
+  bool b_Line_HoldLeft = true;
+  bool b_Line_HoldRight = false;
+
+  //Hardcoded time data
+  float f_Time_Timeout = 10.0;
+  int noLine = 0;
+  //Postion and velocity data
+  float f_Velocity_DriveForward = 0.3; 
+  float f_Velocity_DriveBackwards = -0.15; 
+  float f_Distance_FirstCrossMissed = 10;
+ 
+  medge.updateCalibBlack(medge.calibWood,8);
+  medge.updatewhiteThreshold(woodWhite);
+  sleep(1);
+
+  //
+  toLog("Plan go back to goal from tunnel - started");
+  //
+  while (not finished and not lost and not service.stop)
+  {
+    switch (state)
+    {
+
+      case 0:
+          toLog("Start Race End to Tunnel");
+          state = 1;  
+      break;
+      //Case 1 - Starting with error handling if no line found
+      case 1: // Start Position, assume we are on a line but verify
+        pose.dist = 0;
+        pose.turned = 0;
+        mixer.setVelocity(0.3);
+        heading.setMaxTurnRate(3);
+        mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
+        state = 2;
+        break;
+
+      //Case 2 - first crossing on the track
+      case 2:
+        if(medge.width > 0.05) 
+        { 
+          toLog("Found first crossing");
+          mixer.setVelocity(0.3);
+          pose.dist = 0;
+          state = 10;
+
+        }
+      break;
+
+      case 10:
+        if(pose.dist > 1.0)
+        {
+          pose.dist = 0.0;
+          pose.turned = 0.0;
+          mixer.setVelocity(0.25);
+          mixer.setEdgeMode(f_Line_RightOffset,0);
+          state = 3;
+        }
+      break;
+
+      case 3:
+        if(!medge.edgeValid && medge.width < 0.02) //We should be on a line 
+        {
+          toLog("Lost Line assume I am between goal and racetrack End");
+          mixer.setVelocity(0.2);
+          state = 4;
+        }
+      break;
+
+      case 4:
+        if(medge.edgeValid && medge.width > 0.09)
+        {
+          toLog("Found Line in frong of Goal");
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 5;
+        }
+      break;
+
+      case 5:
+        if(abs(pose.dist) > 0.05) //We should be on a line 
+        {
+          pose.resetPose();
+          heading.setMaxTurnRate(1);
+          mixer.setVelocity(0.0);
+          mixer.setDesiredHeading(-1.57);
+          state = 6;
+        }
+      break;
+
+      case 6:
+        if(abs(pose.turned) > 1.57 - 0.02)
+        {
+          heading.setMaxTurnRate(3);
+          toLog("In front of goal");
+          finished = true;
+        }
+      break;
+
+      default:
+        toLog("Default Start to Cross");
+        lost = true;
+      break;
+    }
+    
     if (state != oldstate)
     { // C-type string print
       snprintf(s, MSL, "State change from %d to %d", oldstate, state);
