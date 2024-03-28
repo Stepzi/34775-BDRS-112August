@@ -1,7 +1,0 @@
-% Mission racetrack logfile
-% 1 	Time (sec)
-% 2 	Mission state
-% 3 	% Mission status (mostly for debug)
-1709309279.5840 1 % racetrack started
-1709309284.5874 1 % Never found Line
-1709309284.5915 1 % racetrack got lost - stopping

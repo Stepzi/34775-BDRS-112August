@@ -352,6 +352,7 @@ void BPlanCrossMission::run_AxeToTunnel()
 
   // Untested But reads calibration values from medge module
   
+  // wood = medge.calibWood;
   // black = medge.calibBlack;
   
   int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};

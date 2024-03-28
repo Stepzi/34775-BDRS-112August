@@ -1,8 +1,0 @@
-% Mission racetrack logfile
-% 1 	Time (sec)
-% 2 	Mission state
-% 3 	% Mission status (mostly for debug)
-1709308746.5749 1 % racetrack started
-1709308746.5750 1 % Started on Line
-1709308746.5750 1 % Follow Line with velocity 0.2
-1709308746.5750 1 % State change from 1 to 2
