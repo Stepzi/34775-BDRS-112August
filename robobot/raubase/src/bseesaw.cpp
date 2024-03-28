@@ -49,7 +49,7 @@ float normalSpeed        =  0.3;    //speed under normal conditions
 float lineWidth          =  0.02;   //width to determine if we are on the line
 float lineGone           =  0.01;   //width to determine if the line was lost
 float lineOffset         =  0;      //offset for line edge detection
-float intersectionWidth  =  0.06;   //used to detect intersections
+float intersectionWidth  =  0.1;   //used to detect intersections
 
 //seesaw variables
 float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
@@ -103,7 +103,7 @@ void BSeesaw::run()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 9;
+  state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -117,27 +117,28 @@ void BSeesaw::run()
     switch (state)
     {  
       case 1: // Start Position, assume we are on a line but verify.
-        if(medge.width > lineWidth) //We should be on a line 
+      toLog(const_cast<char*>((std::to_string(medge.width)).c_str()));
+      // std::cout << medge.width << std::endl;
+        if(medge.edgeValid && (medge.width > intersectionWidth)) //We should be on a line 
+        {
+            mixer.setEdgeMode(leftEdge, lineOffset);
+            toLog("found intersection");
+            mixer.setVelocity(0.07);
+            pose.dist = 0;
+            state = 3;
+        }
+        else if(medge.edgeValid && (medge.width > lineWidth))
         {
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.1");
           mixer.setEdgeMode(leftEdge, lineOffset);
           mixer.setVelocity(0.1);
-          state = 2;
-        }
-        else if(medge.width < lineGone)
-        {
-          pose.resetPose();
-          toLog("No Line");
-          mixer.setVelocity(0.0);//Drive slowly and turn in a circle
-          mixer.setTurnrate(0.2);
-        }
-        else if(t.getTimePassed() > 10)
-        {
-          toLog("Never found Line");
+          // state = 2;
+        }else{
           lost = true;
         }
+       
       break;
 
       case 2:
