@@ -42,27 +42,6 @@
 #include <iostream>
 #include "simu.h"
 
-bool leftEdge  = true;
-bool rightEdge = false;
-
-float normalSpeed        =  0.3;    //speed under normal conditions
-float lineWidth          =  0.02;   //width to determine if we are on the line
-float lineGone           =  0.01;   //width to determine if the line was lost
-float lineOffset         =  0;      //offset for line edge detection
-float intersectionWidth  =  0.1;   //used to detect intersections
-
-//seesaw variables
-float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
-float edgeToSeesaw       =  0.84;   //seesaw - distance from the edge to the tilting point
-float edgeWidth          =  0.098;  //seesaw - distance to assume the robot went down the step
-
-//ramp variables
-float rampUpDistance     = 2;       //distance from getting back on line to the start of the turn on the plateu
-float rampUpToHole       = 0.3;     //distance from the start of the turn to the golf ball hole
-
-float speed              = 0;
-float maxSpeed           = 0.5;
-
 // create class object
 BSeesaw seesaw;
 
@@ -109,6 +88,29 @@ void BSeesaw::run()
   char s[MSL];
 
   float waitTime;
+  bool leftEdge  = true;
+  bool rightEdge = false;
+
+  float normalSpeed        =  0.3;    //speed under normal conditions
+  float lineWidth          =  0.02;   //width to determine if we are on the line
+  float lineGone           =  0.01;   //width to determine if the line was lost
+  float lineOffset         =  0.03;      //offset for line edge detection
+  float intersectionWidth  =  0.1;   //used to detect intersections
+
+  //seesaw variables
+  float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
+  float edgeToSeesaw       =  0.84;   //seesaw - distance from the edge to the tilting point
+  float edgeWidth          =  1.098;  //seesaw - distance to assume the robot went down the step
+
+  //ramp variables
+  float rampUpDistance     = 2;       //distance from getting back on line to the start of the turn on the plateu
+  float rampUpToHole       = 0.3;     //distance from the start of the turn to the golf ball hole
+
+  float speed              = 0;
+  float maxSpeed           = 0.5;
+
+  int woodWhite = 600;
+  int blackWhite = 350;
   
   toLog("seesaw started");
   
@@ -117,67 +119,91 @@ void BSeesaw::run()
     switch (state)
     {  
       case 1: // Start Position, assume we are on a line but verify.
-      toLog(const_cast<char*>((std::to_string(medge.width)).c_str()));
+      servo.setServo(2, true, -900, 500);
+      medge.updateCalibBlack(medge.calibBlack,8);
+      medge.updatewhiteThreshold(blackWhite);
+      heading.setMaxTurnRate(3);
+      usleep(1000);
+
+      mixer.setEdgeMode(leftEdge, lineOffset);
+
+      // toLog(const_cast<char*>((std::to_string(medge.width)).c_str()));
       // std::cout << medge.width << std::endl;
-        if(medge.edgeValid && (medge.width > intersectionWidth)) //We should be on a line 
-        {
-            mixer.setEdgeMode(leftEdge, lineOffset);
-            toLog("found intersection");
-            mixer.setVelocity(0.07);
-            pose.dist = 0;
-            state = 3;
-        }
-        else if(medge.edgeValid && (medge.width > lineWidth))
-        {
-          pose.resetPose();
-          toLog("Started on Line");
-          toLog("Follow Line with velocity 0.1");
+      if(medge.edgeValid && (medge.width > intersectionWidth)) //We should be on a line 
+      {
           mixer.setEdgeMode(leftEdge, lineOffset);
-          mixer.setVelocity(0.1);
-          // state = 2;
-        }else{
-          lost = true;
-        }
+          toLog("found intersection");
+          mixer.setVelocity(0.07);
+          pose.dist = 0;
+          servo.setServo(2, true, 350, 700);
+          state = 3;
+      }
+      else if(medge.edgeValid && (medge.width > lineWidth))
+      {
+        // pose.resetPose();
+        toLog("Follow Line with velocity 0.1");
+        // mixer.setEdgeMode(leftEdge, lineOffset);
+        mixer.setVelocity(0.1);
+        // state = 2;
+      }else{
+        lost = true;
+      }
        
       break;
 
       case 2:
         if (medge.width > intersectionWidth)
           {
-            mixer.setEdgeMode(leftEdge, lineOffset);
+            mixer.setEdgeMode(leftEdge, 0.05);
             toLog("found intersection");
             mixer.setVelocity(0.07);
             pose.dist = 0;
+            
             state = 3;
           }
           else
           {    
-            mixer.setVelocity(normalSpeed);
+            mixer.setVelocity(0.1);
           }
       break;
 
       case 3:
+      {
+        
+
         if (pose.dist > intersectionToEdge)
         {
           mixer.setEdgeMode(leftEdge, lineOffset);
-          toLog("robot on the edge");
-          mixer.setVelocity(0.02);
+
+          mixer.setVelocity(0.2);
           pose.dist = 0;
           state = 4;
+          
         }
-      break;
+
+        break;
+      }
 
       case 4:
-        if (pose.dist > edgeWidth)
-          {
-            //toLog(const_cast<char*>((std::to_string(pose.dist)).c_str()));
-            toLog("coming to the tilting point");
-            mixer.setEdgeMode(leftEdge, lineOffset);
-            mixer.setVelocity(0.1);
-            pose.dist = 0;
-            state = 5;
-          }
-      break;
+      {
+        float accel = imu.acc[2];
+
+        if (pose.dist > edgeWidth  || (accel < -1.4) )
+        {
+          const int MSL = 100;
+          char s[MSL];
+          snprintf(s, MSL, "detected shock: %f \n", accel);
+          toLog(s);
+          servo.setServo(2, true, -900, 500);
+          //toLog(const_cast<char*>((std::to_string(pose.dist)).c_str()));
+          // toLog("coming to the tilting point");
+          mixer.setEdgeMode(leftEdge, lineOffset);
+          mixer.setVelocity(0.1);
+          pose.dist = 0;
+          state = 5;
+        }
+        break;
+      }
 
       case 5:
         if (pose.dist > edgeToSeesaw)
@@ -191,7 +217,7 @@ void BSeesaw::run()
       break;
       
       case 6:
-        //servo.setServo(1, 1, -500, 200);
+        //servo.setServo(2, 1, -500, 200);
         
         waitTime = t.getTimePassed();
         if (waitTime>3){
@@ -228,6 +254,7 @@ void BSeesaw::run()
           pose.resetPose();
           toLog("No Line");
           mixer.setVelocity(0.1);
+          mixer.setEdgeMode(rightEdge, lineOffset);
           state = 10;
         }
       break;
@@ -236,25 +263,25 @@ void BSeesaw::run()
         if(medge.width > lineWidth)
         {
           mixer.setVelocity(0.03);          
-          pose.turned = 0;
-          state = 11;
+          // pose.turned = 0;
+          state = 12;
         }
       break;
 
       case 11:
         mixer.setTurnrate(-0.5);
-        if (pose.turned < -1.3)
+        if (pose.turned < -1.3) //also add check for line width (medge.width > line width)
         {
           mixer.setEdgeMode(leftEdge, lineOffset);
           toLog("back on the line");
-          mixer.setVelocity(0.5);
+          mixer.setVelocity(normalSpeed);
           pose.dist = 0;
           state = 12;
         }
       break;
 
       case 12:
-
+        mixer.setVelocity(normalSpeed);
         if (medge.width > intersectionWidth)
           {
             toLog("found intersection - going straight");
@@ -340,7 +367,7 @@ void BSeesaw::run()
       break;
 
       case 18:
-        //servo.setServo(1, 1, 500, 200);
+        //servo.setServo(2, 1, 500, 200);
 
         waitTime = t.getTimePassed(); 
           if (waitTime > 3)
@@ -368,12 +395,10 @@ void BSeesaw::run()
 
       //test cases
 
-      case 100:
-      mixer.setVelocity(0);
-        pose.dist = 0;
-        pose.turned = 0;        
-        state = 101;
-      break;
+      case 99:
+        std::cout << servo.servo_position[1] << std::endl;
+        servo.setServo(2,true,-0,100);
+        break;
       case 101:
         toLog(const_cast<char*>((std::to_string(pose.turned)).c_str()));
         mixer.setTurnrate(-0.5);
@@ -415,6 +440,8 @@ void BSeesaw::run()
   }
   else
     toLog("seesaw finished");
+
+  
 }
 
 void BSeesaw::terminate()
@@ -422,6 +449,8 @@ void BSeesaw::terminate()
   if (logfile != nullptr)
     fclose(logfile);
   logfile = nullptr;
+  
+  // servo.setServo(2,0);
 }
 
 void BSeesaw::toLog(const char* message)

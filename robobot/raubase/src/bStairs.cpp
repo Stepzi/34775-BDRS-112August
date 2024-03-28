@@ -65,7 +65,7 @@ void BStairs::setup()
     fprintf(logfile, "%% 3 \t%% Mission status (mostly for debug)\n");
   }
 
-  servo.setServo(1, 1, -900, 200);
+  servo.setServo(2, 1, -900, 200);
   
   setupDone = true;
 }
@@ -163,7 +163,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         if(pose.dist > 0.6){
           toLog("Reached start of Stairs, put down servo");
           mixer.setVelocity( 0.0 );
-          servo.setServo(1, 1, servoDown, servoSpeed);
+          servo.setServo(2, 1, servoDown, servoSpeed);
           t.clear();
           state = 5;
           // finished = true;
@@ -302,7 +302,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   else
     toLog("Plan Stairs finished");
 
-  // servo.setServo(1,0);
+  // servo.setServo(2,0);
 }
 
 
