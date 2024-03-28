@@ -107,6 +107,10 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   int steps = 0;
   oldstate = state;
 
+  
+  int woodWhite = 550;
+  int blackWhite = 350;
+
   //
   toLog("Plan Stairs started");
   //
@@ -167,28 +171,34 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
       case 5:
         if(t.getTimePassed() > 2 || abs(servo.servo_position[1]- servoDown) <= 10){
           toLog("Servo Is Down, drive forward");
+          mixer.setEdgeMode(b_Line_HoldLeft, 0);
           mixer.setVelocity(f_Velocity_DriveSlow);
           pose.dist = 0;
           state = 6; 
         }
         break;
       case 6:
-        std::cout << abs(imu.acc[2]) << std:endl;
+        std::cout << abs(imu.acc[2]) << std::endl;
         if(pose.dist > 0.3 /*|| abs(imu.acc[2]) > 100*/)
         { 
-          toLog("Down Step, drive Back");
-          
-          step++;
+          toLog("Down Step, drive Back");          
+          steps++;
+          pose.resetPose();
           mixer.setVelocity(f_Velocity_DriveBack);
           state = 7;
           t.clear();
+          if(steps == 3){
+            toLog("change calibration to wood");
+            medge.updateCalibBlack(medge.calibWood,8);
+            medge.updatewhiteThreshold(woodWhite);
+          }
         }        
         break;
       case 7:
         if(t.getTimePassed() > 1){
           toLog("Backed up against step");
           mixer.setVelocity(0.0);
-          if(step < 5){
+          if(steps < 5){
             state = 5;
           }
           else{
@@ -225,7 +235,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
             toLog("drive slowly backward");
             pose.dist = 0;
             pose.turned = 0;
-            mixer.setVelocity(-f_Velocity_DriveSlow);
+            mixer.setVelocity(f_Velocity_DriveBack);
             t.clear();
             state = 12;
         }
@@ -261,7 +271,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
 
       case 14:
         toLog("FINISHED: detected first intersection after staircase");      
-        if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
+        if(medge.edgeValid && (medge.width > f_LineWidth_Crossing)){
           finished = true;
         }
         break;
