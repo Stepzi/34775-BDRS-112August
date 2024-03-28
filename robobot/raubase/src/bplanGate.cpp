@@ -120,7 +120,7 @@
     float wall_1 = 0;
     float wall_2 = 0;
     int wall_sum_cnt = 10;
-    float wall_drive_dist = 0.1;
+    float wall_drive_dist = 0.2;
     float correctionAngle = 0;
 
     float speed = 0;
@@ -224,7 +224,7 @@
       break; 
 
       case 7:
-          if(pose.dist > 0.5){
+          if(pose.dist > 0.65){
               mixer.setVelocity(0);
               pose.resetPose();
               pose.turned = 0;
@@ -243,16 +243,16 @@
 
       case 9:
       toLog(std::to_string(dist.dist[1]).c_str());
-          if(dist.dist[1] < 0.08){
+          if(dist.dist[1] < 0.1){
               pose.resetPose();
               mixer.setVelocity(0);
-              mixer.setDesiredHeading(1.75);
+              mixer.setDesiredHeading(1.65);
               state = 10;
           }
       break; 
 
       case 10:
-          if(abs(pose.turned) > 1.75-0.02){
+          if(abs(pose.turned) > 1.65-0.02){
               pose.resetPose();
               wall_sum_cnt = 100;
               state = 11;
@@ -333,7 +333,7 @@
 
 
       case 17:
-        if(speed > -0.45) //RAMP DOWN BEFORE TURN
+        if(speed > -0.6) //RAMP DOWN BEFORE TURN
         {
           speed = speed - 0.003;
           mixer.setVelocity(speed);
@@ -346,7 +346,7 @@
 
 
       case 171:
-          if(abs(pose.dist) > 0.6){
+          if(abs(pose.dist) > 0.65){
               t.clear();
               pose.turned = 0;
               pose.resetPose();
@@ -410,21 +410,22 @@
       case 19:
           if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
-              mixer.setVelocity(0.1);
+              mixer.setVelocity(0.5);
               state = 20;
           }
       break; 
 
       case 20:
-          if(pose.dist > 0.7){
+          if(pose.dist > 0.6){
               pose.resetPose();
+              pose.dist = 0;
               mixer.setVelocity(-0.1);
               state = 151;
           }
       break; 
 
       case 151:
-      if(medge.width > f_LineWidth_Crossing) 
+      if((medge.width > f_LineWidth_Crossing) && (abs(pose.dist) > 0.2)) 
             { 
               pose.resetPose();
               mixer.setVelocity(0.1);
@@ -467,7 +468,7 @@
       case 23:
         if(dist.dist[1] < 0.15){
               pose.resetPose();
-              mixer.setVelocity(0.35);
+              mixer.setVelocity(0.5);
               state = 24;
           }
       break;

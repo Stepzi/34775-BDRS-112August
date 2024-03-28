@@ -50,6 +50,8 @@ public:
   void run_RaceEndToTunnel();
 
   void run_TunnelToGoal();
+
+  void run_GoalToFirstCross();
   /**
    * terminate */
   void terminate();
