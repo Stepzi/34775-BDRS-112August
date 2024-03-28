@@ -1,8 +1,0 @@
-% Edge logfile: log_20240301_165525.791/log_edge_ctrl.txt
-% 1 	Time (sec)
-% 2 	heading mode (edge control == 2)
-% 3 	Edge 1=left, 0=right
-% 4 	Edge offset (signed in m; should be less than about 0.01)
-% 5 	Measured edge value (m; positive is left)
-% 6 	control value (rad/sec; positive is CCV)
-% 7 	limited
