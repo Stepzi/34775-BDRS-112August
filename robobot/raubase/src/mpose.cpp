@@ -42,18 +42,31 @@ void MPose::setup()
   if (not ini.has("pose"))
   { // no data yet, so generate some default values
     ini["pose"]["gear"] = "19.0";
-    ini["pose"]["wheelDiameter"] = "0.146";
-    ini["pose"]["encTickPerRev"] = "64";
+    ini["pose"]["wheelDiameter"] = "0.146 0.146"; // left and right wheel
+    ini["pose"]["encTickPerRev"] = "68";
     ini["pose"]["wheelbase"] = "0.243";
     ini["pose"]["log"] = "true";
     ini["pose"]["print"] = "false";
   }
   // get values from ini-file
   gear = strtof(ini["pose"]["gear"].c_str(), nullptr);
-  wheelDiameter = strtof(ini["pose"]["wheelDiameter"].c_str(), nullptr);
+  const char * p1 = ini["pose"]["wheelDiameter"].c_str();
+  wheelDiameter[0] = strtof(p1, (char**)&p1);
+  wheelDiameter[1] = strtof(p1, (char**)&p1);
+  if (wheelDiameter[1] < wheelDiameter[0]/2.0)
+  { // too few parameters in ini file for wheel diameter
+    printf("# Missing diameter of right wheel (left %gm, right %gm) - will make them equal\n", wheelDiameter[0], wheelDiameter[1]);
+    wheelDiameter[1] = wheelDiameter[0];
+    // update the configuration file
+    const int MSL = 100;
+    char s[MSL];
+    snprintf(s, MSL, "%g %g", wheelDiameter[0], wheelDiameter[1]);
+    ini["pose"]["wheelDiameter"] = s;
+  }
   encTickPerRev = strtol(ini["pose"]["encTickPerRev"].c_str(), nullptr, 10);
   wheelBase = strtof(ini["pose"]["wheelBase"].c_str(), nullptr);
-  distPerTick = (wheelDiameter * M_PI) / gear / encTickPerRev;
+  for (int i = 0; i < 2; i++)
+    distPerTick[i] = (wheelDiameter[i] * M_PI) / gear / encTickPerRev;
   //
   toConsole = ini["pose"]["print"] == "true";
   if (ini["pose"]["log"] == "true")
@@ -140,7 +153,7 @@ void MPose::run()
           de[i] = 0;
         }
         // distance traveled since last
-        dd[i] = float(de[i]) * distPerTick; // encoder ticks
+        dd[i] = float(de[i]) * distPerTick[i]; // encoder ticks
         if (enc[i] != encLast[i])
         { // wheel has moved since last update
           encLast[i] = enc[i];
@@ -150,7 +163,7 @@ void MPose::run()
         else
         { // no tick change since last update
           // update (reduce) velocity waiting for next tick
-          wheelVel[i] = copysignf(1.0, wheelVel[i]) * distPerTick/dt[i];
+          wheelVel[i] = copysignf(1.0, wheelVel[i]) * distPerTick[i]/dt[i];
         }
       }
       // turned angle in radians

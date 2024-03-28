@@ -36,7 +36,6 @@
 #include "medge.h"
 #include "mpose.h"
 #include "maruco.h"
-#include "mgolfball.h"
 #include "scam.h"
 #include "sdist.h"
 #include "sedge.h"
@@ -49,7 +48,7 @@
 #include "steensy.h"
 #include "uservice.h"
 
-#define REV "$Id: uservice.cpp 573 2024-01-18 14:51:41Z jcan $"
+#define REV "$Id: uservice.cpp 586 2024-01-24 12:42:37Z jcan $"
 // define the service class
 UService service;
 // make a configuration structure
@@ -95,9 +94,14 @@ bool UService::setup(int argc,char **argv)
   // gyro offset
   bool calibGyro = false;
   cli.add_flag("-g,--gyro", calibGyro, "Calibrate gyro offset");
+  float testSec = 0.0;
+  cli.add_option("-t,--time", testSec, "Open all sensors for some time (seconds)");
   // rename feature
   int  regbotNumber{-1};
   cli.add_option("-n,--number", regbotNumber, "Set robot number to Regbot part [0..150]");
+  // rename feature
+  int  regbotHardware{-1};
+  cli.add_option("-H,--hardware", regbotHardware, "Set robot hardware type (most likely 9)");
   // print 4x4_100 ArUco code
   int arucoID = -1;
   cli.add_option("-a,--aruco", arucoID, "Save an image with an ArUco number [0..249]");
@@ -128,6 +132,10 @@ bool UService::setup(int argc,char **argv)
   if (regbotNumber >= 0 and regbotNumber <= 150)
   { // save this number to the Teensy (Robobot) and exit
     teensy1.saveRegbotNumber = regbotNumber;
+  }
+  if (regbotHardware >= 5 and regbotHardware <= 15)
+  { // save this number to the Teensy (Robobot) and exit
+    teensy1.regbotHardware = regbotHardware;
   }
   //
   // create an ini-file structure
@@ -206,7 +214,6 @@ bool UService::setup(int argc,char **argv)
     joyLogi.setup();
     cam.setup();
     aruco.setup();
-    golfball.setup();
     setupComplete = true;
     usleep(2000);
     //
@@ -259,17 +266,20 @@ bool UService::setup(int argc,char **argv)
   if ((calibBlack or
        calibWhite or
        regbotNumber >= 0 or
+       regbotHardware > 3 or
        dist.inCalibration or
-       imu.inCalibration) and
+       imu.inCalibration or
+       testSec > 0.05) and
        not theEnd)
   { // wait until finished, then terminate
+    UTime t("now");
     while (medge.sensorCalibrateBlack or
       medge.sensorCalibrateWhite or
       (teensy1.saveRegbotNumber >= 0 and teensy1.saveRegbotNumber != state.idx) or
       dist.inCalibration or
-      imu.inCalibration)
+      imu.inCalibration or t.getTimePassed() < testSec)
     {
-      printf("# Service is waiting for a calibration to finish\n");
+      printf("# Service is waiting for a specified action to finish\n");
       sleep(1);
     }
     theEnd = true;
@@ -306,6 +316,7 @@ void UService::terminate()
   if (terminating or not setupComplete)
     return;
   printf("# --------- terminating -----------\n");
+  teensy1.send("stop\n");
   terminating = true;
   stop = true; // stop all threads, when finished current activity
   //
@@ -329,7 +340,6 @@ void UService::terminate()
   pyvision.terminate();
   cam.terminate();
   aruco.terminate();
-  golfball.terminate();
   // service must be the last to close
   if (not ini.has("ini"))
   {
@@ -347,7 +357,7 @@ void UService::terminate()
 
 std::string UService::getVersionString()
 {
-  // #define REV "$Id: uservice.cpp 573 2024-01-18 14:51:41Z jcan $"
+  // #define REV "$Id: uservice.cpp 586 2024-01-24 12:42:37Z jcan $"
   std::string ver = REV;
   int n1 = ver.find(' ', 10);
   int n2 = ver.rfind("Z ");

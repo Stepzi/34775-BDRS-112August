@@ -1,0 +1,60 @@
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/local/svn/robobot/raubase/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_f253b/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f253b.dir/build.make CMakeFiles/cmTC_f253b.dir/build
+gmake[1]: Entering directory '/home/local/svn/robobot/raubase/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f253b.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD -o CMakeFiles/cmTC_f253b.dir/src.c.o -c /home/local/svn/robobot/raubase/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_f253b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f253b.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD CMakeFiles/cmTC_f253b.dir/src.c.o -o cmTC_f253b 
+/usr/bin/ld: CMakeFiles/cmTC_f253b.dir/src.c.o: in function `main':
+src.c:(.text+0x40): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x4c): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x58): undefined reference to `pthread_cancel'
+/usr/bin/ld: src.c:(.text+0x68): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_f253b.dir/build.make:106: cmTC_f253b] Error 1
+gmake[1]: Leaving directory '/home/local/svn/robobot/raubase/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:140: cmTC_f253b/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/local/svn/robobot/raubase/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_371d3/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_371d3.dir/build.make CMakeFiles/cmTC_371d3.dir/build
+gmake[1]: Entering directory '/home/local/svn/robobot/raubase/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_371d3.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_371d3.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.18/Modules/CheckFunctionExists.c
+Linking C executable cmTC_371d3
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_371d3.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create CMakeFiles/cmTC_371d3.dir/CheckFunctionExists.c.o -o cmTC_371d3  -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_371d3.dir/build.make:106: cmTC_371d3] Error 1
+gmake[1]: Leaving directory '/home/local/svn/robobot/raubase/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:140: cmTC_371d3/fast] Error 2
+
+
+

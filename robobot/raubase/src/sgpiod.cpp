@@ -257,7 +257,7 @@ void SGpiod::run()
         }
       }
     }
-    if (changed)
+    if (changed or loop %20 == 0)
       toLog(pv);
     // terminate app
     if (stopSwitchPressed)
