@@ -104,6 +104,8 @@ void BPlanCrossMission::run_StartToFirstCross()
   float f_Velocity_DriveBackwards = -0.15; 
   float f_Distance_FirstCrossMissed = 10;
 
+  int woodWhite = 600;
+  int blackWhite = 350;
   
   //
   toLog("PlanCrossMission started");
@@ -116,7 +118,9 @@ void BPlanCrossMission::run_StartToFirstCross()
       case 1: // Start Position, assume we are on a line but verify.
         if(medge.width > f_LineWidth_MinThreshold) //We should be on a line 
         {
-          servo.setServo(2, true, -950, 200);
+          medge.updateCalibBlack(medge.calibBlack,8);
+          medge.updatewhiteThreshold(blackWhite);
+          servo.setServo(2, true, -900, 200);
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.25"); //Some parse of float to log, Villiams :)

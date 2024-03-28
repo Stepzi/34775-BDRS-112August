@@ -36,6 +36,7 @@
 #include "medge.h"
 #include "mpose.h"
 #include "maruco.h"
+#include "mgolfball.h"
 #include "scam.h"
 #include "sdist.h"
 #include "sedge.h"
@@ -214,6 +215,8 @@ bool UService::setup(int argc,char **argv)
     joyLogi.setup();
     cam.setup();
     aruco.setup();
+    golfball.setup();
+
     setupComplete = true;
     usleep(2000);
     //

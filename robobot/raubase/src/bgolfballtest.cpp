@@ -182,7 +182,7 @@ void bgolfballtest::run()
     
       case 10:
       {
-         toLog("Looking for golfball");
+        toLog("Looking for golfball");
         if(golfball.findGolfballHough(center, nullptr)){
             char s[MSL];
             // next need to modify the reference...since my C++ knowledge are shit I guess
