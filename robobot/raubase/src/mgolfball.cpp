@@ -130,7 +130,7 @@ void Mgolfball::toLog(const char * message)
 bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, cv::Mat *sourcePtr)
 { // taken from https://docs.opencv.org
 
-  toLog("start find golfball");
+  // toLog("start find golfball");
   // Get frame 
   cv::Mat frame;
   if (sourcePtr == nullptr)
@@ -148,7 +148,7 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, 
     printf("MVision::findGolfball: Failed to get an image\n");
     return 0;
   }
-  toLog("got frame");
+  // toLog("got frame");
   // cv::Mat img;
   // if (debugSave)
   //   frame.copyTo(img);
@@ -190,10 +190,10 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, 
   // cv::erode(mask, mask, Mat, 2);
   // cv::dilate(mask, mask, Mat, 2);
   
-  toLog("start contour");
+  // toLog("start contour");
   std::vector<std::vector<cv::Point>> contours;
   cv::findContours(mask, contours, cv::noArray(),cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
-  toLog("end contour");
+  // toLog("end contour");
 
   cv::Point2f center;
   float radius = 0;
@@ -230,7 +230,7 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, 
     pos[1] = static_cast<int>(c.y);
       //
 
-      toLog("start save");
+      // toLog("start save");
     if (debugSave){ 
       // paint found golfballs in image copy 'img'.
       // Draw circle and its center
@@ -241,12 +241,12 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, 
       saveImageTimestamped(img, imgTime);
       saveImageTimestamped(mask, imgTime+1);
     }
-    toLog("end save");
+    // toLog("end save");
     if (c.x == -1){
       toLog("No Circle with sufficent radius found");
       return false;
     }
-    toLog("end find golfball");
+    // toLog("end find golfball");
     return true;
   }
   return false;

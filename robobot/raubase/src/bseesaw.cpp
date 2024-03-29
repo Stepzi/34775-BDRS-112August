@@ -594,83 +594,61 @@ void BSeesaw::run_withGolf()
           mixer.setEdgeMode(leftEdge, lineOffset);
           mixer.setVelocity(0.1);
           pose.dist = 0;
+          toLog("Following line for a few centimeters");
           state = 5;
         }
         break;
       }
 
       case 5:{
-
-      
-        toLog("Looking for golfball");
-        std::vector<cv::Point> roi;
-        roi.push_back(cv::Point(1280,720));  //point1
-        roi.push_back(cv::Point(0,720));  //point2
-        roi.push_back(cv::Point(600,190));  //point3
-        roi.push_back(cv::Point(850,190));  //point4
-
-        // if(pose.dist > 0.01){
-        //   mixer.setVelocity(0);
-          // mixer.setTurnrate(0);
-        // }
-
+        if(pose.dist > 0.2){         
         
+          toLog("Looking for golfball");
+          std::vector<cv::Point> roi;
+          roi.push_back(cv::Point(1280,720));  //point1
+          roi.push_back(cv::Point(0,720));  //point2
+          roi.push_back(cv::Point(600,190));  //point3
+          roi.push_back(cv::Point(850,190));  //point4
 
-        if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 10)){
-            char s[MSL];
-            snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
-            toLog(s);
-            int error_x = target_x - center[0];
-            int error_y = target_y - center[1];
-            if((abs(error_x) < deadband_x)&&(abs(error_y) < deadband_y)){
-              state = 53;
-              mixer.setVelocity(0);
-              mixer.setTurnrate(0);
-            }else{
-              state = 52;
-            }
+          // if(pose.dist > 0.01){
+          //   mixer.setVelocity(0);
+            // mixer.setTurnrate(0);
+          // }
 
-        }else{
-          toLog("No Golfball Found");
-          center = {0,0};
-          mixer.setVelocity(0);
-          mixer.setTurnrate(0);
-          if(golfballTries < 10){
-            golfballTries++;
-          }else{
-           lost = true; //TODO: CHECK HERE ####################
-          }
           
-        }
-        // finished = true;
-      break;
-      }
 
+          if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 10)){
+              char s[MSL];
+              snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
+              toLog(s);
+              int error_x = target_x - center[0];
+              int error_y = target_y - center[1];
+              if((abs(error_x) < deadband_x)&&(abs(error_y) < deadband_y)){
+                state = 53;
+                mixer.setVelocity(0);
+                mixer.setTurnrate(0);
+              }else{
+                state = 51;
+              }
+
+          }else{
+            toLog("No Golfball Found");
+            center = {0,0};
+            mixer.setVelocity(0);
+            mixer.setTurnrate(0);
+            if(golfballTries < 10){
+              golfballTries++;
+            }else{
+            lost = true; //TODO: CHECK HERE ####################
+            }
+            
+          }
+          // finished = true;
+        }
+      break;
+      }      
 
       case 51:
-      {// Lateral Error
-        
-        int error_x = target_x - center[0];
-        if(abs(error_x) > deadband_x){
-          float turnrate = k_x*error_x;
-          const int MSL = 200;
-          char s[MSL];
-          snprintf(s, MSL, "Correcting X offset, error-x: %d px, turnrate: %f",error_x, turnrate);
-          toLog(s);
-          mixer.setVelocity(0);
-          // pose.turned = 0;
-          mixer.setTurnrate(turnrate);
-          
-          state = 5;
-        }else{
-          // Goldfball on line
-          mixer.setTurnrate(0);
-          state = 52;
-        }
-        break;
-      }
-
-      case 511:
       {// Lateral Error
         
         int error_x = target_x - center[0];
@@ -709,6 +687,7 @@ void BSeesaw::run_withGolf()
         }else{
           mixer.setVelocity(0);
           state = 51;
+          // state = 5;
           // finished = true;
         }
 
@@ -734,13 +713,13 @@ void BSeesaw::run_withGolf()
       case 7:
         /*if (servo.servo_position[1] < -400)
         {*/
-          pose.dist = 0;
-          mixer.setEdgeMode(leftEdge, lineOffset);
-          toLog("going down");
-          // servo.setServo(2,0);
-          pose.dist = 0;
-          mixer.setVelocity(0.05);
-          state = 9;
+        pose.dist = 0;
+        mixer.setEdgeMode(leftEdge, lineOffset);
+        toLog("going down");
+        // servo.setServo(2,0);
+        pose.dist = 0;
+        mixer.setVelocity(0.1);
+        state = 9;
         
       break;
 
