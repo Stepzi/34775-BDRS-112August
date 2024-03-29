@@ -51,6 +51,7 @@ add_executable(raubase
       src/maruco.cpp
       src/medge.cpp
       src/mpose.cpp
+      src/mgolfball.cpp
       src/scam.cpp
       src/sedge.cpp
       src/sencoder.cpp
