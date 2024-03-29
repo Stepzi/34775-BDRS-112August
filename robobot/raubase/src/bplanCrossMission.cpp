@@ -689,7 +689,7 @@ void BPlanCrossMission::run_RaceEndToTunnel()
   float f_LineWidth_NoLine = 0.01;
   float f_LineWidth_Crossing = 0.07;
   
-  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+ int wood[8]  = {317, 397, 424, 401, 418, 414, 395, 344};
   int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
   int woodWhite = 600;

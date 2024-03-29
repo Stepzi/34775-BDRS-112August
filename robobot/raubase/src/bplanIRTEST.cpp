@@ -502,6 +502,19 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           // start driving
           toLog("Second line found");
           pose.resetPose();
+          pose.dist = 0;
+          state = 441;
+        }
+      break;
+
+            //Drive a little forward like in the tunnel mission
+      case 441:
+      if((pose.dist >= 0.05)) 
+        { 
+          // start driving
+          toLog("Second line found");
+          mixer.setVelocity(0);
+          pose.resetPose();
           heading.setMaxTurnRate(1);
           if(exitDirectionStart)
           {

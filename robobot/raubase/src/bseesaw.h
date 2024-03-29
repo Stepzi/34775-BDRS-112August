@@ -40,6 +40,9 @@ public:
   /**
    * run this mission */
   void run();
+    /**
+   * run this mission with golfball */
+  void run_withGolf();
   /**
    * terminate */
   void terminate();
