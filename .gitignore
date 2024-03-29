@@ -59,6 +59,9 @@ robobot/golfball/
 robobot/golfball/CMakeLists.txt
 robobot/golfball/test2.cpp
 
+robobot/raubase/build/log*
+robobot/raubase/build/CMakeFiles/
+
 .vscode/
 
 

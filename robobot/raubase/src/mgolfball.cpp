@@ -127,7 +127,7 @@ void Mgolfball::toLog(const char * message)
   }
 }
 
-bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, cv::Mat *sourcePtr)
+bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, cv::Mat *sourcePtr,float density_thr)
 { // taken from https://docs.opencv.org
 
   // toLog("start find golfball");
@@ -207,11 +207,11 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, 
         cv::minEnclosingCircle(contours[i], center, radius);
         if ((radius > minRad) && (radius < maxRad)){
           // std::cout << static_cast<int>(radius)<<std::endl;
-          // std::cout << center << std::endl;
+          // std::cout << density << std::endl;
 
           float area = cv::contourArea(contours[i]);
           float density = area/(CV_PI*std::pow(radius,2));
-          if (density > max_density && density > 0.5){
+          if (density > max_density && density > density_thr){
             max_density = density;
             c = center;
             r = radius;
