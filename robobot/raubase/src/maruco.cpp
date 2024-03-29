@@ -109,10 +109,9 @@ void MArUco::run()
   
   while (not service.stop)
   {
-    
-    int n = findAruco(0.1);
-
-    
+    if(aruco.enable){
+      int n = findAruco(0.1);  
+    }    
     
     usleep(500*1000); //ms
   }

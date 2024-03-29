@@ -60,6 +60,9 @@ public:
   // Detected marked IDs
   std::vector<int> arID;
   std::vector<int> IDs;
+
+  bool enable = false;
+
   UTime fixTime;
   
   

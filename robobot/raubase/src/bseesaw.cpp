@@ -38,6 +38,7 @@
 #include "cmixer.h"
 #include "sdist.h"
 #include "mgolfball.h"
+#include "maruco.h"
 
 #include "bseesaw.h"
 #include <iostream>
@@ -53,6 +54,16 @@ void BSeesaw::setup()
     ini["seesaw"]["log"] = "true";
     ini["seesaw"]["run"] = "true";
     ini["seesaw"]["print"] = "true";
+
+    ini["seesaw"]["deadband_x"] = "10";
+    ini["seesaw"]["deadband_y"] = "10";
+    ini["seesaw"]["k_x"] = "0.5";
+    ini["seesaw"]["k_y"] = "0.5";
+    ini["seesaw"]["target_x"] = "640";
+    ini["seesaw"]["target_y"] = "650";
+    ini["seesaw"]["dist_y"] = "0.05";
+    ini["seesaw"]["servo_velocity"] = "200";
+    ini["seesaw"]["servo_down"] = "350";
   }
   // get values from ini-file
   toConsole = ini["seesaw"]["print"] == "true";
@@ -446,10 +457,21 @@ void BSeesaw::run_withGolf()
     setup();
   if (ini["seesaw"]["run"] == "false")
     return;
+
+  int deadband_x = strtol(ini["golfballtest"]["deadband_x"].c_str(), nullptr, 10);
+  int deadband_y = strtol(ini["golfballtest"]["deadband_y"].c_str(), nullptr, 10);
+  float k_x = strtof(ini["golfballtest"]["k_x"].c_str(), nullptr);
+  float k_y = strtof(ini["golfballtest"]["k_y"].c_str(), nullptr);
+  int target_x = strtol(ini["golfballtest"]["target_x"].c_str(), nullptr, 10);
+  int target_y = strtol(ini["golfballtest"]["target_y"].c_str(), nullptr, 10);
+  float dist_y = strtof(ini["golfballtest"]["dist_y"].c_str(), nullptr);
+  int servo_down = strtol(ini["golfballtest"]["servo_down"].c_str(), nullptr, 10);
+  int servo_velocity = strtol(ini["golfballtest"]["servo_velocity"].c_str(), nullptr, 10);
+
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 5;
+  state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -479,6 +501,8 @@ void BSeesaw::run_withGolf()
   int woodWhite = 600;
   int blackWhite = 350;
 
+  int golfballTries = 0;
+
   std::vector<int> center{0,0};
   
   toLog("seesaw started");
@@ -489,6 +513,7 @@ void BSeesaw::run_withGolf()
     {  
       case 1: // Start Position, assume we are on a line but verify.
       servo.setServo(2, true, -900, 500);
+      aruco.enable = false;
       medge.updateCalibBlack(medge.calibBlack,8);
       medge.updatewhiteThreshold(blackWhite);
       heading.setMaxTurnRate(3);
@@ -574,51 +599,146 @@ void BSeesaw::run_withGolf()
         break;
       }
 
-      case 5:
+      case 5:{
+
+      
         toLog("Looking for golfball");
-        if(golfball.findGolfball(center, nullptr)){
+        std::vector<cv::Point> roi;
+        roi.push_back(cv::Point(1280,720));  //point1
+        roi.push_back(cv::Point(0,720));  //point2
+        roi.push_back(cv::Point(600,190));  //point3
+        roi.push_back(cv::Point(850,190));  //point4
+
+        // if(pose.dist > 0.01){
+        //   mixer.setVelocity(0);
+          // mixer.setTurnrate(0);
+        // }
+
+        
+
+        if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 10)){
             char s[MSL];
-            // next need to modify the reference...since my C++ knowledge are shit I guess
-            // that we can just return the center as a whole (as in the function to return std::vector)
             snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
             toLog(s);
-            state = 51;
+            int error_x = target_x - center[0];
+            int error_y = target_y - center[1];
+            if((abs(error_x) < deadband_x)&&(abs(error_y) < deadband_y)){
+              state = 53;
+              mixer.setVelocity(0);
+              mixer.setTurnrate(0);
+            }else{
+              state = 52;
+            }
 
         }else{
           toLog("No Golfball Found");
-          lost = true;
+          center = {0,0};
+          mixer.setVelocity(0);
+          mixer.setTurnrate(0);
+          if(golfballTries < 10){
+            golfballTries++;
+          }else{
+           lost = true; //TODO: CHECK HERE ####################
+          }
+          
         }
-        finished = true;
-
-        // if (pose.dist > edgeToSeesaw)
-        // {
-        //   //toLog(const_cast<char*>((std::to_string(pose.dist)).c_str()));
-        //   toLog("robot on the tilting point");
-        //   mixer.setVelocity(0);
-        //   t.clear();
-        //   state = 6;
-        // }
+        // finished = true;
       break;
+      }
+
 
       case 51:
+      {// Lateral Error
+        
+        int error_x = target_x - center[0];
+        if(abs(error_x) > deadband_x){
+          float turnrate = k_x*error_x;
+          const int MSL = 200;
+          char s[MSL];
+          snprintf(s, MSL, "Correcting X offset, error-x: %d px, turnrate: %f",error_x, turnrate);
+          toLog(s);
+          mixer.setVelocity(0);
+          // pose.turned = 0;
+          mixer.setTurnrate(turnrate);
+          
+          state = 5;
+        }else{
+          // Goldfball on line
+          mixer.setTurnrate(0);
+          state = 52;
+        }
+        break;
+      }
+
+      case 511:
+      {// Lateral Error
+        
+        int error_x = target_x - center[0];
+        if(abs(error_x) > deadband_x){
+          float turnrate = k_x*error_x;
+          const int MSL = 200;
+          char s[MSL];
+          snprintf(s, MSL, "Correcting X offset, error-x: %d px, turnrate: %f",error_x, turnrate);
+          toLog(s);
+          mixer.setVelocity(0);
+          // pose.turned = 0;
+          mixer.setTurnrate(turnrate);
+          
+          state = 5;
+        }else{
+          // Goldfball on line
+          mixer.setTurnrate(0);
+          state = 52;
+        }
+        break;
+      }
+      case 52:
       {
+        // Forward Error
+        int error_y = target_y - center[1];
+        if(abs(error_y) > deadband_y){
+          float velocity = k_y*error_y;
+          const int MSL = 200;
+          char s[MSL];
+          snprintf(s, MSL, "Correcting Y offset, error-y: %d px, velocity: %f",error_y, velocity);
+          toLog(s);
+          // mixer.setTurnrate(0);
+          // pose.dist = 0;
+          mixer.setVelocity(velocity);
+          state = 5;
+        }else{
+          mixer.setVelocity(0);
+          state = 51;
+          // finished = true;
+        }
 
         break;
       }
+
+      case 53:
+        servo.setServo(2, true, servo_down, servo_velocity);
+        state = 6;
+
+        break;
       
       case 6:
         //servo.setServo(2, 1, -500, 200);
         
         waitTime = t.getTimePassed();
         if (waitTime>3){
-        state = 7;}
+        state = 7;
+        // finished = true;
+        }
       break;
 
       case 7:
         /*if (servo.servo_position[1] < -400)
         {*/
+          pose.dist = 0;
           mixer.setEdgeMode(leftEdge, lineOffset);
           toLog("going down");
+          // servo.setServo(2,0);
+          pose.dist = 0;
           mixer.setVelocity(0.05);
           state = 9;
         
@@ -639,7 +759,7 @@ void BSeesaw::run_withGolf()
       break;
 
       case 9:
-        if(medge.width < lineGone)
+        if((medge.width < lineGone)&&pose.dist > 0.6)
         {
           medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
@@ -648,6 +768,7 @@ void BSeesaw::run_withGolf()
           mixer.setVelocity(0.1);
           mixer.setEdgeMode(rightEdge, 0);
           state = 10;
+          finished = true;
         }
       break;
 
