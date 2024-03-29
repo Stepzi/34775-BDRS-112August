@@ -346,7 +346,7 @@ void SJoyLogitech::joyControl()
   { // velocity is valid
     servoPosition += float(joyValues.axes[axisServo]) * servoScale;
     // control servo 1
-    servo.setServo(1, true, servoPosition, 0);
+    servo.setServo(2, true, servoPosition, 0);
   }
 }
 

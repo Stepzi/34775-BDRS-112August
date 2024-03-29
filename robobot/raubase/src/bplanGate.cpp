@@ -121,7 +121,9 @@
     float wall_2 = 0;
     int wall_sum_cnt = 10;
     float wall_drive_dist = 0.2;
-    float correctionAngle = 0;
+    float correctionAngle1 = 0;
+    float correctionAngle2 = 0;
+    float wishedDist = 0.11;
 
     float speed = 0;
     
@@ -272,6 +274,23 @@
           pose.resetPose();
           mixer.setVelocity(-0.15);
           state = 12;
+          if(wall_1 > 0.4)
+          {
+            toLog("Handle Error, drove too long...");
+            mixer.setVelocity(-0.1);
+            pose.dist = 0;
+            state = 1101;
+          }
+        }
+      break;
+
+      case 1101:
+        if(abs(pose.dist) > 0.1)
+        {
+          wall_1 = 0;
+          wall_sum_cnt = 100;
+          mixer.setVelocity(0);
+          state = 11;
         }
       break;
 
@@ -279,6 +298,7 @@
         if(abs(pose.dist) > wall_drive_dist)
         {
           wall_sum_cnt = 100;
+          mixer.setVelocity(0);
           state = 13;
         }
       break;
@@ -293,37 +313,57 @@
           wall_2 = wall_2 / 100;
           toLog("Wall 2: ");
           toLog(std::to_string(wall_2).c_str());
-          mixer.setVelocity(0.15);
+
+          //Reset time and calculate correction angles!
+          t.clear();
+          correctionAngle1 = asin((wall_2-wall_1) / wall_drive_dist);
+          toLog("Correction angle phi: ");
+          toLog(std::to_string(correctionAngle1).c_str());
+          correctionAngle2 = asin((wall_2-wishedDist) / wall_drive_dist);
+          toLog("Correction angle theta: ");
+          toLog(std::to_string(correctionAngle2).c_str());
           state = 14;
         }
       break;
 
       case 14:
 
-        if(abs(pose.dist) > wall_drive_dist)
-        {
-          t.clear();
-          correctionAngle = atan((wall_2-wall_1) / wall_drive_dist);
-          toLog("Correction angle: ");
-          toLog(std::to_string(correctionAngle).c_str());
-          state = 15;
-        }
-      break;
-      
-      case 15:
         if(t.getTimePassed() > 1)
         {
           pose.resetPose();
-          pose.turned = 0;
-          mixer.setDesiredHeading(correctionAngle);
           t.clear();
+          pose.turned = 0;
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(-(correctionAngle2-correctionAngle1)); //Alligment with tunnel minus wished angle to achieve the WishedDist
+          state = 15;
+        }
+      break;
+
+      case 15:
+        if((abs(pose.turned) > correctionAngle2-correctionAngle1 - 0.02) && (t.getTimePassed() > 0.5))
+        {
+          pose.dist = 0;
+          mixer.setVelocity(0.2);
+          state = 150;
+        }
+      break;
+
+      case 150:
+        if(abs(pose.dist) > wall_drive_dist)
+        {
+          pose.resetPose();
+          mixer.setVelocity(0);
+          pose.turned = 0;
+          t.clear();
+          mixer.setDesiredHeading(correctionAngle2 + 0.1); //Only turn alligment with tunnel, as the disalignment was removed in first turn. Constant added since it turns a little less this side..
           state = 16;
         }
       break;
 
       case 16:
-        if(t.getTimePassed() > 0.5)
+        if(t.getTimePassed() > 2)
         { 
+          heading.setMaxTurnRate(1);
           speed  = 0;
           pose.resetPose();
           pose.dist = 0;
@@ -335,7 +375,7 @@
       case 17:
         if(speed > -0.6) //RAMP DOWN BEFORE TURN
         {
-          speed = speed - 0.003;
+          speed = speed - 0.002;
           mixer.setVelocity(speed);
         }
         else
@@ -346,7 +386,7 @@
 
 
       case 171:
-          if(abs(pose.dist) > 0.65){
+          if(abs(pose.dist) > 0.75){
               t.clear();
               pose.turned = 0;
               pose.resetPose();
@@ -354,58 +394,34 @@
               state = 18;
           }
       break; 
-/*
-
-      case 10:
-          if(abs(pose.turned) > 1.75-0.02){
-              pose.resetPose();
-              mixer.setVelocity(0.15);
-              state = 11;
-          }
-      break; 
-
-      case 11:
-        if(pose.dist > 0.1){
-              pose.resetPose();
-              mixer.setVelocity(0.6);
-              state = 12;
-          }
-      break;
-
-
-
-
-
-
-
-
-      case 11:
-        if(dist.dist[1] < 0.11){
-              pose.resetPose();
-              mixer.setVelocity(0.6);
-              state = 12;
-          }
-      break;
-
-      case 12:
-          if(pose.dist > 0.55){
-              t.clear();
-              pose.turned = 0;
-              pose.resetPose();
-              mixer.setVelocity(0);
-              state = 13;
-          }
-      break; */
 
         //Case 22 - After 2 seconds, reset distance, set follow line mode and drive forward slowly.
-        case 18: 
-          //toLog(std::to_string(t.getTimePassed()).c_str());
-          if(t.getTimePassed() > 1)
-          {
-            mixer.setDesiredHeading(-1.6);
-            state = 19;
-          }
-        break;
+      case 18: 
+        //toLog(std::to_string(t.getTimePassed()).c_str());
+        if(t.getTimePassed() > 0.5)
+        {
+          mixer.setVelocity(0.2);
+          state = 181;
+        }
+      break;
+
+      case 181: 
+        //toLog(std::to_string(t.getTimePassed()).c_str());
+        if(abs(pose.dist) > 0.05)
+        {
+          mixer.setVelocity(0);
+          state = 182;
+        }
+      break;
+
+      case 182: 
+        //toLog(std::to_string(t.getTimePassed()).c_str());
+        if(t.getTimePassed() > 0.5)
+        {
+          mixer.setDesiredHeading(-1.6);
+          state = 19;
+        }
+      break;
 
       case 19:
           if(abs(pose.turned) > 1.6-0.02){
@@ -576,7 +592,7 @@
     bool lost = false;
     
 
-    state = 2; /*LEFT OFF AT CROSSING FROM CROSS MISSION */
+    state = 0; /*LEFT OFF AT CROSSING FROM CROSS MISSION */
     oldstate = state;
 
 
@@ -594,13 +610,23 @@
     bool b_Line_HoldRight = false;
 
 
-    int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+    int wood[8]  = {317, 397, 424, 401, 418, 414, 395, 344};
     int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
 
     int woodWhite = 600;
     int blackWhite = 400;
     //Hardcoded time data
     //float f_Time_Timeout = 10.0;
+
+    //Wall following
+    float wall_1 = 0;
+    float wall_2 = 0;
+    int wall_sum_cnt = 10;
+    float wall_drive_dist = 0.2;
+    float correctionAngle1 = 0;
+    float correctionAngle2 = 0;
+    float wishedDist = 0.19;
+    float wishedDist2 = 0.23;
 
     //Postion and velocity data
     //float f_Velocity_DriveForward = 0.25; 
@@ -650,7 +676,7 @@
       break;
 
       case 1:
-          if(medge.width > 0.09){
+          if(medge.width > 0.07){
              toLog("Found crossing, change line sensor thresholds");
             pose.dist = 0;
             pose.turned = 0;
@@ -714,26 +740,147 @@
               pose.dist = 0;
               mixer.setDesiredHeading(-0.1);
               mixer.setVelocity(0.25);
-              state = 8;
+              state = 71;
           }
       break; 
+
+
+      case 71:
+          if(abs(pose.dist) > 0.45){
+              pose.resetPose();
+              wall_sum_cnt = 100;
+              state = 72;
+          }
+      break; 
+
+      case 72:
+        //Sum the distances and count down
+        wall_sum_cnt = wall_sum_cnt - 1;
+        wall_1 = wall_1 + dist.dist[0];
+        if( wall_sum_cnt <= 0)
+        {
+          //Average
+          wall_1 = wall_1 / 100;
+          toLog("Wall 1: ");
+          toLog(std::to_string(wall_1).c_str());
+          pose.resetPose();
+          mixer.setVelocity(-0.15);
+          state = 73;
+          if(wall_1 > 0.4)
+          {
+            toLog("Handle Error, drove too long...");
+            mixer.setVelocity(-0.1);
+            pose.dist = 0;
+            state = 1101;
+          }
+        }
+      break;
+
+      case 1101:
+        if(abs(pose.dist) > 0.1)
+        {
+          wall_1 = 0;
+          wall_sum_cnt = 100;
+          mixer.setVelocity(0);
+          state = 71;
+        }
+      break;
+
+      case 73:
+        if(abs(pose.dist) > wall_drive_dist)
+        {
+          wall_sum_cnt = 100;
+          mixer.setVelocity(0);
+          state = 74;
+        }
+      break;
+
+      case 74:
+        //Sum the distances and count down
+        wall_sum_cnt = wall_sum_cnt - 1;
+        wall_2 = wall_2 + dist.dist[0];
+        if( wall_sum_cnt <= 0)
+        {
+          //Average
+          wall_2 = wall_2 / 100;
+          toLog("Wall 2: ");
+          toLog(std::to_string(wall_2).c_str());
+
+          //Reset time and calculate correction angles!
+          t.clear();
+          correctionAngle1 = asin((wall_2-wall_1) / wall_drive_dist);
+          toLog("Correction angle phi: ");
+          toLog(std::to_string(correctionAngle1).c_str());
+          correctionAngle2 = asin((wall_2-wishedDist) / wall_drive_dist);
+          toLog("Correction angle theta: ");
+          toLog(std::to_string(correctionAngle2).c_str());
+          state = 75;
+        }
+      break;
+
+      case 75:
+
+        if(t.getTimePassed() > 1)
+        {
+          pose.resetPose();
+          t.clear();
+          pose.turned = 0;
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(-(correctionAngle2-correctionAngle1)); //Alligment with tunnel minus wished angle to achieve the WishedDist
+          state = 76;
+        }
+      break;
+
+      case 76:
+        if((abs(pose.turned) > correctionAngle2-correctionAngle1 - 0.02) && (t.getTimePassed() > 0.5))
+        {
+          pose.dist = 0;
+          mixer.setVelocity(0.2);
+          state = 150;
+        }
+      break;
+
+      case 150:
+        if(abs(pose.dist) > wall_drive_dist)
+        {
+          pose.resetPose();
+          mixer.setVelocity(0);
+          pose.turned = 0;
+          t.clear();
+          mixer.setDesiredHeading(correctionAngle2 + 0.1 ); //Only turn alligment with tunnel, as the disalignment was removed in first turn. Constant added since it turns a little less this side..
+          state = 77;
+        }
+      break;
+
+      case 77:
+        if(t.getTimePassed() > 1)
+        { 
+          heading.setMaxTurnRate(1);
+          pose.resetPose();
+          mixer.setVelocity(0.25);
+          pose.dist = 0;
+          state = 8;
+        }
+      break;
+
 
       case 8:
         if((dist.dist[1] < 0.3))
         {
           toLog("Found Door with IR sensor");
-          
+          pose.dist = 0;
+          mixer.setVelocity(0.4);
           pose.resetPose();
           state = 50;
         }
-        else if((pose.dist > 1.0  )){
+        else if((pose.dist > 0.4  )){
           toLog("Did not see door, assume I am at the right place to close.");
           state = 50;
         }
       break;
 
       case 50:
-        if(pose.dist > 0.60)
+        if(pose.dist > 0.50)
         {
           mixer.setVelocity(0);
           mixer.setDesiredHeading(-1.6);
@@ -805,7 +952,7 @@
       break;
 
       case 12:
-          if(abs(pose.dist) > 0.3){
+          if(abs(pose.dist) > 0.4){
               t.clear();
               pose.turned = 0;
               pose.resetPose();
@@ -829,7 +976,7 @@
       break;
 
       case 14:
-          if(abs(pose.dist) > 0.25){
+          if(abs(pose.dist) > 0.20){
               pose.resetPose();
               mixer.setVelocity(0.0);
               heading.setMaxTurnRate(1);
@@ -858,23 +1005,145 @@
       case 189:
         if(abs(pose.turned) > 1.6-0.02){
           pose.resetPose();
+          pose.dist = 0;
           mixer.setVelocity(0.3);
+          state = 190;
+        }
+      break;
+
+
+      case 190:
+          if(abs(pose.dist) > 0.50){
+              pose.resetPose();
+              wall_sum_cnt = 100;
+              state = 191;
+          }
+      break; 
+
+      case 191:
+        //Sum the distances and count down
+        wall_sum_cnt = wall_sum_cnt - 1;
+        wall_1 = wall_1 + dist.dist[0];
+        if( wall_sum_cnt <= 0)
+        {
+          //Average
+          wall_1 = wall_1 / 100;
+          toLog("Wall 1: ");
+          toLog(std::to_string(wall_1).c_str());
+          pose.resetPose();
+          mixer.setVelocity(-0.15);
+          state = 192;
+          if(wall_1 > 0.4)
+          {
+            toLog("Handle Error, drove too long...");
+            mixer.setVelocity(-0.1);
+            pose.dist = 0;
+            state = 1102;
+          }
+        }
+      break;
+
+      case 1102:
+        if(abs(pose.dist) > 0.1)
+        {
+          wall_1 = 0;
+          wall_sum_cnt = 100;
+          mixer.setVelocity(0);
+          state = 191;
+        }
+      break;
+
+      case 192:
+        if(abs(pose.dist) > wall_drive_dist)
+        {
+          wall_sum_cnt = 100;
+          mixer.setVelocity(0);
+          state = 193;
+        }
+      break;
+
+      case 193:
+        //Sum the distances and count down
+        wall_sum_cnt = wall_sum_cnt - 1;
+        wall_2 = wall_2 + dist.dist[0];
+        if( wall_sum_cnt <= 0)
+        {
+          //Average
+          wall_2 = wall_2 / 100;
+          toLog("Wall 2: ");
+          toLog(std::to_string(wall_2).c_str());
+
+          //Reset time and calculate correction angles!
+          t.clear();
+          correctionAngle1 = asin((wall_2-wall_1) / wall_drive_dist);
+          toLog("Correction angle phi: ");
+          toLog(std::to_string(correctionAngle1).c_str());
+          correctionAngle2 = asin((wall_2-wishedDist2) / wall_drive_dist);
+          toLog("Correction angle theta: ");
+          toLog(std::to_string(correctionAngle2).c_str());
+          state = 194;
+        }
+      break;
+
+      case 194:
+
+        if(t.getTimePassed() > 1)
+        {
+          pose.resetPose();
+          t.clear();
+          pose.turned = 0;
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(-(correctionAngle2-correctionAngle1)); //Alligment with tunnel minus wished angle to achieve the WishedDist
+          state = 195;
+        }
+      break;
+
+      case 195:
+        if((abs(pose.turned) > correctionAngle2-correctionAngle1 - 0.02) && (t.getTimePassed() > 0.5))
+        {
+          pose.dist = 0;
+          mixer.setVelocity(0.2);
+          state = 196;
+        }
+      break;
+
+      case 196:
+        if(abs(pose.dist) > wall_drive_dist)
+        {
+          pose.resetPose();
+          mixer.setVelocity(0);
+          pose.turned = 0;
+          t.clear();
+          mixer.setDesiredHeading(correctionAngle2 + 0.1 ); //Only turn alligment with tunnel, as the disalignment was removed in first turn. Constant added since it turns a little less this side..
+          state = 197;
+        }
+      break;
+
+      case 197:
+        if(t.getTimePassed() > 1)
+        { 
+          heading.setMaxTurnRate(1);
+          pose.resetPose();
+          mixer.setVelocity(0.25);
+          pose.dist = 0;
           state = 16;
         }
       break;
 
+
       case 16:
-        toLog(std::to_string(dist.dist[0]).c_str());
-          if(dist.dist[0] > 0.3){
+        toLog(std::to_string(dist.dist[1]).c_str());
+          if(dist.dist[1] < 0.3){
               toLog("Found side of tunnel - Christian make some wall following you are good at math.");
+              pose.dist = 0;
               pose.resetPose();
-              mixer.setVelocity(0.2);
+              mixer.setVelocity(0.4);
               state = 17;
           }
       break; 
 
       case 17:
-          if(pose.dist > 1.20){
+          if(pose.dist > 0.50){
               pose.resetPose();
               pose.turned = 0;
               mixer.setVelocity(0);
@@ -887,13 +1156,14 @@
       case 18:
           if(abs(pose.turned) > 1.6-0.02){
               pose.resetPose();
+              pose.dist = 0;
               mixer.setVelocity(0.25);
               state = 19;
           }
       break; 
 
       case 19:
-        if(medge.width > 0.08)
+        if((medge.width > 0.08) && (pose.dist > 0.3))
         {
           pose.resetPose();
           mixer.setVelocity(0.2);
@@ -915,11 +1185,12 @@
         pose.resetPose();  
         mixer.setVelocity(-0.2);
         state = 22;
+        
       }
     break;
 
     case 22:
-      if(abs(pose.dist) > 0.2){
+      if(abs(pose.dist) > 0.45){
         toLog("Door should be closed");
         pose.resetPose();
         heading.setMaxTurnRate(3);

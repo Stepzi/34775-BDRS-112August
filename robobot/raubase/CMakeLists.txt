@@ -37,6 +37,7 @@ add_executable(raubase
       src/bplan40.cpp
       src/bplan100.cpp
       src/bmission0.cpp
+      src/bseesaw.cpp
       src/bracetrack.cpp
       src/baxe.cpp
       src/bplan101.cpp
@@ -50,6 +51,7 @@ add_executable(raubase
       src/maruco.cpp
       src/medge.cpp
       src/mpose.cpp
+      src/mgolfball.cpp
       src/scam.cpp
       src/sedge.cpp
       src/sencoder.cpp

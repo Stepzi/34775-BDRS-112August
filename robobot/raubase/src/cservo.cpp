@@ -92,6 +92,7 @@ void CServo::terminate()
   }
   if (logfileCtrl != nullptr)
     fclose(logfileCtrl);
+
 }
 
 bool CServo::decode(const char* msg, UTime & msgTime)
