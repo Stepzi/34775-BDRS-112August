@@ -29,7 +29,7 @@
 
 #include <string>
 #include <string.h>
-#include <thread>
+// #include <thread>
 #include <math.h>
 #include <opencv2/aruco.hpp>
 #include <filesystem>
@@ -71,17 +71,17 @@ void MArUco::setup()
     fprintf(logfile, "%% 5,6,7 \tDetected marker position in camera coordinates (x=right, y=down, z=forward)\n");
     fprintf(logfile, "%% 8,9,10 \tDetected marker orientation in Rodrigues notation (vector, rotated)\n");
   }
-  th1 = new std::thread(runObj, this);
+  // th1 = new std::thread(runObj, this);
 }
 
 
 void MArUco::terminate()
 { // wait for thread to finish
-  if (th1 != nullptr)
-  {
-    th1->join();
-    th1 = nullptr;
-  }
+  // if (th1 != nullptr)
+  // {
+  //   th1->join();
+  //   th1 = nullptr;
+  // }
   if (logfile != nullptr)
   {
     fclose(logfile);
@@ -104,28 +104,32 @@ void MArUco::toLog(const char * message)
   }
 }
 
-void MArUco::run()
-{
+// void MArUco::run()
+// {
   
-  while (not service.stop)
-  {
-    if(aruco.enable){
-      int n = findAruco(0.1);  
-    }    
+//   while (not service.stop)
+//   {
+//     if(enable){
+//       findAruco(0.1,use_raw);  
+//     }else{
+//       update = false;
+//       use_raw = false;
+//     }    
     
-    usleep(500*1000); //ms
-  }
-}
+//     usleep(500*1000); //ms
+//   }
+// }
 
-int MArUco::findAruco(float size, cv::Mat * sourcePtr)
+int MArUco::findAruco(float size,bool raw, cv::Mat * sourcePtr)
 { // taken from https://docs.opencv.org
+  toLog("findAruco");
   int count = 0;
   cv::Mat frame;
   cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
   if (sourcePtr == nullptr)
-  {
-    //frame = cam.getFrameRaw();
-    frame = cam.getFrame();
+  { 
+    frame = raw ? cam.getFrameRaw() : cam.getFrame();
+    // frame = cam.getFrame();
     imgTime = cam.imgTime;
   }
   else
@@ -149,7 +153,7 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
   cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
   if(count)
   {
-    
+    toLog("Found Markers"); 
     fixTime = imgTime;
     IDs = arID;
     pos_m.clear();
@@ -160,10 +164,8 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
       // rotation
       rot_m.push_back(cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));      
     }
-    update = true;
     
   }else{
-    update = false;
   }
   //
   if (debugSave and count>0)

@@ -513,7 +513,6 @@ void BSeesaw::run_withGolf()
     {  
       case 1: // Start Position, assume we are on a line but verify.
       servo.setServo(2, true, -900, 500);
-      aruco.enable = false;
       medge.updateCalibBlack(medge.calibBlack,8);
       medge.updatewhiteThreshold(blackWhite);
       heading.setMaxTurnRate(3);
@@ -845,7 +844,6 @@ void BSeesaw::run_withGolf()
         }
         break;
       case 160:
-          aruco.enable = false;
           heading.setMaxTurnRate(3);
           medge.updateCalibBlack(medge.calibWood,8);
           medge.updatewhiteThreshold(woodWhite);

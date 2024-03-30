@@ -25,7 +25,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include "utime.h"
-#include "thread"
+// #include "thread"
 
 
 using namespace std;
@@ -43,14 +43,15 @@ public:
   void terminate();
   /**
    * thread to do updates, when new data is available */
-  void run();
+  // void run();
   /**
    * Find ArUco code
    * \param size is the side-size of the code.
+   * \param raw if raw, distorted image should be used
    * \param sourcePth is a pointer to a potential source image, if
    * this pointer is a nullptr (default), then a frame is taken from camera.
    * \returns the number of codes found. */
-  int findAruco(float size, cv::Mat * sourcePtr = nullptr);
+  int findAruco(float size,bool raw = false, cv::Mat * sourcePtr = nullptr);
   /**
    * Make an image with this ArUco ID */
   void saveCodeImage(int arucoID);
@@ -61,8 +62,9 @@ public:
   std::vector<int> arID;
   std::vector<int> IDs;
 
-  bool enable = false;
-  bool update = false;
+  // bool enable = false;
+  // bool update = false;
+  // bool use_raw = false;
 
   UTime fixTime;
   
@@ -91,11 +93,11 @@ protected:
 
 
 private:
-  static void runObj(MArUco * obj)
-  { // called, when thread is started
-    // transfer to the class run() function.
-    obj->run();
-  }
+  // static void runObj(MArUco * obj)
+  // { // called, when thread is started
+  //   // transfer to the class run() function.
+  //   obj->run();
+  // }
   /**
    * print to console and logfile */
   void toLog(const char * message);
@@ -103,7 +105,7 @@ private:
   bool toConsole = false;
   /// Logfile - most details
   FILE * logfile = nullptr;
-  std::thread * th1;
+  // std::thread * th1;
   /// save debug images
   bool debugSave = false;
 };

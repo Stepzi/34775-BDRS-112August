@@ -39,6 +39,7 @@
 #include "sdist.h"
 #include "cheading.h"
 #include "maruco.h"
+#include "simu.h"
 
 #include "bplanIRTEST.h"
 
@@ -167,22 +168,11 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       
       //Case 3 - Stop turning after some angle
       case 3:
-      // Check if currently Aruco in frame
-        if(aruco.update){
-          // check ID
-          for (size_t i = 0; i < aruco.IDs.size(); i++)
-          {
-            if(aruco.IDs[i] == 19 && aruco.pos_m[i][1] > 0){
-              state = 21;
-            }
-          }
-          
-
-        }
         //toLog(std::to_string(pose.turned).c_str());
-        if(abs(pose.turned) > CV_PI*0.8){
+        if(abs(pose.turned) > 0.8-0.02){
           mixer.setTurnrate(0);
           state = 21;
+          t.clear();
         }
       break;
 
@@ -202,12 +192,13 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if(abs(pose.turned) > 0.78)
         {
           state = 13;
+          t.clear();
         } 
       break;
 
       //Case 21 - If robot is seen, clear time and wait until case 6
       case 13: 
-        if(dist.dist[1] < 0.35){
+        if(dist.dist[1] < 0.35 || t.getTimePassed() > 30){
           toLog("Robot seen!");
           t.clear();
           pose.dist = 0;
@@ -251,102 +242,124 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 21: 
         // toLog(std::to_string(dist.dist[0]).c_str()); print out side sensor
         //toLog(std::to_string(dist.dist[1]).c_str());
-        if(dist.dist[1] < 0.35){ // dist.dist should be 1 !!
+        if(dist.dist[1] < 0.35 || t.getTimePassed() > 30){ // dist.dist should be 1 !!
           toLog("Robot seen!");
           t.clear();
           pose.dist = 0;
           pose.resetPose();
-          mixer.setDesiredHeading(-0.75);
-          state = 22;
+          // mixer.setDesiredHeading(-0.75);
+          mixer.setDesiredHeading(0.6);
+          state = 220;
         }
       break;
 
       //Case 22 - After 2 seconds, reset distance, set follow line mode and drive forward slowly.
-      case 22: 
-        //toLog(std::to_string(t.getTimePassed()).c_str());
-        if(abs(pose.turned) > 0.75 - 0.02 && medge.edgeValid)
-        {
-          pose.dist = 0;
-          pose.turned = 0;
-          heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset); 
-          mixer.setVelocity(0.3);
-          state = 94;
-        }
-      break;
-
-      case 94:
-        if(medge.width > 0.09)
-        {
-          mixer.setVelocity(0.0);
-          pose.resetPose();
-          heading.setMaxTurnRate(1);
-          mixer.setDesiredHeading(1.57);
-          state = 95;
-        }
-      break;
-      case 95:
-        if(abs(pose.turned) > (1.57 - 0.02))
-        {
-          mixer.setVelocity(0.3);
-          state = 96;
-        }
-      break;
-      case 96:
-          if(pose.dist > 0.1  && medge.width > 0.06){
-            pose.resetPose();
-            mixer.setVelocity(0.3);
-            state = 97;
-          }
-
-      break;
-
-      case 97:
-        if(pose.dist > 0.05){
-        pose.resetPose();
-        mixer.setVelocity(0.0);
-        mixer.setDesiredHeading(1.57);
-        state = 98;
-        }
-        break;
       
-      case 98:
-        if (abs(pose.turned) > 1.57 - 0.02)
+       case 220: 
+        //toLog(std::to_string(t.getTimePassed()).c_str());
+        if(t.getTimePassed() > 5)
         {
           pose.dist = 0;
-          pose.turned = 0;
+          mixer.setVelocity(0.2);
           heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
-          mixer.setVelocity(0.15);
-          state = 99;
-        }        
+          state = 221;
+        }
       break;
 
-      case 99:
-        if(pose.dist > 0.25)
+      case 221:
+      // toLog(std::to_string(pose.dist).c_str());
+        if(pose.dist > 0.1)
         {
-          heading.setMaxTurnRate(3);
-          mixer.setVelocity(0.30);
-          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset );
+          mixer.setEdgeMode(b_Line_HoldLeft, 0 /*f_Line_LeftOffset*/ );
           pose.dist = 0;
           state = 23;
         }
       break;
+      
+      
+     
+      // case 94:
+      //   if(medge.width > 0.09)
+      //   {
+      //     mixer.setVelocity(0.0);
+      //     pose.resetPose();
+      //     heading.setMaxTurnRate(1);
+      //     mixer.setDesiredHeading(1.57);
+      //     state = 95;
+      //   }
+      // break;
+      // case 95:
+      //   if(abs(pose.turned) > (1.57 - 0.02))
+      //   {
+      //     mixer.setVelocity(0.3);
+      //     state = 96;
+      //   }
+      // break;
+      // case 96:
+      //     if(pose.dist > 0.1  && medge.width > 0.06){
+      //       pose.resetPose();
+      //       mixer.setVelocity(0.3);
+      //       state = 97;
+      //     }
+
+      // break;
+
+      // case 97:
+      //   if(pose.dist > 0.05){
+      //   pose.resetPose();
+      //   mixer.setVelocity(0.0);
+      //   mixer.setDesiredHeading(CV_PI*0.95);
+      //   state = 98;
+      //   }
+      //   break;
+      
+      // case 98:
+      //   // pose.turned = 0;
+      //   if (abs(pose.turned) > 1.57 - 0.02 && medge.edgeValid)
+      //   {
+      //     pose.dist = 0;
+      //     pose.turned = 0;
+      //     heading.setMaxTurnRate(3);
+      //     mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
+      //     mixer.setVelocity(0.15);
+      //     state = 99;
+      //   }        
+      // break;
+
+      // case 99:
+      //   if(pose.dist > 0.25)
+      //   {
+      //     heading.setMaxTurnRate(3);
+      //     mixer.setVelocity(0.30);
+      //     mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset );
+      //     pose.dist = 0;
+      //     state = 23;
+      //   }
+      // break;
 
       //Case 23 - After 0.6 driven, set up speed, follow right with new offset and go to case 8
       case 23:
-        if(pose.dist > 0.55)
+        if(pose.dist > 0.55) // Tune here maybe
         {
           mixer.setVelocity(0.35);
-          mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
-          state = 24;
+          state = 240;
+          pose.dist = 0;
         }
 
       break;
 
+      case 240:
+        if (pose.dist > 1.5){
+          mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
+          state = 24;
+        }
+      break;
+
       //Case 24 - At crossing, attempt to go into roundabout
       case 24:
-      if(medge.width > f_LineWidth_Crossing) //0.07
+      // toLog(std::to_string(pose.dist).c_str());
+      
+      if(medge.width > f_LineWidth_Crossing && pose.dist > 4.2) //0.07
         { 
           mixer.setVelocity(0.30);
           //pose.resetPose();
@@ -361,12 +374,14 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       if(pose.dist > 0.7) //0.07
         { 
           
-          mixer.setVelocity(0);
-          //pose.resetPose();
+          mixer.setVelocity(0.0);
+          pose.resetPose();
           toLog("Make 3 test");
           pose.resetPose();
+          // heading.setMaxTurnRate(0.3);
           heading.setMaxTurnRate(1);
-          mixer.setDesiredHeading(1.28);
+          // mixer.setTurnrate(0.5);
+          mixer.setDesiredHeading(CV_PI*0.95);
           //state = 25;
           state = 26;
         }
@@ -376,18 +391,35 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 26:
       //TEST IF WE CAN DRIVE NEGATIVE AND GO BACKWARDS
       //toLog("Turned");
-      //toLog(std::to_string(pose.turned).c_str());
+      toLog(std::to_string(pose.turned).c_str());
+      // Keep on turning
+      // pose.turned = 0;
+      // mixer.setDesiredHeading(CV_PI*0.95);
       //toLog("Turnerate");
       //toLog(std::to_string(pose.turnrate).c_str());
 
+      
+      // if(aruco.findAruco(0.1,true)){
+      //     // check ID
+      //     for (size_t i = 0; i < aruco.IDs.size(); i++)
+      //     {
+      //       if(aruco.IDs[i] == 19/* && aruco.pos_m[i][1] > 0*/){
+      //         toLog(std::to_string(aruco.pos_m[i][1]).c_str());
+      //         state = 27;
+      //       }
+      //     }          
+
+      //   }
 
         if(abs(pose.turned) > 1.28-0.02){
           speed  = 0;
           state = 27;
         }
+
       break;
 
       case 27:
+        
         if(speed > -0.45) //RAMP DOWN BEFORE TURN
         {
           speed = speed - 0.003;
@@ -403,27 +435,37 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       /************************ On the roundabout *************************/
       /********************************************************************/
       //Case 31 - after some distance, stop and turn for the circle
-      case 31:
-      {
-        float accel = imu.acc[2];
-
-       
+      // case 31:
+      // {
+      //   float accel = imu.acc[2];       
           
-        if((abs(pose.dist) > 0.55) || accel > 0.2)
-        {
-          const int MSL = 100;
-          char s[MSL];
-          snprintf(s, MSL, "detected first shock: %f \n", accel);
-          pose.resetPose();
-          // pose.dist = 0;
-          state = 311;
-          t.clear();
-        } 
-      break;
-      }
+      //   if((abs(pose.dist) > 0.55) || accel > 0.2)
+      //   {
+      //     const int MSL = 100;
+      //     char s[MSL];
+      //     snprintf(s, MSL, "detected first shock: %f \n", accel);
+      //     pose.resetPose();
+      //     // pose.dist = 0;
+      //     state = 311;
+      //     t.clear();
+      //   } 
+      // break;
+      // }
       
-      case 311:
-        if((abs(pose.dist) > 0.2)) // TUNING HERE
+      // case 311:
+      //   if((abs(pose.dist) > 0.2)) // TUNING HERE
+      //   {
+      //     pose.resetPose();
+      //     mixer.setVelocity(0); //TEST THIS!!!!!
+      //     heading.setMaxTurnRate(3);
+      //     mixer.setDesiredHeading(1.6);
+      //     state = 32;
+      //     t.clear();
+      //   } 
+      // break;
+
+      case 31:
+        if((abs(pose.dist) > 0.55))
         {
           pose.resetPose();
           mixer.setVelocity(0); //TEST THIS!!!!!
@@ -481,7 +523,8 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if(abs(pose.dist) > 0.08)
         {
           mixer.setVelocity(0);
-            state = 41;
+          t.clear();
+          state = 41;
         } 
       break;
 
@@ -498,7 +541,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //Case 41 - If robot is seen, clear time and wait until case 6
       case 41: 
       toLog(std::to_string(dist.dist[1]).c_str());
-        if(dist.dist[1] < 0.35)
+        if(dist.dist[1] < 0.35 || t.getTimePassed() > 30)
         {
           toLog("Robot seen!");
           heading.setMaxTurnRate(3);
