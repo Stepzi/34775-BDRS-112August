@@ -149,18 +149,21 @@ int MArUco::findAruco(float size, cv::Mat * sourcePtr)
   cv::aruco::estimatePoseSingleMarkers(markerCorners, size, cam.cameraMatrix, cam.distCoeffs, arRotate, arTranslate);
   if(count)
   {
+    
     fixTime = imgTime;
     IDs = arID;
     pos_m.clear();
     rot_m.clear();
     for (int i = 0; i < count; i++)
     { // convert to robot coordinates
-
       pos_m.push_back(cam.getPositionInRobotCoordinates(aruco.arTranslate[i]));
       // rotation
-      rot_m.push_back(cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));
-      
+      rot_m.push_back(cam.getOrientationInRobotEulerAngles(aruco.arRotate[i], true));      
     }
+    update = true;
+    
+  }else{
+    update = false;
   }
   //
   if (debugSave and count>0)

@@ -38,6 +38,7 @@
 #include "cmixer.h"
 #include "sdist.h"
 #include "cheading.h"
+#include "maruco.h"
 
 #include "bplanIRTEST.h"
 
@@ -166,8 +167,20 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       
       //Case 3 - Stop turning after some angle
       case 3:
+      // Check if currently Aruco in frame
+        if(aruco.update){
+          // check ID
+          for (size_t i = 0; i < aruco.IDs.size(); i++)
+          {
+            if(aruco.IDs[i] == 19 && aruco.pos_m[i][1] > 0){
+              state = 21;
+            }
+          }
+          
+
+        }
         //toLog(std::to_string(pose.turned).c_str());
-        if(abs(pose.turned) > 0.8-0.02){
+        if(abs(pose.turned) > CV_PI*0.8){
           mixer.setTurnrate(0);
           state = 21;
         }
@@ -391,7 +404,26 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       /********************************************************************/
       //Case 31 - after some distance, stop and turn for the circle
       case 31:
-        if((abs(pose.dist) > 0.55))
+      {
+        float accel = imu.acc[2];
+
+       
+          
+        if((abs(pose.dist) > 0.55) || accel > 0.2)
+        {
+          const int MSL = 100;
+          char s[MSL];
+          snprintf(s, MSL, "detected first shock: %f \n", accel);
+          pose.resetPose();
+          // pose.dist = 0;
+          state = 311;
+          t.clear();
+        } 
+      break;
+      }
+      
+      case 311:
+        if((abs(pose.dist) > 0.2)) // TUNING HERE
         {
           pose.resetPose();
           mixer.setVelocity(0); //TEST THIS!!!!!

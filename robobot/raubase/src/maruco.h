@@ -62,6 +62,7 @@ public:
   std::vector<int> IDs;
 
   bool enable = false;
+  bool update = false;
 
   UTime fixTime;
   

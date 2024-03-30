@@ -112,7 +112,7 @@ void BSeesaw::run()
   //seesaw variables
   float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
   float edgeToSeesaw       =  0.84;   //seesaw - distance from the edge to the tilting point
-  float edgeWidth          =  1.098;  //seesaw - distance to assume the robot went down the step
+  float edgeWidth          =  0.2;  //0.098 seesaw - distance to assume the robot went down the step
 
   //ramp variables
   float rampUpDistance     = 2;       //distance from getting back on line to the start of the turn on the plateu
@@ -489,7 +489,7 @@ void BSeesaw::run_withGolf()
   //seesaw variables
   float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
   float edgeToSeesaw       =  0.84;   //seesaw - distance from the edge to the tilting point
-  float edgeWidth          =  1.098;  //seesaw - distance to assume the robot went down the step
+  float edgeWidth          =  0.2;    //0.098 seesaw - distance to assume the robot went down the step
 
   //ramp variables
   float rampUpDistance     = 2;       //distance from getting back on line to the start of the turn on the plateu
@@ -710,8 +710,6 @@ void BSeesaw::run_withGolf()
       break;
 
       case 7:
-        /*if (servo.servo_position[1] < -400)
-        {*/
         pose.dist = 0;
         mixer.setEdgeMode(leftEdge, lineOffset);
         toLog("going down");
