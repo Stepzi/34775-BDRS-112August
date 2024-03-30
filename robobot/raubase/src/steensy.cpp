@@ -38,6 +38,7 @@
 #include "uservice.h"
 #include "sstate.h"
 #include "sencoder.h"
+#include "cmixer.h"
 
 using namespace std;
 
@@ -545,6 +546,11 @@ void STeensy::run()
       // don't close connection based on a NPT update
       ntpUpdate = true;
       printf("# NTP update? time glitch of %.3f sec\n", tit[9].getTimePassed());
+      
+      pose.resetPose();
+      mixer.setTurnrate(0);
+      mixer.setVelocity(0);
+
       fflush(nullptr);
     }
     tit[9].now();

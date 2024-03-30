@@ -471,7 +471,7 @@ void BSeesaw::run_withGolf()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 160;
+  state = 1;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -842,7 +842,7 @@ void BSeesaw::run_withGolf()
           heading.setMaxTurnRate(3);
           mixer.setEdgeMode(rightEdge, lineOffset);
           mixer.setVelocity(0.1); 
-          state = 16;  
+          state = 160;  
           finished = true;    
         }
         break;
@@ -866,6 +866,7 @@ void BSeesaw::run_withGolf()
           medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
           mixer.setVelocity(0.1);
+          pose.dist = 0;
           state = 17;
           // servo.setServo(2,servo_down,servo_velocity);
         }
@@ -875,8 +876,8 @@ void BSeesaw::run_withGolf()
 
       case 17:
       {
-        // toLog(std::to_string(pose.dist).c_str());
-        if(pose.dist > 20 || imu.acc[0] < 0.3 /*|| (medge.width > intersectionWidth) */){
+        toLog(std::to_string(pose.dist).c_str());
+        if(pose.dist > 2.31 && imu.acc[0] < 0.3 ){
           toLog("On plateau");
           pose.dist = 0;
           state = 18;
@@ -902,7 +903,7 @@ void BSeesaw::run_withGolf()
         if(pose.turned > CV_PI/2-CV_PI/4){
           pose.resetPose();
           mixer.setDesiredHeading(CV_PI*0.9);
-          mixer.setVelocity(0);
+          mixer.setVelocity(-0.0);
           state = 19;
           // finished = true;
         }
@@ -917,7 +918,9 @@ void BSeesaw::run_withGolf()
         roi.push_back(cv::Point(500,520));  //point3
         roi.push_back(cv::Point(900,520));  //point4
         
-        if(!golfball.findGolfball(center, roi, nullptr,0)){
+        if(!golfball.findGolfball(center, roi, nullptr,0) &&
+         !golfball.findGolfball(center, roi, nullptr,0) &&
+         !golfball.findGolfball(center, roi, nullptr,0)){
           toLog("Golfball gone");
           state = 30;
           pose.resetPose();
@@ -947,7 +950,9 @@ void BSeesaw::run_withGolf()
         roi.push_back(cv::Point(500,520));  //point3
         roi.push_back(cv::Point(900,520));  //point4
 
-        if(!golfball.findGolfball(center, roi, nullptr,0)){
+        if(!golfball.findGolfball(center, roi, nullptr,0) &&
+         !golfball.findGolfball(center, roi, nullptr,0) &&
+         !golfball.findGolfball(center, roi, nullptr,0)){
           toLog("Golfball gone");
           pose.resetPose();
           mixer.setVelocity(0);
