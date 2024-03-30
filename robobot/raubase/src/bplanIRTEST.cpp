@@ -412,6 +412,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       //   }
 
         if(abs(pose.turned) > 1.28-0.02){
+          pose.resetPose();
           speed  = 0;
           state = 27;
         }
@@ -540,7 +541,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       /********************************************************************/
       //Case 41 - If robot is seen, clear time and wait until case 6
       case 41: 
-      toLog(std::to_string(dist.dist[1]).c_str());
+      // toLog(std::to_string(dist.dist[1]).c_str());
         if(dist.dist[1] < 0.35 || t.getTimePassed() > 30)
         {
           toLog("Robot seen!");

@@ -734,8 +734,8 @@ void BSeesaw::run_withGolf()
       break;
 
       case 9:
-        // toLog(std::to_string(pose.dist).c_str());
-        if((medge.width < lineGone)/*&&pose.dist > 0.8*/)
+        toLog(std::to_string(pose.dist).c_str());
+        if((medge.width < lineGone) && pose.dist > 0.8)
         {
           medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
