@@ -1,24 +1,33 @@
-# UService:: created directory log_20240127_151817.787/
+# UService:: created directory log_20240331_145406.188/
 # UService::setup: open to Teensy
-# STeensy::setup: took 0.010057 sec to open to Teensy
+# STeensy::setup: took 0.010109 sec to open to Teensy
 # SState::decode: asked for new name (idi -> dname)
-# STeensy::run: Confirm OK after 3 retry and 0.1439s: send';47!idi
+# STeensy::run: Confirm OK after 3 retry and 0.1428s: send';47!idi
 '# SpyVision:: disabled in robot.ini
 # Video device 0: width=1280, height=720, format=MJPG, FPS=25
 # Camera is running (to stabilize illumination)
-# UService::setup - waited 0.277935 sec for full setup
+# UService::setup - waited 0.275824 sec for full setup
 # UService:: Teensy setup communication msg resend 2, dumped 0 messages
-1706365098.0664 10 % Plan100 started
-1706365098.0664 10 % Reset pose
-1706365098.0664 10 % forward at 0.3m/s
-1706365098.0664 11 % state start
-1706365099.1213 11 % now turn at 0.5 rad/s and 0 m/s
-1706365099.1214 21 % state start
-1706518583.3011 21 % Plan100 got lost
-# NTP update? time glitch of 153480.000 sec
-# Teenst message discarded (crc-error) ;;95hbt 92.5113 121 1646 11.97 0 9 22.4 1 1
-
+1711889646.4648 1 % PlanCrossMission started
+1711889646.4648 1 % Started on Line
+1711889646.4648 1 % Follow Line with velocity 0.25
+1711889646.4649 1 % State change from 1 to 2
+# UService:: stop_switch say stop now
+Caught signal -1
 # --------- terminating -----------
+1711889648.8223 2 % PlanCrossMission finished
+1711889648.8225 1 % PlanIRTEST started
+1711889648.8225 1 % Time stamp, IR dist 0, IR dist 1
+1711889648.8225 1 % PlanIRTEST finished
+1711889648.8226 1 % axe started
+1711889648.8226 1 % axe finished
+1711889648.8226 3 % PlanCrossMission started
+1711889648.8226 3 % PlanCrossMission finished
+1711889648.8227 0 % PlanGate started
+1711889648.8227 0 % PlanGate finished
+1711889648.8238 0 % racetrack started
+1711889648.8238 0 % racetrack finished
 # UCam::run: camera released
-# UCam:: logfile closed
+# STeensy::run: Confirm OK after 10 retry and 0.3785s: send';38!servo 2 10000 0
+'# UCam:: logfile closed
 # UService:: configuration saved to robot.ini

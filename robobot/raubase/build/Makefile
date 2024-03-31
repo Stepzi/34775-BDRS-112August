@@ -142,6 +142,33 @@ raubase/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/build
 .PHONY : raubase/fast
 
+src/bStairs.o: src/bStairs.cpp.o
+
+.PHONY : src/bStairs.o
+
+# target to build an object file
+src/bStairs.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bStairs.cpp.o
+.PHONY : src/bStairs.cpp.o
+
+src/bStairs.i: src/bStairs.cpp.i
+
+.PHONY : src/bStairs.i
+
+# target to preprocess a source file
+src/bStairs.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bStairs.cpp.i
+.PHONY : src/bStairs.cpp.i
+
+src/bStairs.s: src/bStairs.cpp.s
+
+.PHONY : src/bStairs.s
+
+# target to generate assembly for a file
+src/bStairs.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bStairs.cpp.s
+.PHONY : src/bStairs.cpp.s
+
 src/baxe.o: src/baxe.cpp.o
 
 .PHONY : src/baxe.o
@@ -439,6 +466,33 @@ src/bracetrack.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bracetrack.cpp.s
 .PHONY : src/bracetrack.cpp.s
 
+src/bseesaw.o: src/bseesaw.cpp.o
+
+.PHONY : src/bseesaw.o
+
+# target to build an object file
+src/bseesaw.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bseesaw.cpp.o
+.PHONY : src/bseesaw.cpp.o
+
+src/bseesaw.i: src/bseesaw.cpp.i
+
+.PHONY : src/bseesaw.i
+
+# target to preprocess a source file
+src/bseesaw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bseesaw.cpp.i
+.PHONY : src/bseesaw.cpp.i
+
+src/bseesaw.s: src/bseesaw.cpp.s
+
+.PHONY : src/bseesaw.s
+
+# target to generate assembly for a file
+src/bseesaw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/bseesaw.cpp.s
+.PHONY : src/bseesaw.cpp.s
+
 src/cedge.o: src/cedge.cpp.o
 
 .PHONY : src/cedge.o
@@ -654,6 +708,33 @@ src/medge.s: src/medge.cpp.s
 src/medge.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/medge.cpp.s
 .PHONY : src/medge.cpp.s
+
+src/mgolfball.o: src/mgolfball.cpp.o
+
+.PHONY : src/mgolfball.o
+
+# target to build an object file
+src/mgolfball.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/mgolfball.cpp.o
+.PHONY : src/mgolfball.cpp.o
+
+src/mgolfball.i: src/mgolfball.cpp.i
+
+.PHONY : src/mgolfball.i
+
+# target to preprocess a source file
+src/mgolfball.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/mgolfball.cpp.i
+.PHONY : src/mgolfball.cpp.i
+
+src/mgolfball.s: src/mgolfball.cpp.s
+
+.PHONY : src/mgolfball.s
+
+# target to generate assembly for a file
+src/mgolfball.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/raubase.dir/build.make CMakeFiles/raubase.dir/src/mgolfball.cpp.s
+.PHONY : src/mgolfball.cpp.s
 
 src/mpose.o: src/mpose.cpp.o
 
@@ -1069,6 +1150,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... raubase"
+	@echo "... src/bStairs.o"
+	@echo "... src/bStairs.i"
+	@echo "... src/bStairs.s"
 	@echo "... src/baxe.o"
 	@echo "... src/baxe.i"
 	@echo "... src/baxe.s"
@@ -1102,6 +1186,9 @@ help:
 	@echo "... src/bracetrack.o"
 	@echo "... src/bracetrack.i"
 	@echo "... src/bracetrack.s"
+	@echo "... src/bseesaw.o"
+	@echo "... src/bseesaw.i"
+	@echo "... src/bseesaw.s"
 	@echo "... src/cedge.o"
 	@echo "... src/cedge.i"
 	@echo "... src/cedge.s"
@@ -1126,6 +1213,9 @@ help:
 	@echo "... src/medge.o"
 	@echo "... src/medge.i"
 	@echo "... src/medge.s"
+	@echo "... src/mgolfball.o"
+	@echo "... src/mgolfball.i"
+	@echo "... src/mgolfball.s"
 	@echo "... src/mpose.o"
 	@echo "... src/mpose.i"
 	@echo "... src/mpose.s"

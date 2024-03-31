@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/raubase.dir/src/bStairs.cpp.o"
   "CMakeFiles/raubase.dir/src/baxe.cpp.o"
   "CMakeFiles/raubase.dir/src/bmission0.cpp.o"
   "CMakeFiles/raubase.dir/src/bplan100.cpp.o"
@@ -10,6 +11,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/raubase.dir/src/bplanGate.cpp.o"
   "CMakeFiles/raubase.dir/src/bplanIRTEST.cpp.o"
   "CMakeFiles/raubase.dir/src/bracetrack.cpp.o"
+  "CMakeFiles/raubase.dir/src/bseesaw.cpp.o"
   "CMakeFiles/raubase.dir/src/cedge.cpp.o"
   "CMakeFiles/raubase.dir/src/cheading.cpp.o"
   "CMakeFiles/raubase.dir/src/cmixer.cpp.o"
@@ -18,6 +20,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/raubase.dir/src/main.cpp.o"
   "CMakeFiles/raubase.dir/src/maruco.cpp.o"
   "CMakeFiles/raubase.dir/src/medge.cpp.o"
+  "CMakeFiles/raubase.dir/src/mgolfball.cpp.o"
   "CMakeFiles/raubase.dir/src/mpose.cpp.o"
   "CMakeFiles/raubase.dir/src/scam.cpp.o"
   "CMakeFiles/raubase.dir/src/sdist.cpp.o"

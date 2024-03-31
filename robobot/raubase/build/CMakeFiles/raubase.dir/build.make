@@ -180,9 +180,22 @@ CMakeFiles/raubase.dir/src/bmission0.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raubase.dir/src/bmission0.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/local/svn/robobot/raubase/src/bmission0.cpp -o CMakeFiles/raubase.dir/src/bmission0.cpp.s
 
+CMakeFiles/raubase.dir/src/bseesaw.cpp.o: CMakeFiles/raubase.dir/flags.make
+CMakeFiles/raubase.dir/src/bseesaw.cpp.o: ../src/bseesaw.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/raubase.dir/src/bseesaw.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/bseesaw.cpp.o -c /home/local/svn/robobot/raubase/src/bseesaw.cpp
+
+CMakeFiles/raubase.dir/src/bseesaw.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/raubase.dir/src/bseesaw.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/local/svn/robobot/raubase/src/bseesaw.cpp > CMakeFiles/raubase.dir/src/bseesaw.cpp.i
+
+CMakeFiles/raubase.dir/src/bseesaw.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raubase.dir/src/bseesaw.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/local/svn/robobot/raubase/src/bseesaw.cpp -o CMakeFiles/raubase.dir/src/bseesaw.cpp.s
+
 CMakeFiles/raubase.dir/src/bracetrack.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/bracetrack.cpp.o: ../src/bracetrack.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/raubase.dir/src/bracetrack.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/raubase.dir/src/bracetrack.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/bracetrack.cpp.o -c /home/local/svn/robobot/raubase/src/bracetrack.cpp
 
 CMakeFiles/raubase.dir/src/bracetrack.cpp.i: cmake_force
@@ -195,7 +208,7 @@ CMakeFiles/raubase.dir/src/bracetrack.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/baxe.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/baxe.cpp.o: ../src/baxe.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/raubase.dir/src/baxe.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/raubase.dir/src/baxe.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/baxe.cpp.o -c /home/local/svn/robobot/raubase/src/baxe.cpp
 
 CMakeFiles/raubase.dir/src/baxe.cpp.i: cmake_force
@@ -208,7 +221,7 @@ CMakeFiles/raubase.dir/src/baxe.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/bplan101.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/bplan101.cpp.o: ../src/bplan101.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/raubase.dir/src/bplan101.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/raubase.dir/src/bplan101.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/bplan101.cpp.o -c /home/local/svn/robobot/raubase/src/bplan101.cpp
 
 CMakeFiles/raubase.dir/src/bplan101.cpp.i: cmake_force
@@ -221,7 +234,7 @@ CMakeFiles/raubase.dir/src/bplan101.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/cedge.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/cedge.cpp.o: ../src/cedge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/raubase.dir/src/cedge.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/raubase.dir/src/cedge.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/cedge.cpp.o -c /home/local/svn/robobot/raubase/src/cedge.cpp
 
 CMakeFiles/raubase.dir/src/cedge.cpp.i: cmake_force
@@ -232,9 +245,22 @@ CMakeFiles/raubase.dir/src/cedge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raubase.dir/src/cedge.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/local/svn/robobot/raubase/src/cedge.cpp -o CMakeFiles/raubase.dir/src/cedge.cpp.s
 
+CMakeFiles/raubase.dir/src/bStairs.cpp.o: CMakeFiles/raubase.dir/flags.make
+CMakeFiles/raubase.dir/src/bStairs.cpp.o: ../src/bStairs.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/raubase.dir/src/bStairs.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/bStairs.cpp.o -c /home/local/svn/robobot/raubase/src/bStairs.cpp
+
+CMakeFiles/raubase.dir/src/bStairs.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/raubase.dir/src/bStairs.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/local/svn/robobot/raubase/src/bStairs.cpp > CMakeFiles/raubase.dir/src/bStairs.cpp.i
+
+CMakeFiles/raubase.dir/src/bStairs.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raubase.dir/src/bStairs.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/local/svn/robobot/raubase/src/bStairs.cpp -o CMakeFiles/raubase.dir/src/bStairs.cpp.s
+
 CMakeFiles/raubase.dir/src/cheading.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/cheading.cpp.o: ../src/cheading.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/raubase.dir/src/cheading.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/raubase.dir/src/cheading.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/cheading.cpp.o -c /home/local/svn/robobot/raubase/src/cheading.cpp
 
 CMakeFiles/raubase.dir/src/cheading.cpp.i: cmake_force
@@ -247,7 +273,7 @@ CMakeFiles/raubase.dir/src/cheading.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/cmixer.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/cmixer.cpp.o: ../src/cmixer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/raubase.dir/src/cmixer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/raubase.dir/src/cmixer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/cmixer.cpp.o -c /home/local/svn/robobot/raubase/src/cmixer.cpp
 
 CMakeFiles/raubase.dir/src/cmixer.cpp.i: cmake_force
@@ -260,7 +286,7 @@ CMakeFiles/raubase.dir/src/cmixer.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/cmotor.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/cmotor.cpp.o: ../src/cmotor.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/raubase.dir/src/cmotor.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/raubase.dir/src/cmotor.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/cmotor.cpp.o -c /home/local/svn/robobot/raubase/src/cmotor.cpp
 
 CMakeFiles/raubase.dir/src/cmotor.cpp.i: cmake_force
@@ -273,7 +299,7 @@ CMakeFiles/raubase.dir/src/cmotor.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/cservo.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/cservo.cpp.o: ../src/cservo.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/raubase.dir/src/cservo.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/raubase.dir/src/cservo.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/cservo.cpp.o -c /home/local/svn/robobot/raubase/src/cservo.cpp
 
 CMakeFiles/raubase.dir/src/cservo.cpp.i: cmake_force
@@ -286,7 +312,7 @@ CMakeFiles/raubase.dir/src/cservo.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/main.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/main.cpp.o: ../src/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/raubase.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/raubase.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/main.cpp.o -c /home/local/svn/robobot/raubase/src/main.cpp
 
 CMakeFiles/raubase.dir/src/main.cpp.i: cmake_force
@@ -299,7 +325,7 @@ CMakeFiles/raubase.dir/src/main.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/maruco.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/maruco.cpp.o: ../src/maruco.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/raubase.dir/src/maruco.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/raubase.dir/src/maruco.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/maruco.cpp.o -c /home/local/svn/robobot/raubase/src/maruco.cpp
 
 CMakeFiles/raubase.dir/src/maruco.cpp.i: cmake_force
@@ -312,7 +338,7 @@ CMakeFiles/raubase.dir/src/maruco.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/medge.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/medge.cpp.o: ../src/medge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/raubase.dir/src/medge.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/raubase.dir/src/medge.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/medge.cpp.o -c /home/local/svn/robobot/raubase/src/medge.cpp
 
 CMakeFiles/raubase.dir/src/medge.cpp.i: cmake_force
@@ -325,7 +351,7 @@ CMakeFiles/raubase.dir/src/medge.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/mpose.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/mpose.cpp.o: ../src/mpose.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/raubase.dir/src/mpose.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/raubase.dir/src/mpose.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/mpose.cpp.o -c /home/local/svn/robobot/raubase/src/mpose.cpp
 
 CMakeFiles/raubase.dir/src/mpose.cpp.i: cmake_force
@@ -336,9 +362,22 @@ CMakeFiles/raubase.dir/src/mpose.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raubase.dir/src/mpose.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/local/svn/robobot/raubase/src/mpose.cpp -o CMakeFiles/raubase.dir/src/mpose.cpp.s
 
+CMakeFiles/raubase.dir/src/mgolfball.cpp.o: CMakeFiles/raubase.dir/flags.make
+CMakeFiles/raubase.dir/src/mgolfball.cpp.o: ../src/mgolfball.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/raubase.dir/src/mgolfball.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/mgolfball.cpp.o -c /home/local/svn/robobot/raubase/src/mgolfball.cpp
+
+CMakeFiles/raubase.dir/src/mgolfball.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/raubase.dir/src/mgolfball.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/local/svn/robobot/raubase/src/mgolfball.cpp > CMakeFiles/raubase.dir/src/mgolfball.cpp.i
+
+CMakeFiles/raubase.dir/src/mgolfball.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raubase.dir/src/mgolfball.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/local/svn/robobot/raubase/src/mgolfball.cpp -o CMakeFiles/raubase.dir/src/mgolfball.cpp.s
+
 CMakeFiles/raubase.dir/src/scam.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/scam.cpp.o: ../src/scam.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/raubase.dir/src/scam.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/raubase.dir/src/scam.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/scam.cpp.o -c /home/local/svn/robobot/raubase/src/scam.cpp
 
 CMakeFiles/raubase.dir/src/scam.cpp.i: cmake_force
@@ -351,7 +390,7 @@ CMakeFiles/raubase.dir/src/scam.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/sedge.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/sedge.cpp.o: ../src/sedge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/raubase.dir/src/sedge.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/raubase.dir/src/sedge.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/sedge.cpp.o -c /home/local/svn/robobot/raubase/src/sedge.cpp
 
 CMakeFiles/raubase.dir/src/sedge.cpp.i: cmake_force
@@ -364,7 +403,7 @@ CMakeFiles/raubase.dir/src/sedge.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/sencoder.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/sencoder.cpp.o: ../src/sencoder.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/raubase.dir/src/sencoder.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object CMakeFiles/raubase.dir/src/sencoder.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/sencoder.cpp.o -c /home/local/svn/robobot/raubase/src/sencoder.cpp
 
 CMakeFiles/raubase.dir/src/sencoder.cpp.i: cmake_force
@@ -377,7 +416,7 @@ CMakeFiles/raubase.dir/src/sencoder.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/sgpiod.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/sgpiod.cpp.o: ../src/sgpiod.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/raubase.dir/src/sgpiod.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object CMakeFiles/raubase.dir/src/sgpiod.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/sgpiod.cpp.o -c /home/local/svn/robobot/raubase/src/sgpiod.cpp
 
 CMakeFiles/raubase.dir/src/sgpiod.cpp.i: cmake_force
@@ -390,7 +429,7 @@ CMakeFiles/raubase.dir/src/sgpiod.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/simu.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/simu.cpp.o: ../src/simu.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/raubase.dir/src/simu.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object CMakeFiles/raubase.dir/src/simu.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/simu.cpp.o -c /home/local/svn/robobot/raubase/src/simu.cpp
 
 CMakeFiles/raubase.dir/src/simu.cpp.i: cmake_force
@@ -403,7 +442,7 @@ CMakeFiles/raubase.dir/src/simu.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/sdist.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/sdist.cpp.o: ../src/sdist.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object CMakeFiles/raubase.dir/src/sdist.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object CMakeFiles/raubase.dir/src/sdist.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/sdist.cpp.o -c /home/local/svn/robobot/raubase/src/sdist.cpp
 
 CMakeFiles/raubase.dir/src/sdist.cpp.i: cmake_force
@@ -416,7 +455,7 @@ CMakeFiles/raubase.dir/src/sdist.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/sjoylogitech.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/sjoylogitech.cpp.o: ../src/sjoylogitech.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object CMakeFiles/raubase.dir/src/sjoylogitech.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/raubase.dir/src/sjoylogitech.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/sjoylogitech.cpp.o -c /home/local/svn/robobot/raubase/src/sjoylogitech.cpp
 
 CMakeFiles/raubase.dir/src/sjoylogitech.cpp.i: cmake_force
@@ -429,7 +468,7 @@ CMakeFiles/raubase.dir/src/sjoylogitech.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/spyvision.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/spyvision.cpp.o: ../src/spyvision.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object CMakeFiles/raubase.dir/src/spyvision.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/raubase.dir/src/spyvision.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/spyvision.cpp.o -c /home/local/svn/robobot/raubase/src/spyvision.cpp
 
 CMakeFiles/raubase.dir/src/spyvision.cpp.i: cmake_force
@@ -442,7 +481,7 @@ CMakeFiles/raubase.dir/src/spyvision.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/sstate.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/sstate.cpp.o: ../src/sstate.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object CMakeFiles/raubase.dir/src/sstate.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/raubase.dir/src/sstate.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/sstate.cpp.o -c /home/local/svn/robobot/raubase/src/sstate.cpp
 
 CMakeFiles/raubase.dir/src/sstate.cpp.i: cmake_force
@@ -455,7 +494,7 @@ CMakeFiles/raubase.dir/src/sstate.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/steensy.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/steensy.cpp.o: ../src/steensy.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/raubase.dir/src/steensy.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/raubase.dir/src/steensy.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/steensy.cpp.o -c /home/local/svn/robobot/raubase/src/steensy.cpp
 
 CMakeFiles/raubase.dir/src/steensy.cpp.i: cmake_force
@@ -468,7 +507,7 @@ CMakeFiles/raubase.dir/src/steensy.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/upid.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/upid.cpp.o: ../src/upid.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/raubase.dir/src/upid.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/raubase.dir/src/upid.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/upid.cpp.o -c /home/local/svn/robobot/raubase/src/upid.cpp
 
 CMakeFiles/raubase.dir/src/upid.cpp.i: cmake_force
@@ -481,7 +520,7 @@ CMakeFiles/raubase.dir/src/upid.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/uservice.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/uservice.cpp.o: ../src/uservice.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/raubase.dir/src/uservice.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object CMakeFiles/raubase.dir/src/uservice.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/uservice.cpp.o -c /home/local/svn/robobot/raubase/src/uservice.cpp
 
 CMakeFiles/raubase.dir/src/uservice.cpp.i: cmake_force
@@ -494,7 +533,7 @@ CMakeFiles/raubase.dir/src/uservice.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/usocket.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/usocket.cpp.o: ../src/usocket.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/raubase.dir/src/usocket.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object CMakeFiles/raubase.dir/src/usocket.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/usocket.cpp.o -c /home/local/svn/robobot/raubase/src/usocket.cpp
 
 CMakeFiles/raubase.dir/src/usocket.cpp.i: cmake_force
@@ -507,7 +546,7 @@ CMakeFiles/raubase.dir/src/usocket.cpp.s: cmake_force
 
 CMakeFiles/raubase.dir/src/utime.cpp.o: CMakeFiles/raubase.dir/flags.make
 CMakeFiles/raubase.dir/src/utime.cpp.o: ../src/utime.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/raubase.dir/src/utime.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object CMakeFiles/raubase.dir/src/utime.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/raubase.dir/src/utime.cpp.o -c /home/local/svn/robobot/raubase/src/utime.cpp
 
 CMakeFiles/raubase.dir/src/utime.cpp.i: cmake_force
@@ -528,10 +567,12 @@ raubase_OBJECTS = \
 "CMakeFiles/raubase.dir/src/bplan40.cpp.o" \
 "CMakeFiles/raubase.dir/src/bplan100.cpp.o" \
 "CMakeFiles/raubase.dir/src/bmission0.cpp.o" \
+"CMakeFiles/raubase.dir/src/bseesaw.cpp.o" \
 "CMakeFiles/raubase.dir/src/bracetrack.cpp.o" \
 "CMakeFiles/raubase.dir/src/baxe.cpp.o" \
 "CMakeFiles/raubase.dir/src/bplan101.cpp.o" \
 "CMakeFiles/raubase.dir/src/cedge.cpp.o" \
+"CMakeFiles/raubase.dir/src/bStairs.cpp.o" \
 "CMakeFiles/raubase.dir/src/cheading.cpp.o" \
 "CMakeFiles/raubase.dir/src/cmixer.cpp.o" \
 "CMakeFiles/raubase.dir/src/cmotor.cpp.o" \
@@ -540,6 +581,7 @@ raubase_OBJECTS = \
 "CMakeFiles/raubase.dir/src/maruco.cpp.o" \
 "CMakeFiles/raubase.dir/src/medge.cpp.o" \
 "CMakeFiles/raubase.dir/src/mpose.cpp.o" \
+"CMakeFiles/raubase.dir/src/mgolfball.cpp.o" \
 "CMakeFiles/raubase.dir/src/scam.cpp.o" \
 "CMakeFiles/raubase.dir/src/sedge.cpp.o" \
 "CMakeFiles/raubase.dir/src/sencoder.cpp.o" \
@@ -566,10 +608,12 @@ raubase: CMakeFiles/raubase.dir/src/bplan21.cpp.o
 raubase: CMakeFiles/raubase.dir/src/bplan40.cpp.o
 raubase: CMakeFiles/raubase.dir/src/bplan100.cpp.o
 raubase: CMakeFiles/raubase.dir/src/bmission0.cpp.o
+raubase: CMakeFiles/raubase.dir/src/bseesaw.cpp.o
 raubase: CMakeFiles/raubase.dir/src/bracetrack.cpp.o
 raubase: CMakeFiles/raubase.dir/src/baxe.cpp.o
 raubase: CMakeFiles/raubase.dir/src/bplan101.cpp.o
 raubase: CMakeFiles/raubase.dir/src/cedge.cpp.o
+raubase: CMakeFiles/raubase.dir/src/bStairs.cpp.o
 raubase: CMakeFiles/raubase.dir/src/cheading.cpp.o
 raubase: CMakeFiles/raubase.dir/src/cmixer.cpp.o
 raubase: CMakeFiles/raubase.dir/src/cmotor.cpp.o
@@ -578,6 +622,7 @@ raubase: CMakeFiles/raubase.dir/src/main.cpp.o
 raubase: CMakeFiles/raubase.dir/src/maruco.cpp.o
 raubase: CMakeFiles/raubase.dir/src/medge.cpp.o
 raubase: CMakeFiles/raubase.dir/src/mpose.cpp.o
+raubase: CMakeFiles/raubase.dir/src/mgolfball.cpp.o
 raubase: CMakeFiles/raubase.dir/src/scam.cpp.o
 raubase: CMakeFiles/raubase.dir/src/sedge.cpp.o
 raubase: CMakeFiles/raubase.dir/src/sencoder.cpp.o
@@ -646,7 +691,7 @@ raubase: /usr/lib/arm-linux-gnueabihf/libopencv_photo.so.4.5.1
 raubase: /usr/lib/arm-linux-gnueabihf/libopencv_imgproc.so.4.5.1
 raubase: /usr/lib/arm-linux-gnueabihf/libopencv_core.so.4.5.1
 raubase: CMakeFiles/raubase.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Linking CXX executable raubase"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/local/svn/robobot/raubase/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_38) "Linking CXX executable raubase"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/raubase.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
