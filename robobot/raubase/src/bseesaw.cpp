@@ -920,7 +920,7 @@ void BSeesaw::run_withGolf()
       break;
 
       case 18:
-      toLog(std::to_string(pose.dist).c_str());
+      // toLog(std::to_string(pose.dist).c_str());
         if(pose.dist > 0.3/*0.6*/){
           toLog("Turning to hole");
           pose.resetPose();
@@ -941,7 +941,7 @@ void BSeesaw::run_withGolf()
         break;
 
       case 180:
-      toLog(std::to_string(pose.dist).c_str());
+      // toLog(std::to_string(pose.dist).c_str());
         if(pose.dist > 0.23){
           mixer.setVelocity(-0.005);
           pose.dist = 0;
