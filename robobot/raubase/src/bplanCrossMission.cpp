@@ -1159,7 +1159,9 @@ void BPlanCrossMission::run_GoalToFirstCross()
 
       case 41:
         if(pose.dist > 3){
+          toLog("Drive 3m forward, open loop through gate");
           mixer.setVelocity(0);
+          usleep(4000);
           mixer.setTurnrate(0);
           // pose.resetPose();
           state = 411;

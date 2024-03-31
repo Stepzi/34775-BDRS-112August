@@ -97,14 +97,17 @@ void CMixer::setVelocity(float linearVelocity)
 
 void CMixer::setTurnrate(float turnVelocity)
 {
+  // std::cout << "exec setTurnrate: " << turnVelocity << std::endl;
   autoTurnrateRef = turnVelocity;
   headingMode = HM_TURNRATE;
   updateVelocities();
+  
 }
 
 void CMixer::setInModeTurnrate(float turnVelocity)
 {
   autoTurnrateRef = turnVelocity;
+  // std::cout << "exec setInModeTurnrate: " << turnVelocity << std::endl;
   updateVelocities();
 }
 
@@ -139,6 +142,8 @@ void CMixer::updateVelocities()
   {
     linVel = autoLinVel;
     heading.setRef(headingMode != HM_ABS_HEADING, autoTurnrateRef, desiredHeading);
+
+    // std::cout << "autoTurnrateRef: " <<autoTurnrateRef << std::endl;
   }
   //
   updateWheelVelocity();
