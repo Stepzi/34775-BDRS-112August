@@ -820,7 +820,7 @@ void BSeesaw::run_withGolf()
       case 150:
         if(toFinish){
           state = 1512;
-          t.clear;
+          t.clear();
         }else{
           state = 1511;
         }
@@ -842,7 +842,7 @@ void BSeesaw::run_withGolf()
         }
         break;
       case 1513:
-        if(t.getTimePassed > 10){
+        if(t.getTimePassed() > 10){
           finished = true;
         }
         break;
@@ -1062,12 +1062,13 @@ void BSeesaw::run_withGolf()
           // mixer.setVelocity(0.1);
           mixer.setVelocity(0.1);
           state = 33;  
-          toLog("following line to ramp")
+          toLog("following line to ramp");
           // finished = true;    
         }
         break;
 
       case 33:
+      {
         float omega = imu.gyro[1];
         if(abs(omega) > 25 ){
           const int MSL = 100;
@@ -1078,37 +1079,38 @@ void BSeesaw::run_withGolf()
           mixer.setVelocity(0.3);
           pose.dist = 0;
           state = 34;
+        }
 
-          break;
+        break;
+      }
 
-        case 34:
+      case 34:
+      toLog(std::to_string(pose.dist).c_str());
+        if(pose.dist > 2.8 ){
+          mixer.setVelocity(0.1);
+          toLog("update Calibration - Wood");
+          medge.updateCalibBlack(medge.calibWood,8);
+          medge.updatewhiteThreshold(woodWhite);
+          pose.dist = 0;
+          t.clear();
+          state = 35;
+        }
+        break;
+
+      case 35:
+      {
         toLog(std::to_string(pose.dist).c_str());
-          if(pose.dist > 2.8 ){
-            mixer.setVelocity(0.1);
-            toLog("update Calibration - Wood");
-            medge.updateCalibBlack(medge.calibWood,8);
-            medge.updatewhiteThreshold(woodWhite);
-            pose.dist = 0;
-            t.clear();
-            state = 35;
-          }
-          break;
+        float accel = imu.acc[0];
+        if((abs(accel) > 25 && pose.dist > 1) || t.getTimePassed() > 10){
+          finished = true;
+        }
+        break;
+      }
 
-        case 35:
-          toLog(std::to_string(pose.dist).c_str());
-          float accel = imu.accel[0];
-          if((abs(accel) > 25 && pose.dist > 1) || t.getTimePassed > 10){
-            finished = true;
-          }
-          break;
-
-
-      
-
-    default:
-      toLog("Default Seesaw");
-      lost = true;
-    break;
+      default:
+        toLog("Default Seesaw");
+        lost = true;
+        break;
     }
 
     if (state != oldstate)
@@ -1120,7 +1122,7 @@ void BSeesaw::run_withGolf()
     }
     // wait a bit to offload CPU (4000 = 4ms)
     usleep(4000);
-  }
+
   if (lost)
   { // there may be better options, but for now - stop
     toLog("seesaw got lost - stopping");
@@ -1129,6 +1131,7 @@ void BSeesaw::run_withGolf()
   }
   else
     toLog("seesaw finished");  
+  }
 }
 
 
