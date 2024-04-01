@@ -258,11 +258,22 @@ bool STeensy::sendDirect(const char* message)
     //
     sendLock.lock();
     // may have been closed in the meantime
-    printf("# STeensy sending directly Teensy Connection Open: %d\n", teensyConnectionOpen);
+
+    // ########## START DEBUG ##############
+    // printf("# STeensy sending directly Teensy Connection Open: %d\n", teensyConnectionOpen);
+    if (logfile != nullptr)
+    {
+      UTime t;
+      t.now();
+      fprintf(logfile, "%lu.%04ld teensyConnectionOpen %d\n", t.getSec(), t.getMicrosec()/100, teensyConnectionOpen);
+      if (not gotNewline)
+        fprintf(logfile, "\n");
+    }
+    // ########## END DEBUG ##############
     if (teensyConnectionOpen)
     {
       sendCnt++;
-      printf("# STeensy sending directly CRC:'%s', msg:'%s'\n", crc, cmd);
+      // printf("# STeensy sending directly CRC:'%s', msg:'%s'\n", crc, cmd-c_str());
 //       int m = write(usbport, crc, 3);
       int d = 0;
       int m;
@@ -309,6 +320,17 @@ bool STeensy::sendDirect(const char* message)
     }
     if (lostConnection)
     {
+      // ########## START DEBUG ##############
+      // printf("# STeensy sending directly Teensy Connection Open: %d\n", teensyConnectionOpen);
+      if (logfile != nullptr)
+      {
+        UTime t;
+        t.now();
+        fprintf(logfile, "%lu.%04ld lostConnection %d\n", t.getSec(), t.getMicrosec()/100, lostConnection);
+        if (not gotNewline)
+          fprintf(logfile, "\n");
+      }
+      // ########## END DEBUG ##############
       closeUSB();
     }
     else
