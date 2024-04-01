@@ -88,9 +88,9 @@ int main (int argc, char **argv)
     //  racetrack.run();
     //  planCrossMission.run_RaceEndToTunnel();
     //  planGate.runClose();
-    //  planCrossMission.run_TunnelToGoal();
-    //  planCrossMission.run_GoalToFirstCross();
-    // seesaw.run();
+     planCrossMission.run_TunnelToGoal();
+     planCrossMission.run_GoalToFirstCross();
+    seesaw.run();
     seesaw.run_withGolf();
     // mixer.setVelocity(0.0);
     // mixer.setTurnrate(0.0);

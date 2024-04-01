@@ -787,6 +787,8 @@ void BPlanCrossMission::run_RaceEndToTunnel()
         {
           pose.dist = 0; //DONT REMOVE, DIST USED FROM STATE 2 IN CLOSE GATE
           pose.turned = 0;
+          mixer.setVelocity(0);
+          mixer.setTurnrate(0);
           finished = true;
         }
       break;
@@ -1060,7 +1062,7 @@ void BPlanCrossMission::run_GoalToFirstCross()
       break;
 
       case 3:
-        if(medge.width > 0.06) 
+        if(medge.width > 0.02) 
         { 
           toLog("intercepted line after goal");
           pose.dist = 0;
