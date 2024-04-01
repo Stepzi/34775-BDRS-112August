@@ -1249,9 +1249,25 @@ void BPlanCrossMission::run_GoalToFirstCross()
           // pose.resetPose();
           mixer.setVelocity(0);
           mixer.setTurnrate(0);
-          finished = true;
+          pose.dist = 0;
+          state = 8;
+          // finished = true;
         }
       break;
+
+      case 8:
+        mixer.setVelocity(-0.07);
+        state = 9;
+        break;
+
+      case 9:
+        if(pose.dist < -0.05){
+          mixer.setVelocity(0);
+          finished = true;
+        }
+        break;
+
+
 
 
 
