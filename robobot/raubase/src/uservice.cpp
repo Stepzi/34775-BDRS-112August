@@ -272,6 +272,7 @@ bool UService::setup(int argc,char **argv)
   // wait for optional tasks that require system to run.
   if ((calibBlack or
        calibWhite or
+       calibWood or
        regbotNumber >= 0 or
        regbotHardware > 3 or
        dist.inCalibration or
@@ -282,6 +283,7 @@ bool UService::setup(int argc,char **argv)
     UTime t("now");
     while (medge.sensorCalibrateBlack or
       medge.sensorCalibrateWhite or
+      medge.sensorCalibrateWood or
       (teensy1.saveRegbotNumber >= 0 and teensy1.saveRegbotNumber != state.idx) or
       dist.inCalibration or
       imu.inCalibration or t.getTimePassed() < testSec)
