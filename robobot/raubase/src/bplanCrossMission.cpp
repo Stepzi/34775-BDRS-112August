@@ -127,7 +127,7 @@ void BPlanCrossMission::run_StartToFirstCross()
           toLog("Follow Line with velocity 0.25"); //Some parse of float to log, Villiams :)
           mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
           mixer.setVelocity(f_Velocity_DriveForward); 
-          state = 2;
+          state = 2; // #########################################################################
         }
         else if(medge.width < f_LineWidth_NoLine)
         {
@@ -140,6 +140,34 @@ void BPlanCrossMission::run_StartToFirstCross()
         {
           toLog("Never found Line");
           lost = true;
+        }
+        break;
+
+      case 20:
+        if(abs(pose.turned) > M_PI){
+          state = 21;
+          pose.turned = 0;
+        }
+
+        break;
+
+      case 21:
+        pose.resetPose();
+        mixer.setVelocity(0);
+        heading.setMaxTurnRate(0.7);
+        mixer.setTurnrate(0.5);
+        usleep(10000);
+        state = 22;
+        break;
+
+      case 22:
+      // std::cout << pose.turned/M_PI << std::endl;
+        if(pose.turned > M_PI*0.9 && medge.edgeValid){
+          pose.resetPose();
+          heading.setMaxTurnRate(5);
+          mixer.setEdgeMode(b_Line_HoldLeft, 0);
+          mixer.setVelocity(f_Velocity_DriveForward/2); 
+          state = 20;
         }
         break;
 

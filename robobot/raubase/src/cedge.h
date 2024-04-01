@@ -79,7 +79,7 @@ private:
   FILE * logfileCtrl = {nullptr};
   FILE * logfile = {nullptr};
   bool toConsole;
-  //   mutex dataLock; // data consistency lock, should not be needed
+  mutex dataLock; // data consistency lock, should not be needed
   std::thread * th1;
   bool stop = false;
   float measuredValue;

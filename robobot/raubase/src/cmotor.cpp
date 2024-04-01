@@ -121,6 +121,7 @@ void CMotor::run()
   UTime lastPose;
   while (not service.stop)
   {
+    dataLock.lock();
     if (false) //useTeensyControl)
     { // send new velocity ref to Teensy
       if (mixer.updateCnt != mixerUpdateCnt)
@@ -179,6 +180,7 @@ void CMotor::run()
       snprintf(s, MSL, "motv %.2f %.2f\n", u[0], u[1]);
       teensy1.send(s, true);
     }
+    dataLock.unlock();
     loop++;
     // sleep a little while, the sample time is
     // determined by the encoder (longer than 2ms)

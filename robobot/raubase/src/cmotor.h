@@ -89,7 +89,7 @@ private:
   float u[2];
   // support variables
   FILE * logfile[2] = {nullptr};
-//   mutex dataLock; // data consistency lock, should not be needed
+  mutex dataLock; // data consistency lock, should not be needed
   std::thread * th1;
   bool stop = false;
   int dataCnt = 0;

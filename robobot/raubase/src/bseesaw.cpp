@@ -816,7 +816,7 @@ void BSeesaw::run_withGolf()
         break;
 
       case 150:
-        if(toFinish){
+        if(toFinish  && !hasGFB){
           state = 1512;
           t.clear();
         }else{
@@ -1053,7 +1053,7 @@ void BSeesaw::run_withGolf()
       case 32:
       // reset pose to keep turning
       pose.turned = 0;
-        if(medge.edgeValid && (medge.width > lineWidth)){
+        if(medge.edgeValid /* && (medge.width > lineWidth)*/){
           pose.resetPose();
           heading.setMaxTurnRate(3);
           mixer.setEdgeMode(rightEdge, 0);
