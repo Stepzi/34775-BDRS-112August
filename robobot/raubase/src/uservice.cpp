@@ -80,8 +80,10 @@ bool UService::setup(int argc,char **argv)
   cli.add_flag("-d,--daemon", asDaemon, "Do not listen to the keyboard (daemon mode)");
   bool calibWhite{false};
   bool calibBlack{false};
+  bool calibWood{false};
   cli.add_flag("-w,--white", calibWhite, "Calibrate line sensor on white surface");
   cli.add_flag("-b,--black", calibBlack, "Calibrate line sensor on black surface");
+  cli.add_flag("-f,--wood", calibWood, "Calibrate line sensor on wood surface");
   // distance sensor
   int sensor = 0;
   int calibrateDistance = 0;
@@ -123,6 +125,8 @@ bool UService::setup(int argc,char **argv)
     medge.sensorCalibrateWhite = true;
   if (calibBlack)
     medge.sensorCalibrateBlack = true;
+  if (calibWood)
+    medge.sensorCalibrateWood = true;
   // distance sensor
   if ((sensor == 1 or sensor == 2) and (calibrateDistance == 13 or calibrateDistance == 50))
     dist.calibrate(sensor, calibrateDistance);
@@ -268,6 +272,7 @@ bool UService::setup(int argc,char **argv)
   // wait for optional tasks that require system to run.
   if ((calibBlack or
        calibWhite or
+       calibWood or
        regbotNumber >= 0 or
        regbotHardware > 3 or
        dist.inCalibration or
@@ -278,6 +283,7 @@ bool UService::setup(int argc,char **argv)
     UTime t("now");
     while (medge.sensorCalibrateBlack or
       medge.sensorCalibrateWhite or
+      medge.sensorCalibrateWood or
       (teensy1.saveRegbotNumber >= 0 and teensy1.saveRegbotNumber != state.idx) or
       dist.inCalibration or
       imu.inCalibration or t.getTimePassed() < testSec)
