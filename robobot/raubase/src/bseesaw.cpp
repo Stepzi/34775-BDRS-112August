@@ -544,7 +544,7 @@ void BSeesaw::run_withGolf()
       {
         // pose.resetPose();
         toLog("Follow Line with velocity 0.1");
-        // mixer.setEdgeMode(leftEdge, lineOffset);
+        mixer.setEdgeMode(leftEdge, lineOffset);
         mixer.setVelocity(0.1);
         // state = 2;
       }else{
@@ -571,8 +571,6 @@ void BSeesaw::run_withGolf()
 
       case 3:
       {
-        
-
         if (pose.dist > intersectionToEdge)
         {
           mixer.setEdgeMode(leftEdge, lineOffset);
@@ -1122,6 +1120,7 @@ void BSeesaw::run_withGolf()
     }
     // wait a bit to offload CPU (4000 = 4ms)
     usleep(4000);
+  }
 
   if (lost)
   { // there may be better options, but for now - stop
@@ -1131,7 +1130,7 @@ void BSeesaw::run_withGolf()
   }
   else
     toLog("seesaw finished");  
-  }
+  
 }
 
 
