@@ -1151,7 +1151,7 @@ void BPlanCrossMission::run_GoalToFirstCross()
       break;
 
       case 43:
-        if(medge.width > 0.06 && pose.dist > 0.5){
+        if((medge.width > 0.06 && pose.dist > 0.2) || pose.dist > 0.7){
           toLog("Seesaw Intersection");
           pose.dist = 0;
           state = 40;
@@ -1161,8 +1161,8 @@ void BPlanCrossMission::run_GoalToFirstCross()
 
       
        case 40:
-        toLog(std::to_string(pose.dist).c_str());
-        if(abs(pose.dist) > 2.7)
+        // toLog(std::to_string(pose.dist).c_str());
+        if(abs(pose.dist) > 2.5)
           {
             pose.dist = 0.0;
             toLog("Change Calibration - Wood");
@@ -1190,21 +1190,28 @@ void BPlanCrossMission::run_GoalToFirstCross()
       break;
 
       case 41:
-        if(pose.dist > 3){
+        if(pose.dist > 3.2){
           toLog("Drive 3m forward, open loop through gate");
           mixer.setVelocity(0);
           usleep(4000);
           mixer.setTurnrate(0);
+          usleep(10000);
           // pose.resetPose();
           state = 411;
+          t.clear();
         }
         break;
 
       case 411:
-        pose.h = 0;
-        pose.turned = 0;
+        if(t.getTimePassed()>1){
+          usleep(4000);
+          mixer.setTurnrate(0);
+          pose.h = 0;
+          pose.turned = 0;
         // finished = true;     
-        state = 4121;
+          state = 4121;
+        }
+        
         break;
 
       case 4121:
@@ -1265,6 +1272,7 @@ void BPlanCrossMission::run_GoalToFirstCross()
           medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
           mixer.setVelocity(f_Velocity_DriveForward);
+          mixer.setEdgeMode(b_Line_HoldLeft, 0);
           state = 7;
         }
 
@@ -1272,17 +1280,27 @@ void BPlanCrossMission::run_GoalToFirstCross()
 
       case 7:
         // toLog(std::to_string(medge.width).c_str());
-        toLog(std::to_string(pose.dist).c_str());
-        if(medge.width > 0.06 && pose.dist > 2) 
+        // toLog(std::to_string(pose.dist).c_str());
+
+        if(pose.dist > 2.5) 
         { 
-          toLog("Found seesaw intersection");
+          toLog("Handing over the seesaw");
+          finished = true;
           // pose.resetPose();
-          mixer.setVelocity(0);
-          mixer.setTurnrate(0);
           pose.dist = 0;
-          state = 8;
+          // state = 8;
           // finished = true;
         }
+        // if(medge.width > 0.06 && pose.dist > 2) 
+        // { 
+        //   toLog("Found seesaw intersection");
+        //   // pose.resetPose();
+        //   mixer.setVelocity(0);
+        //   mixer.setTurnrate(0);
+        //   pose.dist = 0;
+        //   state = 8;
+        //   // finished = true;
+        // }
       break;
 
       case 8:

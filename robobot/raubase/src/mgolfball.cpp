@@ -127,7 +127,7 @@ void Mgolfball::toLog(const char * message)
   }
 }
 
-bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, cv::Mat *sourcePtr,float density_thr)
+bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, cv::Mat *sourcePtr,float density_thr, int arg_minRad, int arg_maxRad)
 { // taken from https://docs.opencv.org
 
   // toLog("start find golfball");
@@ -148,6 +148,9 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, 
     printf("MVision::findGolfball: Failed to get an image\n");
     return 0;
   }
+
+
+  
   // toLog("got frame");
   // cv::Mat img;
   // if (debugSave)
@@ -205,7 +208,7 @@ bool Mgolfball::findGolfball(std::vector<int>& pos, std::vector<cv::Point> roi, 
       // Fit enclosing circle and filter by min and max radius
       if (contours[i].size() > 0){
         cv::minEnclosingCircle(contours[i], center, radius);
-        if ((radius > minRad) && (radius < maxRad)){
+        if ((radius > (arg_minRad > 0 ? arg_minRad : minRad)) && (radius < (arg_maxRad > 0 ? arg_maxRad : maxRad))){
           // std::cout << static_cast<int>(radius)<<std::endl;
           // std::cout << density << std::endl;
 

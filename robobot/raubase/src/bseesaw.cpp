@@ -471,14 +471,15 @@ void BSeesaw::run_withGolf()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 17;
-          //     heading.setMaxTurnRate(3);
-          mixer.setVelocity(0.3);
-          mixer.setEdgeMode(0, 0);
-          servo.setServo(2,0);
-          medge.updateCalibBlack(medge.calibBlack,8);
-          medge.updatewhiteThreshold(350);
-          pose.dist = 3;
+  state = 1;
+  // state = 17;
+  //             heading.setMaxTurnRate(3);
+  //         mixer.setVelocity(0.3);
+  //         mixer.setEdgeMode(0, 0);
+  //         servo.setServo(2,0);
+  //         medge.updateCalibBlack(medge.calibBlack,8);
+  //         medge.updatewhiteThreshold(350);
+  //         pose.dist = 2;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -491,7 +492,7 @@ void BSeesaw::run_withGolf()
   float lineWidth          =  0.02;   //width to determine if we are on the line
   float lineGone           =  0.01;   //width to determine if the line was lost
   float lineOffset         =  0.03;      //offset for line edge detection
-  float intersectionWidth  =  0.06;   //used to detect intersections
+  float intersectionWidth  =  0.08;   //used to detect intersections
 
   //seesaw variables
   float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
@@ -533,7 +534,7 @@ void BSeesaw::run_withGolf()
       // std::cout << medge.width << std::endl;
       if(medge.edgeValid && (medge.width > intersectionWidth)) //We should be on a line 
       {
-          mixer.setEdgeMode(leftEdge, lineOffset);
+          mixer.setEdgeMode(leftEdge, 0);
           toLog("found intersection");
           mixer.setVelocity(0.07);
           pose.dist = 0;
@@ -544,9 +545,9 @@ void BSeesaw::run_withGolf()
       {
         // pose.resetPose();
         toLog("Follow Line with velocity 0.1");
-        mixer.setEdgeMode(leftEdge, lineOffset);
+        mixer.setEdgeMode(leftEdge, 0);
         mixer.setVelocity(0.1);
-        // state = 2;
+        state = 2;
       }else{
         lost = true;
       }
@@ -554,28 +555,30 @@ void BSeesaw::run_withGolf()
       break;
 
       case 2:
+      toLog(const_cast<char*>((std::to_string(medge.width)).c_str()));
         if (medge.width > intersectionWidth)
           {
-            mixer.setEdgeMode(leftEdge, 0.05);
+            // mixer.setEdgeMode(leftEdge, 0.05);
+            servo.setServo(2, true, 350, 700);
             toLog("found intersection");
             mixer.setVelocity(0.07);
             pose.dist = 0;
             
             state = 3;
           }
-          else
-          {    
-            mixer.setVelocity(0.1);
-          }
+          // else
+          // {    
+          //   mixer.setVelocity(0.1);
+          // }
       break;
 
       case 3:
       {
         if (pose.dist > intersectionToEdge)
         {
-          mixer.setEdgeMode(leftEdge, lineOffset);
+          mixer.setEdgeMode(leftEdge, 0);
 
-          mixer.setVelocity(0.2);
+          mixer.setVelocity(0.1);
           pose.dist = 0;
           state = 4;
           
@@ -640,7 +643,7 @@ void BSeesaw::run_withGolf()
               golfballTries++;
             }else{
               hasGFB = false;
-              state = 7;
+              state = 53;
             }
             
           }
@@ -750,6 +753,8 @@ void BSeesaw::run_withGolf()
           mixer.setEdgeMode(rightEdge, 0);
           if(hasGFB){
             servo.setServo(2,0);
+          }else{
+            servo.setServo(2,1,-900,200);
           }
           state = 10;
         }
@@ -897,7 +902,7 @@ void BSeesaw::run_withGolf()
         toLog(std::to_string(pose.dist).c_str());
         float omega = imu.gyro[1];
 
-        if(/*pose.dist > 2.31  &&*/ omega > 25 ){
+        if((pose.dist > 2.0  && omega > 25 ) || pose.dist > 2.22 ){
           const int MSL = 100;
           char s[MSL];
           snprintf(s, MSL, "On Plateau: detected pitch: %f \n", omega);
@@ -972,9 +977,9 @@ void BSeesaw::run_withGolf()
           roi.push_back(cv::Point(500,520));  //point3
           roi.push_back(cv::Point(900,520));  //point4
           
-          if(!golfball.findGolfball(center, roi, nullptr,0) &&
-          !golfball.findGolfball(center, roi, nullptr,0) &&
-          !golfball.findGolfball(center, roi, nullptr,0)){
+          if(!golfball.findGolfball(center, roi, nullptr,0,10,100) &&
+          !golfball.findGolfball(center, roi, nullptr,0,10,100) &&
+          !golfball.findGolfball(center, roi, nullptr,0,10,100)){
             
             toLog("Golfball gone");
             state = 30;
@@ -1009,9 +1014,9 @@ void BSeesaw::run_withGolf()
           roi.push_back(cv::Point(500,520));  //point3
           roi.push_back(cv::Point(900,520));  //point4
 
-          if(!golfball.findGolfball(center, roi, nullptr,0) &&
-          !golfball.findGolfball(center, roi, nullptr,0) &&
-          !golfball.findGolfball(center, roi, nullptr,0)){
+          if(!golfball.findGolfball(center, roi, nullptr,0,10,100) &&
+          !golfball.findGolfball(center, roi, nullptr,0,10,100) &&
+          !golfball.findGolfball(center, roi, nullptr,0,10,100)){
             toLog("Golfball gone");
             // pose.resetPose();
             // mixer.setVelocity(0);
@@ -1035,6 +1040,7 @@ void BSeesaw::run_withGolf()
         servo.setServo(2,1,-900,200);
         mixer.setVelocity(0);
         mixer.setTurnrate(0);
+        // finished = true; // ########################
         if(toFinish){
           state = 31;
         }else{
@@ -1045,49 +1051,86 @@ void BSeesaw::run_withGolf()
 
       case 31:
         pose.resetPose();
-        mixer.setVelocity(-0.1);
-        // heading.setMaxTurnRate(1);
-        // mixer.setDesiredHeading(CV_PI*0.9);
+        // mixer.setVelocity(-0.1);
+        heading.setMaxTurnRate(1);
+        mixer.setVelocity(0.1);
+        mixer.setDesiredHeading(-CV_PI*0.9);
         state = 32;
         break;
 
       case 32:
-        if(pose.dist < -0.2){
+        if(medge.edgeValid && (medge.width > lineWidth)){
           pose.resetPose();
-          mixer.setVelocity(0);
-          heading.setMaxTurnRate(1);
-          mixer.setDesiredHeading(CV_PI*0.9);
+          mixer.setVelocity(0.05);
+          heading.setMaxTurnRate(2);
+          mixer.setEdgeMode(leftEdge, 0);
           state = 33;
+          
+          // finished = true;
+          // mixer.setDesiredHeading(CV_PI*0.9);
+          // state = 33;
         }
         break;
 
+      // case 32:
+      //   if(pose.dist < -0.2){
+      //     pose.resetPose();
+      //     mixer.setVelocity(0);
+      //     heading.setMaxTurnRate(1);
+      //     mixer.setDesiredHeading(CV_PI*0.9);
+      //     state = 33;
+      //   }
+      //   break;
+
       case 33:
-        if(pose.turned > CV_PI*0.5){
-          pose.resetPose();
-          mixer.setTurnrate(0);
-          mixer.setVelocity(0.07);
+        if(pose.dist > 0.2){
+          pose.dist = 0;
+          // pose.resetPose();
+          // mixer.setTurnrate(0);
+          heading.setMaxTurnRate(3);
+          mixer.setVelocity(0.1);
+          // finished = true;
           state = 3310;
         }
         break;
 
+      // case 33:
+      //   if(pose.turned > CV_PI*0.5){
+      //     pose.resetPose();
+      //     mixer.setTurnrate(0);
+      //     mixer.setVelocity(0.07);
+      //     state = 3310;
+      //   }
+      //   break;
       case 3310:
-        heading.setMaxTurnRate(1);
-        mixer.setEdgeMode(rightEdge, 0);
-        break;
-
-      case 331:
-         if(medge.edgeValid && (medge.width > lineWidth)){
-          pose.dist = 0;          
-          state = 332;     
+       if(medge.edgeValid && (medge.width > 0.06) || pose.dist > 0.7){
+        toLog("At Stairs Intersection");
+        mixer.setVelocity(0);
+        mixer.setTurnrate(0);
+        finished = true;
+          // pose.dist = 0;          
+          // state = 332;     
         }
         break;
 
-      case 332:
-        if(pose.dist>0.1){
-          mixer.setVelocity(1);
-          state = 330;
-        }
-        break;
+      // case 3310:
+      //   heading.setMaxTurnRate(1);
+      //   mixer.setEdgeMode(rightEdge, 0);
+      //   break;
+
+      // case 331:
+      //    if(medge.edgeValid && (medge.width > lineWidth)){
+      //     pose.dist = 0;          
+      //     state = 332;     
+      //   }
+      //   break;
+
+      // case 332:
+      //   if(pose.dist>0.1){
+      //     mixer.setVelocity(1);
+      //     state = 330;
+      //   }
+      //   break;
 
 
 
@@ -1119,47 +1162,47 @@ void BSeesaw::run_withGolf()
       //   break;
 
 
-      case 330:
-      {
-        toLog(std::to_string(pose.dist).c_str());
-        float omega = imu.gyro[1];
-        if((abs(omega) > 10 && pose.dist > 0.1) || pose.dist > 0.2){
-          heading.setMaxTurnRate(3);
-          const int MSL = 100;
-          char s[MSL];
-          snprintf(s, MSL, "On Ramp: detected pitch: %f \n", omega);
-          toLog(s);
+      // case 330:
+      // {
+      //   toLog(std::to_string(pose.dist).c_str());
+      //   float omega = imu.gyro[1];
+      //   if((abs(omega) > 10 && pose.dist > 0.1) || pose.dist > 0.2){
+      //     heading.setMaxTurnRate(3);
+      //     const int MSL = 100;
+      //     char s[MSL];
+      //     snprintf(s, MSL, "On Ramp: detected pitch: %f \n", omega);
+      //     toLog(s);
 
-          mixer.setVelocity(0.3);
-          pose.dist = 0;
-          state = 34;
-        }
+      //     mixer.setVelocity(0.3);
+      //     pose.dist = 0;
+      //     state = 34;
+      //   }
 
-        break;
-      }
+      //   break;
+      // }
 
-      case 34:
-      toLog(std::to_string(pose.dist).c_str());
-        if(pose.dist > 2 ){
-          mixer.setVelocity(0.1);
-          toLog("update Calibration - Wood");
-          medge.updateCalibBlack(medge.calibWood,8);
-          medge.updatewhiteThreshold(woodWhite);
-          pose.dist = 0;
-          t.clear();
-          state = 35;
-        }
-        break;
+      // case 34:
+      // toLog(std::to_string(pose.dist).c_str());
+      //   if(pose.dist > 2 ){
+      //     mixer.setVelocity(0.1);
+      //     toLog("update Calibration - Wood");
+      //     medge.updateCalibBlack(medge.calibWood,8);
+      //     medge.updatewhiteThreshold(woodWhite);
+      //     pose.dist = 0;
+      //     t.clear();
+      //     state = 35;
+      //   }
+      //   break;
 
-      case 35:
-      {
-        toLog(std::to_string(pose.dist).c_str());
-        float accel = imu.acc[0];
-        if((abs(accel) > 25 && pose.dist > 1) || t.getTimePassed() > 10){
-          finished = true;
-        }
-        break;
-      }
+      // case 35:
+      // {
+      //   toLog(std::to_string(pose.dist).c_str());
+      //   float accel = imu.acc[0];
+      //   if((abs(accel) > 25 && pose.dist > 1) || t.getTimePassed() > 10){
+      //     finished = true;
+      //   }
+      //   break;
+      // }
 
       default:
         toLog("Default Seesaw");
