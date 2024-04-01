@@ -471,14 +471,14 @@ void BSeesaw::run_withGolf()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 1;
+  state = 17;
           //     heading.setMaxTurnRate(3);
-          // mixer.setVelocity(0.1);
-          // mixer.setEdgeMode(0, 0);
-          // servo.setServo(2,0);
-          // medge.updateCalibBlack(medge.calibWood,8);
-          // medge.updatewhiteThreshold(600);
-          // pose.dist = 3;
+          mixer.setVelocity(0.3);
+          mixer.setEdgeMode(0, 0);
+          servo.setServo(2,0);
+          medge.updateCalibBlack(medge.calibBlack,8);
+          medge.updatewhiteThreshold(350);
+          pose.dist = 3;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -746,7 +746,7 @@ void BSeesaw::run_withGolf()
       case 91:
       toLog(std::to_string(pose.dist).c_str());
 
-        if(pose.dist > 0.7){
+        if(pose.dist > 0.5){
           mixer.setEdgeMode(rightEdge, 0);
           if(hasGFB){
             servo.setServo(2,0);
@@ -1045,30 +1045,86 @@ void BSeesaw::run_withGolf()
 
       case 31:
         pose.resetPose();
-        heading.setMaxTurnRate(1);
-        mixer.setDesiredHeading(CV_PI*0.9);
-        state = 31;
+        mixer.setVelocity(-0.1);
+        // heading.setMaxTurnRate(1);
+        // mixer.setDesiredHeading(CV_PI*0.9);
+        state = 32;
         break;
-      
+
       case 32:
-      // reset pose to keep turning
-      pose.turned = 0;
-        if(medge.edgeValid && (medge.width > lineWidth)){
+        if(pose.dist < -0.2){
           pose.resetPose();
-          heading.setMaxTurnRate(3);
-          mixer.setEdgeMode(rightEdge, 0);
-          // mixer.setVelocity(0.1);
-          mixer.setVelocity(0.1);
-          state = 33;  
-          toLog("following line to ramp");
-          // finished = true;    
+          mixer.setVelocity(0);
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(CV_PI*0.9);
+          state = 33;
         }
         break;
 
       case 33:
+        if(pose.turned > CV_PI*0.5){
+          pose.resetPose();
+          mixer.setTurnrate(0);
+          mixer.setVelocity(0.07);
+          state = 3310;
+        }
+        break;
+
+      case 3310:
+        heading.setMaxTurnRate(1);
+        mixer.setEdgeMode(rightEdge, 0);
+        break;
+
+      case 331:
+         if(medge.edgeValid && (medge.width > lineWidth)){
+          pose.dist = 0;          
+          state = 332;     
+        }
+        break;
+
+      case 332:
+        if(pose.dist>0.1){
+          mixer.setVelocity(1);
+          state = 330;
+        }
+        break;
+
+
+
+      
+      // case 32:
+      // // reset pose to keep turning
+      // pose.turned = 0;
+
+      //   if(medge.edgeValid && (medge.width > lineWidth)){
+      //     pose.resetPose();
+      //     heading.setMaxTurnRate(0.5);
+      //     mixer.setEdgeMode(rightEdge, 0);
+      //     // mixer.setVelocity(0.1);
+      //     // mixer.setVelocity(0.05);
+      //     // finished = true;
+      //     state = 33;  
+          
+      //     // finished = true;    
+      //   }
+      //   break;
+
+      // case 33:
+      //   pose.resetPose();        
+      //   heading.setMaxTurnRate(1);
+      //   mixer.setEdgeMode(rightEdge, 0);
+      //   mixer.setVelocity(0.1);
+      //   toLog("following line to ramp");
+      //   state = 330;
+      //   break;
+
+
+      case 330:
       {
+        toLog(std::to_string(pose.dist).c_str());
         float omega = imu.gyro[1];
-        if(abs(omega) > 25 ){
+        if((abs(omega) > 10 && pose.dist > 0.1) || pose.dist > 0.2){
+          heading.setMaxTurnRate(3);
           const int MSL = 100;
           char s[MSL];
           snprintf(s, MSL, "On Ramp: detected pitch: %f \n", omega);
@@ -1084,7 +1140,7 @@ void BSeesaw::run_withGolf()
 
       case 34:
       toLog(std::to_string(pose.dist).c_str());
-        if(pose.dist > 2.8 ){
+        if(pose.dist > 2 ){
           mixer.setVelocity(0.1);
           toLog("update Calibration - Wood");
           medge.updateCalibBlack(medge.calibWood,8);
