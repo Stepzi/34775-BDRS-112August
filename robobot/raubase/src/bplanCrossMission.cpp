@@ -878,11 +878,13 @@ void BPlanCrossMission::run_TunnelToGoal()
       break;
 
       case 3:
-        if(!medge.edgeValid && medge.width < 0.02) //We should be on a line 
+        if(!medge.edgeValid && medge.width < 0.02 && pose.dist > 2) //We should be on a line 
         {
           toLog("Lost Line assume I am between goal and racetrack End");
-          mixer.setVelocity(0.2);
-          state = 4;
+          // Modified by SEB
+          // mixer.setVelocity(0.2);
+          finished = true;
+          // state = 4;
         }
       break;
 

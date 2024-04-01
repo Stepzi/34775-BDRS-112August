@@ -509,6 +509,8 @@ void BSeesaw::run_withGolf()
   int blackWhite = 350;
 
   int golfballTries = 0;
+  bool hasGFB = false;
+  bool toFinish = true;
 
   std::vector<int> center{0,0};
   
@@ -614,14 +616,7 @@ void BSeesaw::run_withGolf()
           roi.push_back(cv::Point(1280,720));  //point1
           roi.push_back(cv::Point(0,720));  //point2
           roi.push_back(cv::Point(600,190));  //point3
-          roi.push_back(cv::Point(850,190));  //point4
-
-          // if(pose.dist > 0.01){
-          //   mixer.setVelocity(0);
-            // mixer.setTurnrate(0);
-          // }
-
-          
+          roi.push_back(cv::Point(850,190));  //point4          
 
           if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 10)){
               char s[MSL];
@@ -631,6 +626,7 @@ void BSeesaw::run_withGolf()
               int error_y = target_y - center[1];
               if((abs(error_x) < deadband_x)&&(abs(error_y) < deadband_y)){
                 state = 53;
+                hasGFB = true;
                 mixer.setVelocity(0);
                 mixer.setTurnrate(0);
               }else{
@@ -645,7 +641,8 @@ void BSeesaw::run_withGolf()
             if(golfballTries < 10){
               golfballTries++;
             }else{
-            lost = true; //TODO: CHECK HERE ####################
+              hasGFB = false;
+              state = 7;
             }
             
           }
@@ -706,12 +703,10 @@ void BSeesaw::run_withGolf()
         break;
       
       case 6:
-        //servo.setServo(2, 1, -500, 200);
         
         waitTime = t.getTimePassed();
         if (waitTime>3){
-        state = 7;
-        // finished = true;
+          state = 7;
         }
       break;
 
@@ -719,26 +714,23 @@ void BSeesaw::run_withGolf()
         pose.dist = 0;
         mixer.setEdgeMode(leftEdge, lineOffset);
         toLog("going down");
-        // servo.setServo(2,0);
-        pose.dist = 0;
         mixer.setVelocity(0.1);
-        state = 9;
-        
+        state = 9;        
       break;
 
-      case 8:
-         if(speed < maxSpeed)
-        {
-          speed = speed + 0.005;
-          mixer.setVelocity(0.5 + speed);
-        }
-        else
-        {
-          toLog("Speed up");
-          state = 9;
-        }
+      // case 8:
+      //    if(speed < maxSpeed)
+      //   {
+      //     speed = speed + 0.005;
+      //     mixer.setVelocity(0.5 + speed);
+      //   }
+      //   else
+      //   {
+      //     toLog("Speed up");
+      //     state = 9;
+      //   }
         
-      break;
+      // break;
 
       case 9:
         // toLog(std::to_string(pose.dist).c_str());
@@ -758,7 +750,9 @@ void BSeesaw::run_withGolf()
 
         if(pose.dist > 0.7){
           mixer.setEdgeMode(rightEdge, 0);
-          servo.setServo(2,0);
+          if(hasGFB){
+            servo.setServo(2,0);
+          }
           state = 10;
         }
       break;
@@ -818,41 +812,43 @@ void BSeesaw::run_withGolf()
           toLog("intercepted line");
           mixer.setVelocity(0.07);
           pose.dist = 0;
-          state = 151;
+          state = 150;
         }
         
         break;
 
-      case 151:
+      case 150:
+        if(toFinish){
+          state = 1512;
+          t.clear;
+        }else{
+          state = 1511;
+        }
+        break;
+
+      case 1511:
         if(pose.dist > 0.1){
-          // finished = true;
-          // pose.resetPose();
-          // heading.setMaxTurnRate(0.3);
-          // mixer.setDesiredHeading(0.9*CV_PI);
           mixer.setVelocity(0);
           usleep(10000);
-          mixer.setTurnrate(0);
-          
+          mixer.setTurnrate(0);          
           state = 152;
         }
         break;
 
-      case 152:
-      // toLog(std::to_string(pose.turned).c_str());
-        // pose.turned = 0;
-        // pose.h = 0;
-        // pose.resetPose();
-        // finished = true;
+      case 1512:
+        if(pose.dist > 0.1){
+          mixer.setVelocity(0.1);
+          state = 1513;
+        }
+        break;
+      case 1513:
+        if(t.getTimePassed > 10){
+          finished = true;
+        }
+        break;
+
+      case 152:     
         state = 153;
-
-        // if(pose.turned > CV_PI/2){
-        //   toLog("turned 90°, turn another 90°");
-        //   pose.resetPose();
-        //   mixer.setDesiredHeading(0.9*CV_PI);
-        //   mixer.setVelocity(0);
-
-        //   state = 153;      
-        // }
         break;
 
       case 153:
@@ -906,7 +902,7 @@ void BSeesaw::run_withGolf()
         if(/*pose.dist > 2.31  &&*/ omega > 25 ){
           const int MSL = 100;
           char s[MSL];
-          snprintf(s, MSL, "On Plateau: detected roll: %f \n", omega);
+          snprintf(s, MSL, "On Plateau: detected pitch: %f \n", omega);
           toLog(s);
 
           mixer.setVelocity(0.1);
@@ -961,15 +957,10 @@ void BSeesaw::run_withGolf()
       case 190:
       {
         if(pose.turned > CV_PI/4*1.1){
-          // pose.resetPose();
-          // mixer.setDesiredHeading(CV_PI*0.9);
           mixer.setVelocity(-0.01);
           pose.dist = 0;
           pose.turned = 0;
           state = 19;
-          // finished = true;
-          // mixer.setTurnrate(0);
-          // t.clear();
         }
 
         break;
@@ -990,8 +981,8 @@ void BSeesaw::run_withGolf()
             toLog("Golfball gone");
             state = 30;
             // pose.resetPose();
-            mixer.setTurnrate(0);
-            mixer.setVelocity(0);
+            // mixer.setTurnrate(0);
+            // mixer.setVelocity(0);
 
           }else if(pose.turned > CV_PI/8){
             
@@ -1011,11 +1002,6 @@ void BSeesaw::run_withGolf()
         break;
       }
 
-      // case 20:
-      //   mixer.setTurnrate(-0.5);
-      //   state = 21;
-      //   break;
-
       case 21:
       { 
         if(pose.dist > -0.1){
@@ -1029,8 +1015,9 @@ void BSeesaw::run_withGolf()
           !golfball.findGolfball(center, roi, nullptr,0) &&
           !golfball.findGolfball(center, roi, nullptr,0)){
             toLog("Golfball gone");
-            pose.resetPose();
-            mixer.setVelocity(0);
+            // pose.resetPose();
+            // mixer.setVelocity(0);
+            // mixer.setTurnrate(0);
             state = 30;
           }else if(pose.turned < -CV_PI/8){
             
@@ -1047,92 +1034,76 @@ void BSeesaw::run_withGolf()
         break;
       }
       case 30:
-        finished = true;
-        break;
-
-/*
-      case 16:
-        if (medge.width > intersectionWidth)
-          {
-            toLog("found intersection");
-            mixer.setVelocity(0.05);
-            pose.dist = 0;
-            state = 17;
-          }
-        else
-          {    
-            mixer.setVelocity(normalSpeed);
-          }
-      break;
-
-      case 17:
-        if (pose.dist > 0.2)
-        {
-          state = 18; //coming to the ball
-        }
-      break;
-
-      case 18:
-        mixer.setTurnrate(0.5);
-        if (pose.turned < -1.3)
-        {
-          mixer.setEdgeMode(leftEdge, lineOffset);
-          toLog("back on the line");
-          mixer.setVelocity(0.5);
-          pose.dist = 0;
-          state = 12;
-        }
-      break;
-
-      case 18:
-        //servo.setServo(2, 1, 500, 200);
-
-        waitTime = t.getTimePassed(); 
-          if (waitTime > 3)
-          {
-            pose.turned = 0;
-            state = 19;
-          } 
-
-      break;
-
-      case 19:
-        mixer.setTurnrate(-0.5);
-        if (pose.turned < -1.3)
-        {
-          mixer.setEdgeMode(leftEdge, lineOffset);
-          toLog("back on the line");
-          mixer.setVelocity(0.5);
-          pose.dist = 0;
-          state = 12;
-        }
-      break;*/
-
-
-
-
-      //test cases
-
-      case 99:
-        std::cout << servo.servo_position[1] << std::endl;
-        servo.setServo(2,true,-0,100);
-        break;
-      case 101:
-        toLog(const_cast<char*>((std::to_string(pose.turned)).c_str()));
-        mixer.setTurnrate(-0.5);
-        if (pose.turned < -1.4)
-        {
-          state = 102;
-        }
-
-        break;
-
-        case 102:
+        servo.setServo(2,1,-900,200);
+        mixer.setVelocity(0);
+        mixer.setTurnrate(0);
+        if(toFinish){
+          state = 31;
+        }else{
           finished = true;
-        break;
+        }
         
-      break;
+        break;
 
+      case 31:
+        pose.resetPose();
+        heading.setMaxTurnRate(1);
+        mixer.setDesiredHeading(CV_PI*0.9);
+        state = 31;
+        break;
+      
+      case 32:
+      // reset pose to keep turning
+      pose.turned = 0;
+        if(medge.edgeValid && (medge.width > lineWidth)){
+          pose.resetPose();
+          heading.setMaxTurnRate(3);
+          mixer.setEdgeMode(rightEdge, 0);
+          // mixer.setVelocity(0.1);
+          mixer.setVelocity(0.1);
+          state = 33;  
+          toLog("following line to ramp")
+          // finished = true;    
+        }
+        break;
+
+      case 33:
+        float omega = imu.gyro[1];
+        if(abs(omega) > 25 ){
+          const int MSL = 100;
+          char s[MSL];
+          snprintf(s, MSL, "On Ramp: detected pitch: %f \n", omega);
+          toLog(s);
+
+          mixer.setVelocity(0.3);
+          pose.dist = 0;
+          state = 34;
+
+          break;
+
+        case 34:
+        toLog(std::to_string(pose.dist).c_str());
+          if(pose.dist > 2.8 ){
+            mixer.setVelocity(0.1);
+            toLog("update Calibration - Wood");
+            medge.updateCalibBlack(medge.calibWood,8);
+            medge.updatewhiteThreshold(woodWhite);
+            pose.dist = 0;
+            t.clear();
+            state = 35;
+          }
+          break;
+
+        case 35:
+          toLog(std::to_string(pose.dist).c_str());
+          float accel = imu.accel[0];
+          if((abs(accel) > 25 && pose.dist > 1) || t.getTimePassed > 10){
+            finished = true;
+          }
+          break;
+
+
+      
 
     default:
       toLog("Default Seesaw");
@@ -1157,9 +1128,7 @@ void BSeesaw::run_withGolf()
     mixer.setTurnrate(0);
   }
   else
-    toLog("seesaw finished");
-
-  
+    toLog("seesaw finished");  
 }
 
 
@@ -1169,7 +1138,6 @@ void BSeesaw::terminate()
     fclose(logfile);
   logfile = nullptr;
   
-  // servo.setServo(2,0);
 }
 
 void BSeesaw::toLog(const char* message)
