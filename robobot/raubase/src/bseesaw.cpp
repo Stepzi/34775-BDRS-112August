@@ -527,7 +527,7 @@ void BSeesaw::run_withGolf()
       heading.setMaxTurnRate(3);
       usleep(1000);
 
-      mixer.setEdgeMode(leftEdge, lineOffset);
+      // mixer.setEdgeMode(leftEdge, lineOffset);
 
       // toLog(const_cast<char*>((std::to_string(medge.width)).c_str()));
       // std::cout << medge.width << std::endl;
