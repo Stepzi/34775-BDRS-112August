@@ -258,10 +258,11 @@ bool STeensy::sendDirect(const char* message)
     //
     sendLock.lock();
     // may have been closed in the meantime
+    printf("# STeensy sending directly Teensy Connection Open: %d\n", teensyConnectionOpen);
     if (teensyConnectionOpen)
     {
       sendCnt++;
-//       printf("# STeensy sending directly CRC:'%s', msg:'%s'\n", crc, cmd);
+      printf("# STeensy sending directly CRC:'%s', msg:'%s'\n", crc, cmd);
 //       int m = write(usbport, crc, 3);
       int d = 0;
       int m;
@@ -280,6 +281,7 @@ bool STeensy::sendDirect(const char* message)
               break;
             default:
               perror("STeensy::sendDirect (closing connection): ");
+              printf("STeensy::sendDirect: waiting - nothing send %d/%d\n", d, n);
               lostConnection = true;
               break;
           }
