@@ -360,6 +360,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 241:
         if(abs(pose.turned) > (3.1415 - 0.1)){
           mixer.setVelocity(0);
+          finished = true;
         }
       break;
       //Case 24 - At crossing, attempt to go into roundabout
