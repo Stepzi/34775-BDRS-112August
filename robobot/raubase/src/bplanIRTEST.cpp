@@ -122,6 +122,19 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   toLog("PlanIRTEST started");;
   toLog("Time stamp, IR dist 0, IR dist 1");
   //
+
+  /********************************************************************/
+  //************** DETERMIN BEFORE COMPITESION !!!!! ******************/
+  // If there is changes to the roundabout enter line.
+  // change these parameters
+  // LineMoved: if the line is moved from its position 02/04/2024. Moved = true, same = false
+  // this changes it to use the curne rate instead of the line as reference.
+  bool LineMoved = true
+  // LinePosition: Line connecting to roundabout white circle 
+  // position relative to the robot exiting it. 
+  // true = right  , flase = left.
+  bool LinePosition = true; 
+  /********************************************************************/
   while (not finished and not lost and not service.stop)
   {
     switch (state)
@@ -352,8 +365,13 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if (pose.dist > 1.7){
           mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
           pose.turned = 0; // reset turned foring count corners driven instead of crossing.
-          //state = 24; Normal code
-          state = 241; // counting corners 
+          if(LineMoved){
+            state = 24;
+          }
+          else{
+            state = 241; // counting corners 
+          }
+         
         }
       break;
 
@@ -647,7 +665,13 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         }
         else
         {
+          if(LinePosition){ // true = right, flase = left 
            state = 61;
+          }
+          else
+          {
+            state = 63;
+          }
         }
       break;
       
