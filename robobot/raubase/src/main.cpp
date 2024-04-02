@@ -63,7 +63,7 @@ int main (int argc, char **argv)
   if (not service.theEnd)
   { // all set to go
     // turn on LED on port 16
-    servo.setServo(2, 1, -900, 200);
+    // servo.setServo(2, 1, -900, 200);
     gpio.setPin(16, 1);
     // run the planned missions
     //mission0.run();
