@@ -148,7 +148,7 @@ void BAxe::run()
         {
           toLog("found intersection");
           mixer.setVelocity(0);
-          mixer.setVelocity(0.1);
+          mixer.setVelocity(0.05);
           pose.dist = 0;
           state = 50;
         }
@@ -215,12 +215,13 @@ void BAxe::run()
 
       //IF we drive at 0.1 we can drive for 0.8 meters before hitting the axe if they dont move it. at a period time of 7 seconds.
       case 50:
-        if(dist.dist[1] < 0.80)
+        toLog(std::to_string(dist.dist[1]).c_str());
+        if(dist.dist[1] <= 0.30)
         {
           totalAverage += dist.dist[1];
           numberOfSamples += 1;
         }
-        else if(dist.dist[1] > 0.8) 
+        else if(dist.dist[1] > 0.3) 
         {
           numberOfSamples = 0;
           totalAverage = 0.0;
@@ -237,13 +238,15 @@ void BAxe::run()
       break;      
       case 51:
         if(totalAverage <= 0.20){
-          toLog("Calculated a average distance too close to the axe.");
+          toLog("Calculated a average distance too close to the axe - new distance:");
+          toLog(std::to_string(abs(totalAverage-0.2)).c_str());
           mixer.setVelocity(-0.1);
           pose.dist = 0.0;
           state = 53;
         }
         else if(totalAverage >= 0.20){
-          toLog("Calculated distance to far from the axe");
+          toLog("Calculated distance to far from the axe - new distance: ");
+          toLog(std::to_string(abs(totalAverage-0.2)).c_str());
           mixer.setVelocity(0.1);
           pose.dist = 0.0;
           state = 52;
@@ -261,7 +264,7 @@ void BAxe::run()
       break;
 
       case 53:
-          if(abs(pose.dist) >  (abs(totalAverage) - 0.20))
+          if(abs(pose.dist) >  (abs(totalAverage - 0.20)))
           {
             mixer.setVelocity(0.0);
             pose.dist = 0.0;
