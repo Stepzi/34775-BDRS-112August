@@ -359,7 +359,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
 
       case 241:
         if(abs(pose.turned) > (3.1415 - 0.1)){
-          mixer.setVelocity(0);
+          pose.dist = 0;
           state = 251;
         }
       break;
