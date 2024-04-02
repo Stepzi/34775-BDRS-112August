@@ -604,22 +604,25 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         if(t.getTimePassed() > 3)
         {
           mixer.setVelocity(-0.1);
+          pose.dist = 0.0;
           state = 422;
         }
       break;
 
       case 422:
-        if(abs(pose.dist) > 0.15)
+      //toLog(std::to_string(pose.dist).c_str());
+        if(abs(pose.dist) > 0.10)
         {
-          pose.turned = 0;
+          pose.resetPose();
           t.clear();
-          mixer.setDesiredHeading(0.3);
+          mixer.setDesiredHeading(-0.40);
           state = 423;
         }
       break;
       case 423:
-        if(abs(pose.turned) > (0.3-0.03) || (t.getTimePassed() > 1))
+        if(abs(pose.turned) > (0.10-0.03) || (t.getTimePassed() > 1))
         {
+          mixer.setVelocity(0.1);
           state = 43;
         }
       break;
