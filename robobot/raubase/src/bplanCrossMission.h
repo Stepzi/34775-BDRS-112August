@@ -52,6 +52,10 @@ public:
   void run_TunnelToGoal();
 
   void run_GoalToFirstCross();
+    
+  void run_GoalToRampGate();
+
+  void seesawToGoal_END();
   /**
    * terminate */
   void terminate();

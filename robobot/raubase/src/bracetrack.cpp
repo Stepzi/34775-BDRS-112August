@@ -86,13 +86,13 @@ void BRaceTrack::run()
   const int MSL = 100;
   char s[MSL];
   float speed = 0;
-  float turnSpeed = 0.5; //0.8
+  float turnSpeed = 0.6; //0.8
   float toTurn = 0.0;
   float maxSpeed = 1.3; //1.5
   float maxDist = 4.8; //around 4
   float distToWood = 4.0; //~3
   float offset = 0.0;
-  float Turn90Deg = 3.14 / 2.0;
+  float Turn90Deg = (3.14 / 2.0) * 0.90;
   float acceleration = 0.01;
   int numberOfSamplesLineLost = 0;
 

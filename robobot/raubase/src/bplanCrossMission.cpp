@@ -728,7 +728,8 @@ void BPlanCrossMission::run_RaceEndToTunnel()
   float f_Line_RightOffset = 0;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
-
+  
+  float turn180Deg = 3.14;
   //Hardcoded time data
   float f_Time_Timeout = 10.0;
 
@@ -757,13 +758,14 @@ void BPlanCrossMission::run_RaceEndToTunnel()
         pose.turned = 0;
         pose.resetPose();
         heading.setMaxTurnRate(1);
-        mixer.setDesiredHeading(3.1);
+        mixer.setDesiredHeading(turn180Deg * 0.9);
+        t.clear();
         state = 2;
         break;
 
       //Case 2 - first crossing on the track
       case 2:
-        if(abs(pose.turned) > 3.1-0.02) 
+        if(abs(pose.turned) > ((turn180Deg * 0.9)-0.02) || t.getTimePassed() > 4.0) 
         { 
           mixer.setVelocity(0.2);
           heading.setMaxTurnRate(3);
@@ -1190,8 +1192,8 @@ void BPlanCrossMission::run_GoalToFirstCross()
       break;
 
       case 41:
-        if(pose.dist > 3.2){
-          toLog("Drive 3m forward, open loop through gate");
+        if(pose.dist > 1.5){
+          toLog("Drive 1.5m forward, open loop through gate");
           mixer.setVelocity(0);
           usleep(4000);
           mixer.setTurnrate(0);
@@ -1450,4 +1452,511 @@ void BPlanCrossMission::run_GoalToFirstCross()
   }
   else
     toLog("PlanCrossMission finished");
+}
+
+void BPlanCrossMission::run_GoalToRampGate()
+{
+  if (not setupDone)
+    setup();
+  if (ini["PlanCrossMission"]["run"] == "false")
+    return;
+  UTime t("now");
+  bool finished = false;
+  bool lost = false;
+  state = 0;
+          // mixer.setVelocity(0.3);
+          // mixer.setEdgeMode(true, 0.02);
+          // pose.dist = 2.8;
+          // medge.updateCalibBlack(medge.calibBlack,8);
+          // medge.updatewhiteThreshold(350);
+
+  oldstate = state;
+  const int MSL = 100;
+  char s[MSL];
+  
+  //Hardcoded Line data
+  float f_LineWidth_MinThreshold = 0.02;
+  float f_LineWidth_NoLine = 0.01;
+  float f_LineWidth_Crossing = 0.07;
+  
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+  int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+  int woodWhite = 600;
+  int blackWhite = 350;
+
+  float f_Line_LeftOffset = 0.02;
+  float f_Line_RightOffset = 0;
+  bool b_Line_HoldLeft = true;
+  bool b_Line_HoldRight = false;
+
+  //Hardcoded time data
+  float f_Time_Timeout = 10.0;
+  int noLine = 0;
+  //Postion and velocity data
+  float f_Velocity_DriveForward = 0.4; 
+  float f_Velocity_DriveBackwards = -0.15; 
+  float f_Distance_FirstCrossMissed = 10;
+ 
+  medge.updateCalibBlack(medge.calibWood,8);
+  medge.updatewhiteThreshold(woodWhite);
+  sleep(1);
+
+  //
+  toLog("Plan go back to goal from tunnel - started");
+  //
+  while (not finished and not lost and not service.stop)
+  {
+    switch (state)
+    {
+
+      case 0:
+          toLog("Goal to First Cross");
+          state = 1;  
+      break;
+      //Case 1 - Starting with error handling if no line found
+      case 1: // Start Position, assume we are on a line but verify
+        pose.resetPose();
+        mixer.setVelocity(0.15);
+        // heading.setMaxTurnRate(3);
+        heading.setMaxTurnRate(0.8);
+        mixer.setDesiredHeading(3.14/4*1.1);
+        // mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
+        state = 2;
+        break;
+
+      case 2:
+        if(pose.turned > 3.14/4*0.7) 
+        { 
+          toLog("turned");
+          heading.setMaxTurnRate(3);
+          mixer.setVelocity(0.07);
+          mixer.setEdgeMode(b_Line_HoldLeft, f_Line_LeftOffset);
+          
+
+          // mixer.setVelocity(f_Velocity_DriveForward);
+          state = 3;
+
+        }  
+      break;
+
+      case 3:
+        if(medge.width > 0.02) 
+        { 
+          toLog("intercepted line after goal");
+          pose.dist = 0;
+
+          state = 302;
+
+        }
+      break;
+      
+      case 302:
+        if(pose.dist > 0.4){
+          //  finished = true;
+          mixer.setVelocity(f_Velocity_DriveForward);
+          state = 4;
+        }
+
+      break;
+  
+
+      case 4:      
+        if(pose.dist > 1 || (imu.acc[0] > 0.6 && t.getTimePassed() > 1)){
+            toLog("On Ramp");
+            medge.updateCalibBlack(medge.calibBlack,8);
+            medge.updatewhiteThreshold(blackWhite);
+            pose.dist = 0;
+            state = 42;
+        }
+        break;
+
+      case 42:
+      // toLog(std::to_string(medge.width).c_str());
+
+        if(medge.width > 0.06){
+          toLog("Stairs Intersection");
+          pose.dist = 0;
+          state = 43;
+        }
+
+      break;
+
+      case 43:
+        if((medge.width > 0.06 && pose.dist > 0.2) || pose.dist > 0.7){
+          toLog("Seesaw Intersection");
+          pose.dist = 0;
+          state = 41;
+        }
+
+      break;
+
+      case 41:
+        if(pose.dist > 1){
+          toLog("Drive 1m forward, open loop through gate");
+          mixer.setVelocity(0);
+          usleep(4000);
+          mixer.setTurnrate(0);
+          usleep(10000);
+          // pose.resetPose();
+          state = 411;
+          t.clear();
+        }
+        break;
+
+      case 411:
+        if(t.getTimePassed()>1){
+          usleep(4000);
+          mixer.setTurnrate(0);
+          pose.h = 0;
+          pose.turned = 0;
+        // finished = true;     
+          state = 4121;
+        }
+        
+        break;
+
+      case 4121:
+        mixer.setTurnrate(-0.5);  
+        state = 412;
+      break;
+
+      case 412:
+      // toLog(std::to_string(medge.width).c_str());
+      // toLog(std::to_string(pose.turned).c_str());
+        if(abs(pose.turned) > 3.1415*0.9 && medge.edgeValid && medge.width > 0.01){
+          // pose.resetPose();
+          mixer.setTurnrate(0);         
+          state = 413;
+          
+        }
+
+        break;
+      case 413:
+        // finished = true;
+          heading.setMaxTurnRate(3);
+          mixer.setVelocity(0.07);
+          pose.dist = 0;
+          mixer.setEdgeMode(b_Line_HoldLeft, -f_Line_LeftOffset/2);
+          state  = 414;
+
+        break;
+
+      case 414:
+        if(pose.dist > 0.2){
+          mixer.setVelocity(0.1);
+          toLog("Handing over the seesaw");
+          pose.turned = 0;
+          pose.dist = 0;
+          // state =  5;
+          finished = true;
+        }
+
+        break;
+
+      // case 5:
+      //   toLog(std::to_string(pose.turned).c_str());
+      //   if(pose.turned > 3.1415/4 || pose.dist > 2.5){
+      //     pose.dist = 0.0;
+      //     toLog("Change Calibration - Wood");
+      //     medge.updateCalibBlack(medge.calibWood,8);
+      //     medge.updatewhiteThreshold(woodWhite);
+      //     mixer.setVelocity(0.25);
+      //     state = 6;
+      //     pose.dist = 0;
+      //   }
+      // break;
+
+      // case 6:
+      //   // toLog(std::to_string(pose.dist).c_str());
+      //   if(pose.dist > 1.2)
+      //   {
+      //     pose.dist = 0.0;
+      //     toLog("Change Calibration - Black");
+      //     medge.updateCalibBlack(medge.calibBlack,8);
+      //     medge.updatewhiteThreshold(blackWhite);
+      //     mixer.setVelocity(f_Velocity_DriveForward);
+      //     mixer.setEdgeMode(b_Line_HoldLeft, 0);
+      //     state = 7;
+      //   }
+
+      // break;
+
+      // case 7:
+      //   // toLog(std::to_string(medge.width).c_str());
+      //   // toLog(std::to_string(pose.dist).c_str());
+
+      //   if(pose.dist > 2.5) 
+      //   { 
+      //     toLog("Handing over the seesaw");
+      //     finished = true;
+      //     // pose.resetPose();
+      //     pose.dist = 0;
+      //     // state = 8;
+      //     // finished = true;
+      //   }
+      //   // if(medge.width > 0.06 && pose.dist > 2) 
+      //   // { 
+      //   //   toLog("Found seesaw intersection");
+      //   //   // pose.resetPose();
+      //   //   mixer.setVelocity(0);
+      //   //   mixer.setTurnrate(0);
+      //   //   pose.dist = 0;
+      //   //   state = 8;
+      //   //   // finished = true;
+      //   // }
+      // break;
+
+      // case 8:
+      //   mixer.setVelocity(-0.07);
+      //   state = 9;
+      //   break;
+
+      // case 9:
+      //   if(pose.dist < -0.05){
+      //     mixer.setVelocity(0);
+      //     finished = true;
+      //   }
+      //   break;
+
+
+
+      default:
+        toLog("Default Start to Cross");
+        lost = true;
+      break;
+    }
+    
+    if (state != oldstate)
+    { // C-type string print
+      snprintf(s, MSL, "State change from %d to %d", oldstate, state);
+      toLog(s);
+      oldstate = state;
+      t.now();
+    }
+    // wait a bit to offload CPU (4000 = 4ms)
+    usleep(4000);
+  }
+  if (lost)
+  { // there may be better options, but for now - stop
+    toLog("PlanCrossMission got lost - stopping");
+    mixer.setVelocity(0);
+    mixer.setTurnrate(0);
+  }
+  else
+    toLog("PlanCrossMission finished");
+}
+
+
+void BPlanCrossMission::seesawToGoal_END()
+{
+  if (not setupDone)
+    setup();
+  if (ini["PlanCrossMission"]["run"] == "false")
+    return;
+  UTime t("now");
+  bool finished = false;
+  bool lost = false;
+  float Turn90Deg = 3.14 / 2.0;
+  float speed = 0;
+  float rampSpeed = 0.3;
+  int numOfDistMeas = 0;
+
+  state = 0;
+  oldstate = state;
+  const int MSL = 100;
+  char s[MSL];
+
+  //Hardcoded Line data
+  float f_LineWidth_MinThreshold = 0.02;
+  float f_LineWidth_NoLine = 0.01;
+  float f_LineWidth_Crossing = 0.07;
+  
+  int wood[8]  = {384, 479, 495, 467, 506, 506, 463, 391};
+  int black[8] = {34, 33, 40, 44, 52, 52, 49, 46};
+
+  int woodWhite = 600;
+  int blackWhite = 350;
+
+  float f_Line_LeftOffset = -0.02;
+  float f_Line_RightOffset = 0.02;
+  bool b_Line_HoldLeft = true;
+  bool b_Line_HoldRight = false;
+
+  //Hardcoded time data
+  float f_Time_Timeout = 10.0;
+  int noLine = 0;
+  //Postion and velocity data
+  float f_Velocity_DriveForward = 0.4; 
+  float f_Velocity_DriveBackwards = -0.15; 
+  float f_Distance_FirstCrossMissed = 10;
+ 
+  medge.updateCalibBlack(medge.calibBlack,8);
+  medge.updatewhiteThreshold(blackWhite);
+
+
+  std::string gyro_msg;
+  std::string acc_msg;
+  UTime t2("now");
+  //
+  toLog("Press goal end from seesaw started");
+  
+  //
+  while (not finished and not lost and not service.stop)
+  {
+    switch (state)
+    {
+      case 0:
+        if(medge.edgeValid)
+        {
+          mixer.setVelocity(0.1);
+          mixer.setEdgeMode(b_Line_HoldRight,-f_Line_RightOffset);
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 7;
+        }
+      break;
+      case 7:
+        if(medge.edgeValid && medge.width > 0.05 && pose.dist > 0.1)
+        {
+          toLog("Crossed second intersection on the ramp, towards stairs, reach plateu. Validate using IMU?");
+          toLog("Slowing down");
+          mixer.setVelocity(0.2);
+          // mixer.setEdgeMode(b_Line_HoldRight,f_Line_RightOffset);
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 8;
+        }
+        // else if(!medge.edgeValid)
+        // {
+        //   toLog("Lost line on between the two intersections on the ramp - handle accordingly");
+        //   lost = true;
+        // }
+      break;
+      case 8:
+        if(medge.edgeValid && abs(pose.turned) > Turn90Deg - 0.2) //Offset might be close to 90 and not exactly 90.
+        {
+          servo.setServo(2, true, 350, 900);
+          toLog("Heading down the ramp.");
+          pose.dist = 0;
+          pose.turned = 0;
+          state = 9;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line before going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+        break;
+      case 9:
+        if(speed < rampSpeed)
+        {
+          speed = speed + 0.0005;
+          mixer.setVelocity(0.2 + speed);
+        }
+        else if(speed >= rampSpeed)
+        {
+          toLog("Speed up");
+          state = 10;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+        break;
+      case 10:
+      toLog(std::to_string(pose.dist).c_str());
+        if(medge.edgeValid && pose.dist > 1.7)
+        {
+          medge.updateCalibBlack(medge.calibWood,8);
+          medge.updatewhiteThreshold(woodWhite);
+          pose.dist = 0;
+          // state = 11;
+          state = 100;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line after going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+        break;
+
+      case 100:
+        if(pose.dist > 0.5){
+          servo.setServo(2, true, -900, 400);
+          t.clear();
+          toLog("Got Down the Ramp, slow down");
+          mixer.setVelocity(0.2);
+          state = 14;
+        }
+        break;
+      case 11:
+        //toLog(std::to_string(dist.dist[1]).c_str());
+        if (medge.edgeValid && dist.dist[1] < 0.4) //A Large number will trigger on the ramp and gates
+        { // something is close, assume it is the goal
+          toLog("Found distance meassure");
+          numOfDistMeas = numOfDistMeas + 1;
+        }
+        else if( dist.dist[1] > 0.4)
+        {
+          numOfDistMeas = 0;
+        }
+        else if(!medge.edgeValid)
+        {
+          toLog("Lost line after going down the ramp - STOP");
+          mixer.setVelocity(0.0);
+          lost = true;
+        }
+
+        if(numOfDistMeas >= 10) //USER MORE THAN 1 SAMPLE
+        {
+          state = 12;
+        }
+        break;
+      case 12:
+          toLog("Goal Found- stop in front of it");
+          mixer.setVelocity(0.0);
+          pose.dist = 0.0;
+          state = 13;
+        break;
+      case 13:
+          servo.setServo(2, true, 350, 700);
+          finished = true;
+      break;
+
+      case 14:
+        // if(t.getTimePassed() > 4){
+        //   mixer.setVelocity(0);
+        //   mixer.setTurnrate(0);
+        //   finished = true;
+        // }
+        break;
+       
+      default:
+        toLog("finish to goal end");
+        lost = true;
+      break;
+    }
+    if (state != oldstate)
+    { // C-type string print
+      snprintf(s, MSL, "State change from %d to %d", oldstate, state);
+      toLog(s);
+      oldstate = state;
+      t.now();
+    }
+    // wait a bit to offload CPU (4000 = 4ms)
+    usleep(4000);
+  }
+  if (lost)
+  { // there may be better options, but for now - stop
+    toLog("mission0 got lost - stopping");
+    mixer.setVelocity(0);
+    mixer.setTurnrate(0);
+  }
+  else
+    toLog("mission0 finished");
 }

@@ -39,8 +39,8 @@ add_executable(raubase
       src/bseesaw.cpp
       src/bmission0.cpp
       src/bracetrack.cpp
-      src/baxe.cpp
       src/bplan101.cpp
+      src/baxe.cpp
       src/cedge.cpp
       src/bStairs.cpp
       src/cheading.cpp

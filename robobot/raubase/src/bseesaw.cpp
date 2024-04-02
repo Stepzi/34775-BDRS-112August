@@ -263,15 +263,21 @@ void BSeesaw::run()
       case 9:
         if(medge.width < lineGone)
         {
-          medge.updateCalibBlack(medge.calibBlack,8);
-          medge.updatewhiteThreshold(blackWhite);
           pose.resetPose();
           toLog("No Line");
           mixer.setVelocity(0.1);
+          mixer.setDesiredHeading(0);
+          // mixer.setEdgeMode(rightEdge, 0);
+          state = 91;
+        }
+      break;
+
+      case 91:
+        if(pose.dist > 0.5){
           mixer.setEdgeMode(rightEdge, 0);
           state = 10;
         }
-      break;
+        break;
 
       case 10:
         if(medge.width > lineWidth)
@@ -472,7 +478,6 @@ void BSeesaw::run_withGolf()
   bool finished = false; 
   bool lost = false;
   state = 1;
-  // state = 17;
   //             heading.setMaxTurnRate(3);
   //         mixer.setVelocity(0.3);
   //         mixer.setEdgeMode(0, 0);
@@ -625,6 +630,7 @@ void BSeesaw::run_withGolf()
               toLog(s);
               int error_x = target_x - center[0];
               int error_y = target_y - center[1];
+              golfballTries = 0;
               if((abs(error_x) < deadband_x)&&(abs(error_y) < deadband_y)){
                 state = 53;
                 hasGFB = true;
@@ -747,7 +753,7 @@ void BSeesaw::run_withGolf()
       break;
 
       case 91:
-      toLog(std::to_string(pose.dist).c_str());
+      // toLog(std::to_string(pose.dist).c_str());
 
         if(pose.dist > 0.5){
           mixer.setEdgeMode(rightEdge, 0);
@@ -1050,20 +1056,36 @@ void BSeesaw::run_withGolf()
         break;
 
       case 31:
-        pose.resetPose();
-        // mixer.setVelocity(-0.1);
-        heading.setMaxTurnRate(1);
+        pose.dist = 0;
         mixer.setVelocity(0.1);
-        mixer.setDesiredHeading(-CV_PI*0.9);
-        state = 32;
+        //heading.setMaxTurnRate(1);
+        //mixer.setVelocity(0);
+        //mixer.setDesiredHeading(-CV_PI*0.9);
+        state = 311;
         break;
+      case 311:
+        if(pose.dist > 0.1){
+          pose.resetPose();
+          mixer.setVelocity(0);
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(-CV_PI*0.9);
+          state = 312;
+        }
 
+      break;
+
+      case 312:
+        if(abs(pose.turned) > abs((CV_PI*0.5))){
+          mixer.setVelocity(0.07);
+          pose.resetPose();
+
+          state = 32;
+      }
+
+      break;
       case 32:
         if(medge.edgeValid && (medge.width > lineWidth)){
-          pose.resetPose();
-          mixer.setVelocity(0.05);
-          heading.setMaxTurnRate(2);
-          mixer.setEdgeMode(leftEdge, 0);
+          pose.dist = 0;
           state = 33;
           
           // finished = true;
@@ -1083,13 +1105,17 @@ void BSeesaw::run_withGolf()
       //   break;
 
       case 33:
-        if(pose.dist > 0.2){
+        if(pose.dist > 0.05 && (medge.edgeValid && (medge.width > lineWidth))){
           pose.dist = 0;
-          // pose.resetPose();
-          // mixer.setTurnrate(0);
           heading.setMaxTurnRate(3);
+          mixer.setEdgeMode(leftEdge, 0.02);
+          state = 330;
+        }
+        break;
+
+      case 330:
+        if(pose.dist > 0.2){
           mixer.setVelocity(0.1);
-          // finished = true;
           state = 3310;
         }
         break;
@@ -1099,19 +1125,60 @@ void BSeesaw::run_withGolf()
       //     pose.resetPose();
       //     mixer.setTurnrate(0);
       //     mixer.setVelocity(0.07);
-      //     state = 3310;
+      //     state = 3310;  
       //   }
       //   break;
       case 3310:
-       if(medge.edgeValid && (medge.width > 0.06) || pose.dist > 0.7){
+      // toLog(std::to_string(medge.width).c_str());
+       if((medge.edgeValid && (medge.width > 0.08) && pose.dist > 0.2)){
         toLog("At Stairs Intersection");
-        mixer.setVelocity(0);
-        mixer.setTurnrate(0);
-        finished = true;
-          // pose.dist = 0;          
-          // state = 332;     
+        state = 3311;
+        pose.dist = 0;          
+        }
+        else if( pose.dist > 1.0)
+        {
+          pose.dist = 0;
+          state = 34;
+          mixer.setVelocity(0);
         }
         break;
+      case 3311:
+        if(abs(pose.dist) > 0.35)
+        {
+          mixer.setVelocity(0);
+          pose.dist = 0.0;
+          state = 34;
+        }
+      break;
+      case 34:
+          pose.resetPose();
+          // pose.turned = 0;
+          t.clear();
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(CV_PI);
+          state = 36;
+        break;
+
+      // case 35:
+      //   if (pose.turned > CV_PI/2){
+      //     pose.resetPose();
+      //     mixer.setDesiredHeading(CV_PI/2*0.8);
+      //     // pose.turned = 0;
+      //     state = 36;
+      //   }
+      //   break;
+
+      case 36:
+      // toLog(std::to_string(pose.turned).c_str());
+        if(abs(pose.turned) > (CV_PI - 0.05) || t.getTimePassed() > 5){
+          pose.resetPose();
+          // mixer.setTurnrate(0);
+          mixer.setVelocity(0);
+          sleep(1);
+          finished = true;
+        }
+        break;
+
 
       // case 3310:
       //   heading.setMaxTurnRate(1);
