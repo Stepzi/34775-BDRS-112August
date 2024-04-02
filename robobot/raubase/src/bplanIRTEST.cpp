@@ -349,29 +349,45 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       break;
 
       case 240:
-        if (pose.dist > 1.5){
+        if (pose.dist > 1.7){
           mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
           pose.turned = 0; // reset turned foring count corners driven instead of crossing.
           //state = 24; Normal code
-          state = 241 // counting corners 
+          state = 241; // counting corners 
         }
       break;
 
       case 241:
         if(abs(pose.turned) > (3.1415 - 0.1)){
           mixer.setVelocity(0);
-          finished = true;
+          state = 251;
         }
       break;
+
+      case 251:
+      if(pose.dist > 0.7 - 0.05) // - 0.26 is the distance from tip reference to 
+        { 
+          
+          mixer.setVelocity(0.0);
+          pose.resetPose();
+          // heading.setMaxTurnRate(0.3);
+          heading.setMaxTurnRate(1);
+          // mixer.setTurnrate(0.5);
+          mixer.setDesiredHeading(CV_PI*0.95);
+          //state = 25;
+          state = 26;
+        }
+      break;
+
       //Case 24 - At crossing, attempt to go into roundabout
       case 24:
       // toLog(std::to_string(pose.dist).c_str());
       
-      if(medge.width > f_LineWidth_Crossing && pose.dist > 4.2) //0.07
+      if(medge.width > f_LineWidth_Crossing && pose.dist > 4.2) // Using cross if placed left
         { 
           mixer.setVelocity(0.30);
           //pose.resetPose();
-          toLog("Make 3 test");
+          //toLog("Make 3 test");
           pose.dist = 0;
           //state = 25;
           state = 25;
@@ -384,8 +400,6 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           
           mixer.setVelocity(0.0);
           pose.resetPose();
-          toLog("Make 3 test");
-          pose.resetPose();
           // heading.setMaxTurnRate(0.3);
           heading.setMaxTurnRate(1);
           // mixer.setTurnrate(0.5);
@@ -394,6 +408,9 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           state = 26;
         }
       break;
+
+      
+
       
       //Case 25 - After turning some angle, go to state 10
       case 26:
