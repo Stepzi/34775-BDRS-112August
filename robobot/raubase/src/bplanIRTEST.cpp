@@ -351,10 +351,17 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 240:
         if (pose.dist > 1.5){
           mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
-          state = 24;
+          pose.turned = 0; // reset turned foring count corners driven instead of crossing.
+          //state = 24; Normal code
+          state = 241 // counting corners 
         }
       break;
 
+      case 241:
+        if(abs(pose.turned) > (3.1415 - 0.1)){
+          mixer.setVelocity(0);
+        }
+      break;
       //Case 24 - At crossing, attempt to go into roundabout
       case 24:
       // toLog(std::to_string(pose.dist).c_str());
