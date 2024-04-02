@@ -132,8 +132,10 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   bool LineMoved = true
   // LinePosition: Line connecting to roundabout white circle 
   // position relative to the robot exiting it. 
-  // true = right  , flase = left.
+  // true = right  , flase = left, Line In middle set true.
   bool LinePosition = true; 
+  bool LinePositionMiddle = true;
+
   /********************************************************************/
   while (not finished and not lost and not service.stop)
   {
@@ -590,7 +592,35 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           toLog("Robot seen!");
           heading.setMaxTurnRate(3);
           t.clear();
-          state = 42;
+          if(LinePositionMiddle){
+            state = 421;
+          }else{
+            state = 42;
+          }
+        }
+      break;
+
+      case 421:
+        if(t.getTimePassed() > 3)
+        {
+          mixer.setVelocity(-0.1);
+          state = 422;
+        }
+      break;
+
+      case 422:
+        if(abs(pose.dist) > 0.15)
+        {
+          pose.turned = 0;
+          t.clear();
+          mixer.setDesiredHeading(0.3);
+          state = 423;
+        }
+      break;
+      case 423:
+        if(abs(pose.turned) > (0.3-0.03) || (t.getTimePassed() > 1))
+        {
+          state = 43;
         }
       break;
 
