@@ -217,24 +217,18 @@ void BAxe::run()
       case 50:
         if(dist.dist[1] < 0.80)
         {
-          distanceAverage[numberOfSamples] = dist.dist[1];
+          totalAverage += dist.dist[1];
           numberOfSamples += 1;
         }
         else if(dist.dist[1] > 0.8) 
         {
-          memset(distanceAverage, 0, sizeof(distanceAverage));
           numberOfSamples = 0;
           totalAverage = 0.0;
         }
-        if(numberOfSamples >= 9) //0 Indeksing 9 samples = 10, to ensure we dont override memory in the array
+        if(numberOfSamples >= 10)
         { 
           mixer.setVelocity(0.0);
-          toLog("Found axe with 10 samples, average =");
-          for (size_t i = 0; i < sizeof(distanceAverage); i++)
-          {
-            totalAverage += distanceAverage[i];
-            toLog(std::to_string(totalAverage).c_str());
-          }
+          toLog("Found axe with 10 samples, average = ");
           totalAverage = totalAverage/10.0;
           toLog(std::to_string(totalAverage).c_str());
           numberOfSamples = 0.0;
@@ -246,14 +240,12 @@ void BAxe::run()
           toLog("Calculated a average distance too close to the axe.");
           mixer.setVelocity(-0.1);
           pose.dist = 0.0;
-          memset(distanceAverage, 0, sizeof(distanceAverage));
           state = 53;
         }
         else if(totalAverage >= 0.20){
           toLog("Calculated distance to far from the axe");
           mixer.setVelocity(0.1);
           pose.dist = 0.0;
-          memset(distanceAverage, 0, sizeof(distanceAverage));
           state = 52;
         }
       break;
@@ -263,6 +255,7 @@ void BAxe::run()
         {
           mixer.setVelocity(0.0);
           pose.dist = 0.0;
+          totalAverage = 0.0;
           state = 41;
         }
       break;
@@ -272,6 +265,7 @@ void BAxe::run()
           {
             mixer.setVelocity(0.0);
             pose.dist = 0.0;
+            totalAverage = 0.0;
             state = 41;
           }
         break;
