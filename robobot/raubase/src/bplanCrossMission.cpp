@@ -395,8 +395,8 @@ void BPlanCrossMission::run_AxeToTunnel()
   int woodWhite = 600;
   int blackWhite = 350;
 
-  float f_Line_LeftOffset = 0;
-  float f_Line_RightOffset = 0;
+  float f_Line_LeftOffset = 0.02;
+  float f_Line_RightOffset = -0.02;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 

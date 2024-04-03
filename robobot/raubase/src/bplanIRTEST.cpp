@@ -134,7 +134,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   // position relative to the robot exiting it. 
   // true = right  , flase = left, Line In middle set true.
   bool LinePosition = true; 
-  bool LinePositionMiddle = true;
+  bool LinePositionMiddle = false;
 
   /********************************************************************/
   while (not finished and not lost and not service.stop)
