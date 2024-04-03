@@ -52,7 +52,6 @@ int    startSide          = 21;     //select the side we start from - 21 from th
 double axeStop            = 0.50;    //distance to assume that axe is in front of the robot
 double axeToIntersection  = 0.7;    //distance from intersection to axe start
 double axeLenght          = 2.0;      //distance from start to finish of mission Axe
-int    numberOfSamples    = 0;
 // create class object
 BAxe axe;
 
@@ -109,7 +108,10 @@ void BAxe::run()
   float waitTime;
   float distanceToAxe;
   float accValue1;
-  
+
+  int    numberOfSamples    = 0;
+  float distanceAverage[10]  = {0};
+  float totalAverage = 0.0;
   toLog("axe started");
   
   while (not finished and not lost and not service.stop)
@@ -146,9 +148,9 @@ void BAxe::run()
         {
           toLog("found intersection");
           mixer.setVelocity(0);
-          mixer.setVelocity(0.1);
+          mixer.setVelocity(0.05);
           pose.dist = 0;
-          state = 3;
+          state = 50;
         }
         else
         {                                                             
@@ -210,6 +212,68 @@ void BAxe::run()
 
       // getting the robot to the axe.
       // based on the driven distance.
+
+      //IF we drive at 0.1 we can drive for 0.8 meters before hitting the axe if they dont move it. at a period time of 7 seconds.
+      case 50:
+        toLog(std::to_string(dist.dist[1]).c_str());
+        if(dist.dist[1] <= 0.30)
+        {
+          totalAverage += dist.dist[1];
+          numberOfSamples += 1;
+        }
+        else if(dist.dist[1] > 0.3) 
+        {
+          numberOfSamples = 0;
+          totalAverage = 0.0;
+        }
+        if(numberOfSamples >= 10)
+        { 
+          mixer.setVelocity(0.0);
+          toLog("Found axe with 10 samples, average = ");
+          totalAverage = totalAverage/10.0;
+          toLog(std::to_string(totalAverage).c_str());
+          numberOfSamples = 0.0;
+          state = 51;
+        }
+      break;      
+      case 51:
+        if(totalAverage <= 0.20){
+          toLog("Calculated a average distance too close to the axe - new distance:");
+          toLog(std::to_string(abs(totalAverage-0.2)).c_str());
+          mixer.setVelocity(-0.1);
+          pose.dist = 0.0;
+          state = 53;
+        }
+        else if(totalAverage >= 0.20){
+          toLog("Calculated distance to far from the axe - new distance: ");
+          toLog(std::to_string(abs(totalAverage-0.2)).c_str());
+          mixer.setVelocity(0.1);
+          pose.dist = 0.0;
+          state = 52;
+        }
+      break;
+
+      case 52:
+        if(abs(pose.dist) >  (totalAverage - 0.20))
+        {
+          mixer.setVelocity(0.0);
+          pose.dist = 0.0;
+          totalAverage = 0.0;
+          state = 41;
+        }
+      break;
+
+      case 53:
+          if(abs(pose.dist) >  (abs(totalAverage - 0.20)))
+          {
+            mixer.setVelocity(0.0);
+            pose.dist = 0.0;
+            totalAverage = 0.0;
+            state = 41;
+          }
+        break;
+
+      break;
       case 3:
         if (pose.dist > axeToIntersection )
         {
@@ -236,6 +300,8 @@ void BAxe::run()
       
       //waiting for axe to appear
       case 41: 
+        distSens1 = std::to_string(dist.dist[1]);
+        toLog(const_cast<char*>(distSens1.c_str()));
         if (dist.dist[1] >= axeStop )       //nothing in front 
         {
           mixer.setVelocity(0);
