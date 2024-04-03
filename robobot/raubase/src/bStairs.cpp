@@ -101,9 +101,9 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
   float f_Velocity_DriveForward = 0.3; 
-  float f_Velocity_DriveSlow = 0.15;
-  float f_Velocity_DriveBack = -0.15;
-  int servoDown = 300;
+  float f_Velocity_DriveSlow = 0.1;
+  float f_Velocity_DriveBack = -0.1;
+  int servoDown = 400;
   int servoSpeed = 400;
   int steps = 0;
   oldstate = state;
@@ -181,13 +181,14 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         }
         break;
       case 6:
-        std::cout << abs(imu.acc[2]) << std::endl;
-        if(pose.dist > 0.3 /*|| abs(imu.acc[2]) > 100*/)
+        // std::cout << abs(imu.acc[2]) << std::endl;
+        if(pose.dist > 0.3 || (imu.acc[2] > 0 && pose.dist > 0.1))
         { 
           toLog("Down Step, drive Back");          
           steps++;
+          toLog(std::to_string(steps).c_str());    
 
-          if(steps == 3){
+          if(steps == 4){
             toLog("change calibration to wood");
             medge.updateCalibBlack(medge.calibWood,8);
             medge.updatewhiteThreshold(woodWhite);
@@ -234,18 +235,20 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
 
       case 8:
         toLog("Down of staircase");
-        if(medge.edgeValid)
-        {
-          toLog("on valid edge, keep Line following");
-          state = 9;
-        }else{
-          toLog("not on valid edge, initiate turn");
-          pose.dist = 0;
-          pose.turned = 0;
-          mixer.setVelocity(f_Velocity_DriveSlow);
-          toLog("drive slowly forward");
-          state = 10;
-        }
+        mixer.setVelocity(0);
+        finished = true;
+        // if(medge.edgeValid)
+        // {
+        //   toLog("on valid edge, keep Line following");
+        //   state = 9;
+        // }else{
+        //   toLog("not on valid edge, initiate turn");
+        //   pose.dist = 0;
+        //   pose.turned = 0;
+        //   mixer.setVelocity(f_Velocity_DriveSlow);
+        //   toLog("drive slowly forward");
+        //   state = 10;
+        // }
         break;
       case 10:      
         if(pose.dist > 0.1){
