@@ -1079,8 +1079,9 @@ void BSeesaw::run_withGolf()
         state = 311;
         break;
       case 311:
-        if(pose.dist > 0.15){
+        if(pose.dist > 0.10){
           pose.resetPose();
+          pose.turned = 0;
           mixer.setVelocity(0);
           heading.setMaxTurnRate(1);
           mixer.setDesiredHeading(-CV_PI*0.9);
@@ -1090,8 +1091,9 @@ void BSeesaw::run_withGolf()
       break;
 
       case 312:
-        if(abs(pose.turned) > abs((CV_PI*0.55))){
+        if(abs(pose.turned) > abs((CV_PI*0.6))){
           mixer.setVelocity(0.07);
+          mixer.setTurnrate(0);
           pose.resetPose();
           usleep(10000);
 
@@ -1107,6 +1109,8 @@ void BSeesaw::run_withGolf()
           // finished = true;
           // mixer.setDesiredHeading(CV_PI*0.9);
           // state = 33;
+        }else if(pose.dist > 1){
+          mixer.setTurnrate(-0.2);
         }
         break;
 
