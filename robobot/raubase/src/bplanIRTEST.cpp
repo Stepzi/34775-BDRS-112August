@@ -122,6 +122,21 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   toLog("PlanIRTEST started");;
   toLog("Time stamp, IR dist 0, IR dist 1");
   //
+
+  /********************************************************************/
+  //************** DETERMIN BEFORE COMPITESION !!!!! ******************/
+  // If there is changes to the roundabout enter line.
+  // change these parameters
+  // LineMoved: if the line is moved from its position 02/04/2024. Moved = true, same = false
+  // this changes it to use the curne rate instead of the line as reference.
+  bool LineMoved = true;
+  // LinePosition: Line connecting to roundabout white circle 
+  // position relative to the robot exiting it. 
+  // true = right  , flase = left, Line In middle set true.
+  bool LinePosition = true; 
+  bool LinePositionMiddle = false;
+
+  /********************************************************************/
   while (not finished and not lost and not service.stop)
   {
     switch (state)
@@ -349,9 +364,38 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       break;
 
       case 240:
-        if (pose.dist > 1.5){
+        if (pose.dist > 1.7){
           mixer.setEdgeMode(b_Line_HoldRight, -0.01 );
-          state = 24;
+          pose.turned = 0; // reset turned foring count corners driven instead of crossing.
+          if(!LineMoved){
+            state = 24;
+          }
+          else{
+            state = 241; // counting corners 
+          }
+         
+        }
+      break;
+
+      case 241:
+        if(abs(pose.turned) > (3.1415 - 0.1)){
+          pose.dist = 0;
+          state = 251;
+        }
+      break;
+
+      case 251:
+      if(pose.dist > 0.7 - 0.05) // - 0.26 is the distance from tip reference to 
+        { 
+          
+          mixer.setVelocity(0.0);
+          pose.resetPose();
+          // heading.setMaxTurnRate(0.3);
+          heading.setMaxTurnRate(1);
+          // mixer.setTurnrate(0.5);
+          mixer.setDesiredHeading(CV_PI*0.95);
+          //state = 25;
+          state = 26;
         }
       break;
 
@@ -359,11 +403,11 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
       case 24:
       // toLog(std::to_string(pose.dist).c_str());
       
-      if(medge.width > f_LineWidth_Crossing && pose.dist > 4.2) //0.07
+      if(medge.width > f_LineWidth_Crossing && pose.dist > 4.2) // Using cross if placed left
         { 
           mixer.setVelocity(0.30);
           //pose.resetPose();
-          toLog("Make 3 test");
+          //toLog("Make 3 test");
           pose.dist = 0;
           //state = 25;
           state = 25;
@@ -376,8 +420,6 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           
           mixer.setVelocity(0.0);
           pose.resetPose();
-          toLog("Make 3 test");
-          pose.resetPose();
           // heading.setMaxTurnRate(0.3);
           heading.setMaxTurnRate(1);
           // mixer.setTurnrate(0.5);
@@ -386,6 +428,9 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           state = 26;
         }
       break;
+
+      
+
       
       //Case 25 - After turning some angle, go to state 10
       case 26:
@@ -547,7 +592,38 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
           toLog("Robot seen!");
           heading.setMaxTurnRate(3);
           t.clear();
-          state = 42;
+          if(LinePositionMiddle){
+            state = 421;
+          }else{
+            state = 42;
+          }
+        }
+      break;
+
+      case 421:
+        if(t.getTimePassed() > 3)
+        {
+          mixer.setVelocity(-0.1);
+          pose.dist = 0.0;
+          state = 422;
+        }
+      break;
+
+      case 422:
+      //toLog(std::to_string(pose.dist).c_str());
+        if(abs(pose.dist) > 0.10)
+        {
+          pose.resetPose();
+          t.clear();
+          mixer.setDesiredHeading(-0.40);
+          state = 423;
+        }
+      break;
+      case 423:
+        if(abs(pose.turned) > (0.10-0.03) || (t.getTimePassed() > 1))
+        {
+          mixer.setVelocity(0.1);
+          state = 43;
         }
       break;
 
@@ -622,7 +698,13 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         }
         else
         {
+          if(LinePosition){ // true = right, flase = left 
            state = 61;
+          }
+          else
+          {
+            state = 63;
+          }
         }
       break;
       

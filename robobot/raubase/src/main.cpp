@@ -63,7 +63,7 @@ int main (int argc, char **argv)
   if (not service.theEnd)
   { // all set to go
     // turn on LED on port 16
-    servo.setServo(2, 1, -900, 200);
+    // servo.setServo(2, 1, -900, 200);
     gpio.setPin(16, 1);
     // run the planned missions
     //mission0.run();
@@ -83,6 +83,9 @@ int main (int argc, char **argv)
     // planCrossMission.run_StartToFirstCross();
     // planIRTEST.run(true,false);
     axe.run();
+    planCrossMission.run_StartToFirstCross();
+    planIRTEST.run(true,false);
+    // axe.run();
     // planCrossMission.run_AxeToTunnel();
     // planGate.runOpen();
     // racetrack.run();
@@ -96,6 +99,12 @@ int main (int argc, char **argv)
     // planCrossMission.seesawToGoal_END();
     // mixer.setVelocity(0.0);
     // mixer.setTurnrate(0.0);
+    // planCrossMission.run_GoalToRampGate();
+    // seesaw.run_withGolf();
+    // //mission0.run();
+    // planCrossMission.seesawToGoal_END();
+    // // mixer.setVelocity(0.0);
+    // // mixer.setTurnrate(0.0);
     sleep(1); // to allow robot to stop
     // turn off led 16
     

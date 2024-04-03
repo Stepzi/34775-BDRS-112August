@@ -395,8 +395,8 @@ void BPlanCrossMission::run_AxeToTunnel()
   int woodWhite = 600;
   int blackWhite = 350;
 
-  float f_Line_LeftOffset = 0;
-  float f_Line_RightOffset = 0;
+  float f_Line_LeftOffset = 0.02;
+  float f_Line_RightOffset = -0.02;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
@@ -1836,7 +1836,7 @@ void BPlanCrossMission::seesawToGoal_END()
       case 8:
         if(medge.edgeValid && abs(pose.turned) > Turn90Deg - 0.2) //Offset might be close to 90 and not exactly 90.
         {
-          servo.setServo(2, true, 350, 900);
+          servo.setServo(2, true, 350, 1000);
           toLog("Heading down the ramp.");
           pose.dist = 0;
           pose.turned = 0;

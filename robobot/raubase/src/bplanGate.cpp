@@ -164,8 +164,8 @@
         if(pose.dist > 0.30)
         {
           toLog("30 cm after crossing, i am on black floor now");
-          medge.updateCalibBlack(medge.calibBlack,8);
-          medge.updatewhiteThreshold(blackWhite);
+          // medge.updateCalibBlack(medge.calibBlack,8);
+          // medge.updatewhiteThreshold(blackWhite);
           pose.turned = 0;
           pose.dist = 0;
           state = 2;
@@ -176,11 +176,14 @@
        toLog(std::to_string(dist.dist[1]).c_str());
           if(dist.dist[1] < 0.2)
           {
+              medge.updateCalibBlack(medge.calibBlack,8);
+              medge.updatewhiteThreshold(blackWhite);
               heading.setMaxTurnRate(1);
               mixer.setVelocity(0);
               pose.dist = 0.0;
               pose.turned = 0.0;
               pose.resetPose();
+              usleep(1000);
               mixer.setDesiredHeading(1.6);
               state = 3;
           }
