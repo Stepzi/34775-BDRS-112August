@@ -131,7 +131,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   // change these parameters
   // LineMoved: if the line is moved from its position 02/04/2024. Moved = true, same = false
   // this changes it to use the curne rate instead of the line as reference.
-  bool LineMoved = true;
+  bool LineMoved = false;
   // LinePosition: Line connecting to roundabout white circle 
   // position relative to the robot exiting it. 
   // true = right  , flase = left, Line In middle set true.
@@ -417,7 +417,7 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
         break;
 
       case 25:
-      if(pose.dist > 0.7) //0.07
+      if(pose.dist > 0.75) //0.07
         { 
           
           mixer.setVelocity(0.0);

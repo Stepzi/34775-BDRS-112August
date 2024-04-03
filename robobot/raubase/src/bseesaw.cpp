@@ -483,13 +483,13 @@ void BSeesaw::run_withGolf()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 160;
+  state = 1;
   //             heading.setMaxTurnRate(3);
   //         mixer.setVelocity(0.3);
   //         mixer.setEdgeMode(0, 0);
   //         servo.setServo(2,0);
-           medge.updateCalibBlack(medge.calibWood,8);
-           medge.updatewhiteThreshold(600);
+          //  medge.updateCalibBlack(medge.calibWood,8);
+          //  medge.updatewhiteThreshold(600);
   //         pose.dist = 2;
   oldstate = state;
   const int MSL = 100;
@@ -840,19 +840,19 @@ void BSeesaw::run_withGolf()
           toLog("intercepted line");
           mixer.setVelocity(0.07);
           pose.dist = 0;
-          state = 150;
+          state = 1511;
         }
         
         break;
 
-      case 150:
-        if(toFinish  && !hasGFB){
-          state = 1512;
-          t.clear();
-        }else{
-          state = 1511;
-        }
-        break;
+      // case 150:
+        // if(toFinish  && !hasGFB){
+        //   state = 1512;
+        //   t.clear();
+        // }else{
+        //   state = 1511;
+        // }
+        // break;
 
       case 1511:
         if(pose.dist > 0.1){
@@ -924,7 +924,8 @@ void BSeesaw::run_withGolf()
 
       case 17:
       {
-        toLog(std::to_string(pose.dist).c_str());
+        
+        //toLog(std::to_string(pose.dist).c_str());
         float omega = imu.gyro[1];
 
         if((pose.dist > 2.0  && omega > 25 ) || pose.dist > 2.22 ){
@@ -937,7 +938,14 @@ void BSeesaw::run_withGolf()
 
 
           pose.dist = 0;
-          state = 18;
+          if(hasGFB){
+            state = 18;
+          }else{
+            state = 3310;
+            mixer.setEdgeMode(leftEdge, 0.02);
+            pose.dist = -1;
+          }
+          
           // servo.setServo(2,servo_down,servo_velocity);
         }
       }
@@ -966,7 +974,7 @@ void BSeesaw::run_withGolf()
 
       case 180:
       // toLog(std::to_string(pose.dist).c_str());
-        if(pose.dist > 0.23){
+        if(pose.dist > 0.26){
           mixer.setVelocity(-0.005);
           pose.dist = 0;
           state = 181;
@@ -1123,18 +1131,18 @@ void BSeesaw::run_withGolf()
       }
       break;
       case 313:
-        if(abs(pose.dist) > 0.1){
+        if(abs(pose.dist) > 0.15){
           mixer.setVelocity(0);
           pose.turned = 0;
           t.clear();
-          mixer.setdeciredHeading(-CV_PI*0.4);
+          mixer.setDesiredHeading(-CV_PI*0.3);
           state = 314;
         }
       break;
 
       case 314:
-        if(abs(pose.turned) > abs(-CV_PI*0.2) || t.getTimePassed() > 4){
-          mixer.setVelcotiy(0);
+        if(abs(pose.turned) > abs(-CV_PI*0.1) || t.getTimePassed() > 4){
+          mixer.setVelocity(0);
           usleep(10000);
           pose.dist = 0;
           state = 315;
@@ -1154,8 +1162,6 @@ void BSeesaw::run_withGolf()
           // finished = true;
           // mixer.setDesiredHeading(CV_PI*0.9);
           // state = 33;
-        }else if(pose.dist > 1){
-          mixer.setTurnrate(-0.2);
         }
         break;
 
@@ -1170,7 +1176,7 @@ void BSeesaw::run_withGolf()
       //   break;
 
       case 33:
-        if(pose.dist > 0.05 && (medge.edgeValid && (medge.width > lineWidth))){
+        if(pose.dist > 0.05 /*&& (medge.edgeValid && (medge.width > lineWidth))*/){
           pose.dist = 0;
           heading.setMaxTurnRate(3);
           mixer.setEdgeMode(leftEdge, 0.02);
@@ -1179,8 +1185,7 @@ void BSeesaw::run_withGolf()
         break;
 
       case 330:
-        if(pose.dist > 0.2){
-          mixer.setVelocity(0.1);
+        if(pose.dist > 0.05){
           state = 3310;
         }
         break;
@@ -1194,8 +1199,8 @@ void BSeesaw::run_withGolf()
       //   }
       //   break;
       case 3310:
-      // toLog(std::to_string(medge.width).c_str());
-       if((medge.edgeValid && (medge.width > 0.08) && pose.dist > 0.2)){
+      //toLog(std::to_string(medge.width).c_str());
+       if((medge.edgeValid && (medge.width > 0.065) /*&& pose.dist > 0.2*/)){
         toLog("At Stairs Intersection");
         state = 3311;
         pose.dist = 0;          
