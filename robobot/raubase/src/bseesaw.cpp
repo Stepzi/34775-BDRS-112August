@@ -1103,13 +1103,14 @@ void BSeesaw::run_withGolf()
           heading.setMaxTurnRate(1);
           // mixer.setDesiredHeading(-CV_PI*0.9); // version used in first heap
           mixer.setDesiredHeading(-turnedGolfballHoleHolder);
+          t.clear();
           state = 312;
         //}
 
       break;
 
       case 312:
-        if(abs(pose.turned) > abs((turnedGolfballHoleHolder)-0.03)/*abs(pose.turned) > abs((CV_PI*0.6))*/){
+        if((abs(pose.turned) > abs((turnedGolfballHoleHolder)-0.03) || (t.getTimePassed() > 3))/*abs(pose.turned) > abs((CV_PI*0.6))*/){
           
           pose.dist = 0;
           mixer.setVelocity(-0.07);
@@ -1126,13 +1127,13 @@ void BSeesaw::run_withGolf()
           mixer.setVelocity(0);
           pose.turned = 0;
           t.clear();
-          mixer.setdeciredHeading(-CV_PI*0.3);
+          mixer.setdeciredHeading(-CV_PI*0.4);
           state = 314;
         }
       break;
 
       case 314:
-        if(abs(pose.turned) > abs(-CV_PI*0.2) || t.getTimePassed() > 1){
+        if(abs(pose.turned) > abs(-CV_PI*0.2) || t.getTimePassed() > 4){
           mixer.setVelcotiy(0);
           usleep(10000);
           pose.dist = 0;
