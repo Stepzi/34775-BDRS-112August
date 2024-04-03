@@ -637,7 +637,7 @@ void BSeesaw::run_withGolf()
         roi.push_back(cv::Point(600,190));  //point3
         roi.push_back(cv::Point(850,190));  //point4          
 
-        if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 10) && (t.getTimePassed() < 30)){
+        if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 100) && (t.getTimePassed() < 20)){
             char s[MSL];
             snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
             toLog(s);
@@ -658,9 +658,9 @@ void BSeesaw::run_withGolf()
           center = {0,0};
           mixer.setVelocity(0);
           mixer.setTurnrate(0);
-          if(golfballTries < 10){
-            golfballTries++;
-          }else{
+          golfballTries++;
+          usleep(10000);
+          if(golfballTries >= 100){
             hasGFB = false;
             state = 53;
           }
@@ -782,7 +782,9 @@ void BSeesaw::run_withGolf()
       // toLog(std::to_string(medge.width).c_str());
         if(medge.width > lineWidth)
         {
-          servo.setServo(2,0);
+          if(hasGFB){
+            servo.setServo(2,0);
+          }          
           toLog("Found Line again");
           mixer.setVelocity(0.03);
           pose.dist = 0;          
