@@ -90,7 +90,7 @@ int main (int argc, char **argv)
     // planGate.runClose();
     // planCrossMission.run_TunnelToGoal();
     // planCrossMission.run_GoalToFirstCross();
-    // seesaw.run_withGolf();
+    seesaw.run_withGolf();
     stairs.run();
     // planCrossMission.seesawToGoal_END();
 
