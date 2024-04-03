@@ -615,52 +615,58 @@ void BSeesaw::run_withGolf()
           mixer.setVelocity(0.1);
           pose.dist = 0;
           toLog("Following line for a few centimeters");
-          state = 5;
+          state = 41;
         }
         break;
       }
 
-      case 5:{
-        if(pose.dist > 0.2){         
-        
-          toLog("Looking for golfball");
-          std::vector<cv::Point> roi;
-          roi.push_back(cv::Point(1280,720));  //point1
-          roi.push_back(cv::Point(0,720));  //point2
-          roi.push_back(cv::Point(600,190));  //point3
-          roi.push_back(cv::Point(850,190));  //point4          
-
-          if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 10)){
-              char s[MSL];
-              snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
-              toLog(s);
-              int error_x = target_x - center[0];
-              int error_y = target_y - center[1];
-              golfballTries = 0;
-              if((abs(error_x) < deadband_x)&&(abs(error_y) < deadband_y)){
-                state = 53;
-                hasGFB = true;
-                mixer.setVelocity(0);
-                mixer.setTurnrate(0);
-              }else{
-                state = 51;
-              }
-
-          }else{
-            toLog("No Golfball Found");
-            center = {0,0};
-            mixer.setVelocity(0);
-            mixer.setTurnrate(0);
-            if(golfballTries < 10){
-              golfballTries++;
-            }else{
-              hasGFB = false;
-              state = 53;
-            }
-            
+      case 41:
+        if(pose.dist > 0.2){
+          state = 5;
+          t.clear();
           }
-          // finished = true;
+        break;
+
+
+      case 5:{           
+        
+        toLog("Looking for golfball");
+        std::vector<cv::Point> roi;
+        roi.push_back(cv::Point(1280,720));  //point1
+        roi.push_back(cv::Point(0,720));  //point2
+        roi.push_back(cv::Point(600,190));  //point3
+        roi.push_back(cv::Point(850,190));  //point4          
+
+        if(golfball.findGolfball(center, roi, nullptr) && (golfballTries < 10) && (t.getTimePassed() < 30)){
+            char s[MSL];
+            snprintf(s, MSL, "Golfball found at X = %d, Y = %d", center[0], center[1]);
+            toLog(s);
+            int error_x = target_x - center[0];
+            int error_y = target_y - center[1];
+            golfballTries = 0;
+            if((abs(error_x) < deadband_x)&&(abs(error_y) < deadband_y)){
+              state = 53;
+              hasGFB = true;
+              mixer.setVelocity(0);
+              mixer.setTurnrate(0);
+            }else{
+              state = 51;
+            }
+
+        }else{
+          toLog("No Golfball Found");
+          center = {0,0};
+          mixer.setVelocity(0);
+          mixer.setTurnrate(0);
+          if(golfballTries < 10){
+            golfballTries++;
+          }else{
+            hasGFB = false;
+            state = 53;
+          }
+          
         }
+        // finished = true;
       break;
       }      
 
@@ -764,7 +770,7 @@ void BSeesaw::run_withGolf()
         if(pose.dist > 0.5){
           mixer.setEdgeMode(rightEdge, 0);
           if(hasGFB){
-            servo.setServo(2,0);
+            // servo.setServo(2,0);
           }else{
             servo.setServo(2,1,-900,200);
           }
@@ -776,6 +782,7 @@ void BSeesaw::run_withGolf()
       // toLog(std::to_string(medge.width).c_str());
         if(medge.width > lineWidth)
         {
+          servo.setServo(2,0);
           toLog("Found Line again");
           mixer.setVelocity(0.03);
           pose.dist = 0;          
