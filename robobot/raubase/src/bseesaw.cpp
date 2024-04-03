@@ -94,7 +94,7 @@ void BSeesaw::run()
   UTime t("now");
   bool finished = false; 
   bool lost = false;
-  state = 1;
+  state = 0;
   oldstate = state;
   const int MSL = 100;
   char s[MSL];
@@ -107,7 +107,7 @@ void BSeesaw::run()
   float lineWidth          =  0.02;   //width to determine if we are on the line
   float lineGone           =  0.01;   //width to determine if the line was lost
   float lineOffset         =  0.03;      //offset for line edge detection
-  float intersectionWidth  =  0.1;   //used to detect intersections
+  float intersectionWidth  =  0.06;   //used to detect intersections
 
   //seesaw variables
   float intersectionToEdge =  0.23;   //seesaw - distance from the intersection to the step
@@ -130,38 +130,44 @@ void BSeesaw::run()
   {
     switch (state)
     {  
+      case 0:
+        servo.setServo(2, true, -900, 500);
+        medge.updateCalibBlack(medge.calibBlack,8);
+        medge.updatewhiteThreshold(blackWhite);
+        heading.setMaxTurnRate(3);
+        usleep(1000);
+
+        mixer.setEdgeMode(leftEdge, lineOffset);
+        state = 1;
+
+        break;
+
       case 1: // Start Position, assume we are on a line but verify.
-      servo.setServo(2, true, -900, 500);
-      medge.updateCalibBlack(medge.calibBlack,8);
-      medge.updatewhiteThreshold(blackWhite);
-      heading.setMaxTurnRate(3);
-      usleep(1000);
+      
 
-      mixer.setEdgeMode(leftEdge, lineOffset);
-
-      // toLog(const_cast<char*>((std::to_string(medge.width)).c_str()));
-      // std::cout << medge.width << std::endl;
-      if(medge.edgeValid && (medge.width > intersectionWidth)) //We should be on a line 
-      {
-          mixer.setEdgeMode(leftEdge, lineOffset);
-          toLog("found intersection");
-          mixer.setVelocity(0.07);
-          pose.dist = 0;
-          servo.setServo(2, true, 350, 700);
-          state = 3;
-      }
-      else if(medge.edgeValid && (medge.width > lineWidth))
-      {
-        // pose.resetPose();
-        toLog("Follow Line with velocity 0.1");
-        // mixer.setEdgeMode(leftEdge, lineOffset);
-        mixer.setVelocity(0.1);
-        // state = 2;
-      }else{
-        lost = true;
-      }
-       
-      break;
+        // toLog(const_cast<char*>((std::to_string(medge.width)).c_str()));
+        // std::cout << medge.width << std::endl;
+        if(medge.edgeValid && (medge.width > intersectionWidth)) //We should be on a line 
+        {
+            mixer.setEdgeMode(leftEdge, lineOffset);
+            toLog("found intersection");
+            mixer.setVelocity(0.07);
+            pose.dist = 0;
+            servo.setServo(2, true, 350, 700);
+            state = 3;
+        }
+        else if(medge.edgeValid && (medge.width > lineWidth))
+        {
+          // pose.resetPose();
+          toLog("Follow Line with velocity 0.1");
+          // mixer.setEdgeMode(leftEdge, lineOffset);
+          mixer.setVelocity(0.1);
+          // state = 2;
+        }else{
+          lost = true;
+        }
+        
+        break;
 
       case 2:
         if (medge.width > intersectionWidth)
@@ -1064,7 +1070,7 @@ void BSeesaw::run_withGolf()
         state = 311;
         break;
       case 311:
-        if(pose.dist > 0.1){
+        if(pose.dist > 0.15){
           pose.resetPose();
           mixer.setVelocity(0);
           heading.setMaxTurnRate(1);
@@ -1075,9 +1081,10 @@ void BSeesaw::run_withGolf()
       break;
 
       case 312:
-        if(abs(pose.turned) > abs((CV_PI*0.5))){
+        if(abs(pose.turned) > abs((CV_PI*0.55))){
           mixer.setVelocity(0.07);
           pose.resetPose();
+          usleep(10000);
 
           state = 32;
       }

@@ -121,7 +121,7 @@ void BPlanCrossMission::run_StartToFirstCross()
         {
           medge.updateCalibBlack(medge.calibBlack,8);
           medge.updatewhiteThreshold(blackWhite);
-          servo.setServo(2, true, -900, 200);
+          servo.setServo(2, true, -800, 200);
           pose.resetPose();
           toLog("Started on Line");
           toLog("Follow Line with velocity 0.25"); //Some parse of float to log, Villiams :)

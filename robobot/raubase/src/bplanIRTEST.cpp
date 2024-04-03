@@ -109,6 +109,8 @@ void BPlanIRTEST::run(bool entryDirectionStart, bool exitDirectionStart)
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
 
+  servo.setServo(2, true, -800, 200);
+
   //Hardcoded time data
   //float f_Time_Timeout = 10.0;
 

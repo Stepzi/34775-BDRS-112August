@@ -86,7 +86,7 @@ void BRaceTrack::run()
   const int MSL = 100;
   char s[MSL];
   float speed = 0;
-  float turnSpeed = 0.6; //0.8
+  float turnSpeed = 0.50; //0.8
   float toTurn = 0.0;
   float maxSpeed = 1.3; //1.5
   float maxDist = 4.8; //around 4
@@ -104,6 +104,9 @@ void BRaceTrack::run()
 
   medge.updateCalibBlack(black,8);
   medge.updatewhiteThreshold(blackWhite);
+
+ servo.setServo(2, true, -800, 200);
+
   usleep(1000);
   state = 0;//TESTING
   pose.dist = maxDist;//+1.0;//TESTING
