@@ -94,14 +94,14 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   {
     state = 0;
   }
-  float f_LineWidth_Crossing = 0.05;
+  float f_LineWidth_Crossing = 0.08;
 
   float f_Line_LeftOffset = 0;
   float f_Line_RightOffset = 0;
   bool b_Line_HoldLeft = true;
   bool b_Line_HoldRight = false;
   float f_Velocity_DriveForward = 0.3; 
-  float f_Velocity_DriveSlow = 0.07;
+  float f_Velocity_DriveSlow = 0.2;
   float f_Velocity_DriveBack = -0.1;
   int servoDown = 400;
   int servoSpeed = 400;
@@ -109,8 +109,12 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
   oldstate = state;
 
   
-  int woodWhite = 550;
+  int woodWhite = 600;
   int blackWhite = 350;
+
+  
+  medge.updateCalibBlack(medge.calibBlack,8);
+  medge.updatewhiteThreshold(blackWhite);
 
   //
   toLog("Plan Stairs started");
@@ -124,6 +128,10 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         {
           toLog("Started on a line");
           state = 3;
+          pose.turned = 0.0;
+          mixer.setVelocity(f_Velocity_DriveSlow);
+          heading.setMaxTurnRate(3);
+          mixer.setEdgeMode(b_Line_HoldLeft, 0.02);
         }
         else if(!medge.edgeValid)
         {
@@ -139,33 +147,35 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
       //     pose.turned = 0.0;
       //     state = 2;
       //   break;
-      case 2:
-          if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
-          {
-            toLog("Crossed intersection to seesaw - continue until next intersection");
-            mixer.setVelocity(f_Velocity_DriveSlow);
-            pose.dist = 0.0;
-            pose.turned = 0.0;
-            state = 3;
-          }
-        break;
+      // case 2:
+      //     if(medge.edgeValid && (medge.width > f_LineWidth_Crossing))
+      //     {
+      //       toLog("Crossed intersection to seesaw - continue until next intersection");
+      //       mixer.setVelocity(f_Velocity_DriveSlow);
+      //       pose.dist = 0.0;
+      //       pose.turned = 0.0;
+      //       state = 3;
+      //     }
+      //   break;
       case 3:
+      // toLog(std::to_string(medge.width).c_str());
           if(medge.edgeValid && (medge.width > f_LineWidth_Crossing)/* && pose.dist > 0.2*/)
           {
             toLog("Reached Stairs Intersection");
             pose.dist = 0;
-            pose.turned = 0;
-            heading.setMaxTurnRate(3);
-            mixer.setEdgeMode(b_Line_HoldLeft, 0);
+            // pose.turned = 0;
+            // heading.setMaxTurnRate(1);
+            // mixer.setEdgeMode(b_Line_HoldLeft, 0.02);
             mixer.setVelocity(f_Velocity_DriveSlow);
             state = 4;
           }
         break;
       case 4:
-        if(pose.dist > 0.6){
+        if(pose.dist > 0.6 /*|| pose.turned > M_PI/2*0.95*/){
           toLog("Reached start of Stairs, put down servo");
           mixer.setVelocity( 0.0 );
-          mixer.setEdgeMode(b_Line_HoldLeft, 0);
+          // mixer.setEdgeMode(b_Line_HoldLeft, 0);
+          pose.resetPose();
           servo.setServo(2, 1, servoDown, servoSpeed);
           t.clear();
           state = 5;
@@ -173,7 +183,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         }
         break;
       case 5:
-        if(t.getTimePassed() > 2 || abs(servo.servo_position[1]- servoDown) <= 10){
+        if(t.getTimePassed() > 4 || abs(servo.servo_position[1]- servoDown) <= 10){
           toLog("Servo Is Down, drive forward");
           mixer.setVelocity(f_Velocity_DriveSlow);
           pose.dist = 0;
@@ -182,7 +192,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         break;
       case 6:
         // std::cout << abs(imu.acc[2]) << std::endl;
-        if(pose.dist > 0.3 || (imu.acc[2] > 0 && pose.dist > 0.1))
+        if(pose.dist > 0.4 || (imu.acc[2] > 0 && pose.dist > 0.1))
         { 
           toLog("Down Step");          
           steps++;
@@ -193,19 +203,21 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
             medge.updateCalibBlack(medge.calibWood,8);
             medge.updatewhiteThreshold(woodWhite);
           }
+
+          state = 60; 
           
-          if(medge.edgeValid && medge.width > 0.02){
-             if(steps < 5){
-              // still on staircase
-              state = 5;
-              }
-              else{
-              // down and on line
-              state = 8;
-            }           
-          }else{
-            state = 60; 
-          }
+          // if(medge.edgeValid && medge.width > 0.02){
+          //    if(steps < 5){
+          //     // still on staircase
+          //     state = 5;
+          //     }
+          //     else{
+          //     // down and on line
+          //     state = 8;
+          //   }           
+          // }else{
+            
+          // }
         }        
         break;
 
@@ -213,17 +225,19 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           pose.resetPose();
           mixer.setTurnrate(0);
           mixer.setVelocity(f_Velocity_DriveBack);
+          servo.setServo(2, 1, 0, 1000);
           state = 7;
           t.clear();
         
         break;
       
       case 7:
-        if(t.getTimePassed() > 1){
+        if(t.getTimePassed() > 3){
           toLog("Backed up against step");
           // mixer.setEdgeMode(b_Line_HoldLeft, 0);
           mixer.setVelocity(0.0);
           if(steps < 5){
+            servo.setServo(2, 1, servoDown, servoSpeed);
             state = 5;
           }
           else{
@@ -235,16 +249,20 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
       case 8:
         mixer.setVelocity(0);
         pose.dist = 0;
-        finished = true;
-        if(medge.edgeValid && medge.width > 0.02){
-          toLog("Down of staircase - ONLINE");
-          mixer.setEdgeMode(b_Line_HoldRight, 0.02); ////////// OFFSET
-        }else{
-          toLog("Down of staircase - OFFLINE");
-          pose.resetPose();
-        }
+        // finished = true;
+        toLog("Down of staircase");
+        servo.setServo(2, 1, -900, servoSpeed);
+        pose.resetPose();
 
-        mixer.setVelocity(0.1);
+        // if(medge.edgeValid && medge.width > 0.02){
+        //   toLog("Down of staircase - ONLINE");
+        //   mixer.setEdgeMode(b_Line_HoldRight, 0.02); ////////// OFFSET
+        // }else{
+        //   toLog("Down of staircase - OFFLINE");
+        //   pose.resetPose();
+        // }
+
+        mixer.setVelocity(f_Velocity_DriveSlow);
         state = 9;
         // if(medge.edgeValid)
         // {
@@ -261,25 +279,41 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
         break;
 
       case 9:
-        if(medge.edgeValid && medge.width > f_LineWidth_Crossing) || pose.dist > 0.7){
+        if(pose.dist > 0.55){
           pose.resetPose();
-          mixer.setDesiredHeading(-CV_PI/4);
+          heading.setMaxTurnRate(1);
+          mixer.setDesiredHeading(-M_PI/4);
           state = 10;
+          pose.dist = 0;
         }
         break;
 
       case 10:
-        if(medge.edgeValid && medge.width> 0.02){
+        if(medge.edgeValid && medge.width > 0.02 && pose.dist > 0.2){
+          mixer.setVelocity(0.07);
           pose.resetPose();
-          mixer.setVelocity(0);
-          mixer.setDesiredHeading(CV_PI/4);
+          medge.updateCalibBlack(medge.calibWood,8);
+          medge.updatewhiteThreshold(woodWhite);
           state = 11;
+          
         }
         break;
 
       case 11:
-        mixer.setEdgeMode(b_Line_HoldLeft,0);
-        mixer.setVelocity(0.1);
+        if(pose.dist > 0.05){
+          pose.resetPose();
+          mixer.setDesiredHeading(M_PI/4);
+          state = 12;
+        }
+        break;
+
+      case 12:
+        if(abs(pose.turned) > M_PI/4*0.8 ){
+          heading.setMaxTurnRate(3);
+          mixer.setEdgeMode(b_Line_HoldLeft,0);
+          mixer.setVelocity(f_Velocity_DriveSlow);
+        }
+        
         break;
       
       // case 10:      
