@@ -160,7 +160,7 @@ void BStairs::run(bool entryDirectionStart, bool exitDirectionStart)
           }
         break;
       case 4:
-        if(pose.dist > 0.6){
+        if(pose.dist > 0.65){
           toLog("Reached start of Stairs, put down servo");
           mixer.setVelocity( 0.0 );
           servo.setServo(2, 1, servoDown, servoSpeed);
