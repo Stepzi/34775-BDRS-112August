@@ -80,18 +80,19 @@ int main (int argc, char **argv)
     //mission0.run();
 
     // pik og patte
-    planCrossMission.run_StartToFirstCross();
-    planIRTEST.run(true,false);
-    axe.run();
-    planCrossMission.run_AxeToTunnel();
-    planGate.runOpen();
-    racetrack.run();
-    planCrossMission.run_RaceEndToTunnel();
-    planGate.runClose();
-    planCrossMission.run_TunnelToGoal();
-    planCrossMission.run_GoalToFirstCross();
-    seesaw.run_withGolf();
-    planCrossMission.seesawToGoal_END();
+    // planCrossMission.run_StartToFirstCross();
+    // planIRTEST.run(true,false);
+    // axe.run();
+    // planCrossMission.run_AxeToTunnel();
+    // planGate.runOpen();
+    // racetrack.run();
+    // planCrossMission.run_RaceEndToTunnel();
+    // planGate.runClose();
+    // planCrossMission.run_TunnelToGoal();
+    // planCrossMission.run_GoalToFirstCross();
+    // seesaw.run_withGolf();
+    stairs.run();
+    // planCrossMission.seesawToGoal_END();
 
     // //mission0.run();
 
