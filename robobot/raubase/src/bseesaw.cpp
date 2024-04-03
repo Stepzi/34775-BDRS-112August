@@ -524,6 +524,10 @@ void BSeesaw::run_withGolf()
   bool hasGFB = false;
   bool toFinish = true;
 
+
+  float turnedGolfballHoleHolder = 0;     // flaot for holding the end position of robot after golfball is in hole. 
+
+
   std::vector<int> center{0,0};
   
   toLog("seesaw started");
@@ -998,23 +1002,29 @@ void BSeesaw::run_withGolf()
           roi.push_back(cv::Point(500,520));  //point3
           roi.push_back(cv::Point(900,520));  //point4
           
+
           if(!golfball.findGolfball(center, roi, nullptr,0,10,100) &&
           !golfball.findGolfball(center, roi, nullptr,0,10,100) &&
           !golfball.findGolfball(center, roi, nullptr,0,10,100)){
             
+            turnedGolfballHoleHolder += pose.turned;
+
             toLog("Golfball gone");
             state = 30;
             // pose.resetPose();
             // mixer.setTurnrate(0);
             // mixer.setVelocity(0);
 
+
           }else if(pose.turned > CV_PI/8){
             
             toLog("Golfball still present, turning right");
             // pose.resetPose();
-            // mixer.setDesiredHeading(-CV_PI*0.9);
+            // mixer.setDesiredHeading(-CV_PI*0.9)
             mixer.setTurnrate(-0.30);
+            turnedGolfballHoleHolder += pose.turned;
             pose.turned = 0;
+            
             state = 21;
             // finished = true;
             
@@ -1039,6 +1049,9 @@ void BSeesaw::run_withGolf()
           !golfball.findGolfball(center, roi, nullptr,0,10,100) &&
           !golfball.findGolfball(center, roi, nullptr,0,10,100)){
             toLog("Golfball gone");
+
+            turnedGolfballHoleHolder += pose.turned;
+
             // pose.resetPose();
             // mixer.setVelocity(0);
             // mixer.setTurnrate(0);
@@ -1048,6 +1061,7 @@ void BSeesaw::run_withGolf()
             toLog("Golfball still present, turning right");
             mixer.setTurnrate(0.3);
             // mixer.setInModeTurnrate(0.5);
+            turnedGolfballHoleHolder += pose.turned;
             pose.turned = 0;
             state = 19;
           }
@@ -1070,6 +1084,7 @@ void BSeesaw::run_withGolf()
         
         break;
 
+
       case 31:
         pose.dist = 0;
         mixer.setVelocity(0.1);
@@ -1078,20 +1093,23 @@ void BSeesaw::run_withGolf()
         //mixer.setDesiredHeading(-CV_PI*0.9);
         state = 311;
         break;
+
+
       case 311:
         if(pose.dist > 0.10){
           pose.resetPose();
-          pose.turned = 0;
+          pose.turned = 0; // new turn stategy
           mixer.setVelocity(0);
           heading.setMaxTurnRate(1);
-          mixer.setDesiredHeading(-CV_PI*0.9);
+          // mixer.setDesiredHeading(-CV_PI*0.9); // version used in first heap
+          mixer.setDesiredHeading(-CV_PI*0.6-turnedGolfballHole);
           state = 312;
         }
 
       break;
 
       case 312:
-        if(abs(pose.turned) > abs((CV_PI*0.6))){
+        if(abs(pose.turned) > abs((-CV_PI*0.6-turnedGolfballHole)-0.03))/*abs(pose.turned) > abs((CV_PI*0.6))*/){
           mixer.setVelocity(0.07);
           mixer.setTurnrate(0);
           pose.resetPose();
